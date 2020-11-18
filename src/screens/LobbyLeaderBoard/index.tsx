@@ -26,69 +26,46 @@ import {
     ChatComponent
 } from './../../components';
 
-export interface ILobbyProps extends RouteComponentProps {
+export interface ILobbyLeaderBoardProps extends RouteComponentProps {
 }
 
-export interface ILobbyState {
-    playerStatus: Array<object>;
-    chats: Array<object>;
+export interface ILobbyLeaderBoardState {
+    leaderBoard: Array<object>;
 }
 
-export class Lobby extends React.Component<ILobbyProps, ILobbyState> {
-    constructor(props: ILobbyProps) {
+export class LobbyLeaderBoard extends React.Component<ILobbyLeaderBoardProps, ILobbyLeaderBoardState> {
+    constructor(props: ILobbyLeaderBoardProps) {
         super(props);
 
         this.state = {
-            playerStatus: [
+            leaderBoard: [
                 {
                     name: "Bobby",
-                    status: "Host"
+                    points: 12
                 },
                 {
                     name: "Alex",
-                    status: "Not Ready"
+                    points: 8
                 },
                 {
                     name: "Sam",
-                    status: "Not Ready"
+                    points: 7
                 },
                 {
                     name: "Sarah",
-                    status: "Ready"
+                    points: 7
                 },
                 {
                     name: "James",
-                    status: "Ready"
+                    points: 7
                 },
                 {
                     name: "Bill",
-                    status: "Not Ready"
+                    points: 3
                 },
                 {
                     name: "Kim",
-                    status: "Ready"
-                }
-            ],
-            chats: [
-                {
-                    name: "Alex",
-                    message: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut.",
-                    type: "RECEIVE"
-                },
-                {
-                    name: "Alex",
-                    message: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut.",
-                    type: "RECEIVE"
-                },
-                {
-                    name: "James",
-                    message: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut.",
-                    type: "SENT"
-                },
-                {
-                    name: "Alex",
-                    message: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut.",
-                    type: "RECEIVE"
+                    points: 1
                 }
             ]
         }
@@ -109,34 +86,41 @@ export class Lobby extends React.Component<ILobbyProps, ILobbyState> {
         return (
             <div className="lobby-container">
                 <HeaderComponent />
+                <div
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        margin: 10
+                    }}
+                >
+                <Typography
+                        style={{ fontSize: 25 }}
+                    >Round 3 Completed! Time Until Next Round: 23s</Typography>
+                    <Typography
+                        style={{ fontSize: 16 }}
+                    >Rounds Remaining: 3</Typography>
+                </div>
                 <Row className="lobby-row">
                     <Col>
                         <div className="lobby-site-card-border-less-wrapper">
                             <Card
                                 className="lobby-ready-card"
-                                title="Ready to play?"
+                                title="Leaderboard"
                                 bordered={true}
                                 style={{ width: 350, height: 550, paddingTop: 0, paddingBottom: 0 }}
                                 headStyle={{ ...styles.cardHeader }}
                             >
                                 <div style={{ height: 400, overflow: 'auto' }}>
-                                    {this.state.playerStatus.map((player: any, index: number) => {
+                                    {this.state.leaderBoard.map((player: any, index: number) => {
                                         return (
                                             <div className="player-status-card">
                                                 <span className="player-name">{player.name}</span>
-                                                <span className="player-status" style={{ color: player.status == "Host" ? Colors.PRIMARY : player.status == "Ready" ? Colors.LAWNGREEN : Colors.RED }}>{player.status}</span>
+                                                <span className="player-status" style={{ color: Colors.BLACK }}>{player.points}</span>
                                             </div>
                                         )
                                     })}
-                                </div>
-                                <div
-                                    className="login-submit-button-container"
-                                >
-                                    <Button
-                                        type="primary"
-                                        className="lobby-ready-buttom"
-                                    // onClick={this.login}
-                                    >Ready</Button>
                                 </div>
                             </Card>
                         </div>
@@ -162,4 +146,4 @@ const styles = {
     }
 }
 
-export default withRouter(Lobby);
+export default withRouter(LobbyLeaderBoard);
