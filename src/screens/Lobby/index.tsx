@@ -14,6 +14,10 @@ import {
     ArrowRightOutlined
 } from '@ant-design/icons';
 import {
+    RouteComponentProps,
+    withRouter
+} from 'react-router-dom';
+import {
     Colors
 } from './../../Colors';
 
@@ -22,7 +26,7 @@ import {
     ChatComponent
 } from './../../components';
 
-export interface ILobbyProps {
+export interface ILobbyProps extends RouteComponentProps {
 }
 
 export interface ILobbyState {
@@ -158,4 +162,4 @@ const styles = {
     }
 }
 
-export default Lobby;
+export default withRouter(Lobby);
