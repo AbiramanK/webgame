@@ -1,10 +1,15 @@
 import * as React from 'react';
 import './index.css'
-
+import {
+    withRouter,
+    RouteComponentProps
+} from 'react-router-dom';
 import {
     Card,
     Input,
-    Button
+    Button,
+    Row,
+    Col
 } from 'antd';
 import {
     Colors
@@ -14,7 +19,7 @@ import {
     HeaderComponent
 } from './../../components';
 
-export interface ILoginProps {
+export interface ILoginProps extends RouteComponentProps {
 }
 
 export interface ILoginState {
@@ -28,10 +33,15 @@ export class Login extends React.Component<ILoginProps, ILoginState> {
         }
     }
 
+    login = () => {
+        this.props.history.push('lobby');
+    }
+
     public render() {
         return (
             <div className="login-container">
                 <HeaderComponent />
+
                 <div className="site-card-border-less-wrapper">
                     <Card
                         className="birthmap-card"
@@ -57,6 +67,7 @@ export class Login extends React.Component<ILoginProps, ILoginState> {
                                 <Button
                                     type="primary"
                                     className="form-control-submit-buttom"
+                                    onClick={this.login}
                                 >Submit</Button>
                             </div>
                         </form>
@@ -79,4 +90,4 @@ const styles = {
     }
 }
 
-export default Login;
+export default withRouter(Login);

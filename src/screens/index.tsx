@@ -1,5 +1,7 @@
 import Login from './Login';
+import Lobby from './Lobby';
 
 export {
-    Login
+    Login,
+    Lobby
 }

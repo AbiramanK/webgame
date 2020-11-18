@@ -7,7 +7,8 @@ import {
 import 'antd/dist/antd.css';
 
 import {
-  Login
+  Login,
+  Lobby
 } from './screens';
 
 const App = () => {
@@ -17,6 +18,11 @@ const App = () => {
           <Route 
             path="/"
             component={Login}
+            exact
+          />
+          <Route 
+            path="/lobby"
+            component={Lobby}
             exact
           />
         </Switch>
