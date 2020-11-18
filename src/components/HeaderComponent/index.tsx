@@ -1,5 +1,10 @@
 import * as React from 'react';
-
+import './index.css';
+import {
+  PageHeader,
+  Button,
+  Descriptions
+} from 'antd';
 export interface IHeaderComponentProps {
 }
 
@@ -16,8 +21,16 @@ export default class HeaderComponent extends React.Component<IHeaderComponentPro
 
   public render() {
     return (
-      <div>
-        
+      <div className="site-page-header-ghost-wrapper">
+        <PageHeader
+          ghost={true }
+          // onBack={() => window.history.back()}
+          title="afino"
+          extra={[
+            <Button className="page-header-heading-instruction-button" type="text">Instructions</Button>
+          ]}
+        >
+        </PageHeader>
       </div>
     );
   }

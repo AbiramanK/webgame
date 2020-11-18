@@ -10,6 +10,10 @@ import {
     Colors
 } from './../../Colors';
 
+import {
+    HeaderComponent
+} from './../../components';
+
 export interface ILoginProps {
 }
 
@@ -26,35 +30,38 @@ export class Login extends React.Component<ILoginProps, ILoginState> {
 
     public render() {
         return (
-            <div className="site-card-border-less-wrapper">
-                <Card
-                    className="birthmap-card"
-                    title="Birthmap"
-                    bordered={true}
-                    style={{ width: 350, paddingTop: 0, paddingBottom: 0 }}
-                    headStyle={{ ...styles.cardHeader }}
-                >
-                    <form action="">
-                        <div className="form-control-input-container">
-                            <label className="form-control-input-label">Name</label>
-                            <Input />
-                        </div>
-                        <div
-                            className="form-control-input-container"
-                        >
-                            <label className="form-control-input-label">Email</label>
-                            <Input />
-                        </div>
-                        <div
-                            className="login-submit-button-container"
-                        >
-                            <Button
-                                type="primary"
-                                className="form-control-submit-buttom"
-                            >Submit</Button>
-                        </div>
-                    </form>
-                </Card>
+            <div className="login-container">
+                <HeaderComponent />
+                <div className="site-card-border-less-wrapper">
+                    <Card
+                        className="birthmap-card"
+                        title="Birthmap"
+                        bordered={true}
+                        style={{ width: 350, paddingTop: 0, paddingBottom: 0 }}
+                        headStyle={{ ...styles.cardHeader }}
+                    >
+                        <form action="">
+                            <div className="form-control-input-container">
+                                <label className="form-control-input-label">Name</label>
+                                <Input />
+                            </div>
+                            <div
+                                className="form-control-input-container"
+                            >
+                                <label className="form-control-input-label">Email</label>
+                                <Input />
+                            </div>
+                            <div
+                                className="login-submit-button-container"
+                            >
+                                <Button
+                                    type="primary"
+                                    className="form-control-submit-buttom"
+                                >Submit</Button>
+                            </div>
+                        </form>
+                    </Card>
+                </div>
             </div>
         );
     }
