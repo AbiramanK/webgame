@@ -1,6 +1,6 @@
 import * as React from 'react';
 import './index.css'
-
+import socketIOClient from 'socket.io-client';
 import {
     Card,
     Input,
@@ -15,22 +15,32 @@ import {
 } from '@ant-design/icons';
 import {
     RouteComponentProps,
-    withRouter
+    withRouter,
+    useLocation
 } from 'react-router-dom';
 import {
     Colors
 } from './../../Colors';
-
+import {
+    API_BASE
+} from './../../Configs';
 import {
     HeaderComponent,
     ChatComponent
 } from './../../components';
 
-export interface ILobbyProps extends RouteComponentProps {
+interface LocationState {
+    shortId: any,
+    email: any,
+    name: any
+}
+ 
+export interface ILobbyProps extends RouteComponentProps<{}, {}, LocationState> {
+
 }
 
 export interface ILobbyState {
-    playerStatus: Array<object>;
+    players: Array<object>;
     chats: Array<object>;
 }
 
@@ -39,36 +49,7 @@ export class Lobby extends React.Component<ILobbyProps, ILobbyState> {
         super(props);
 
         this.state = {
-            playerStatus: [
-                {
-                    name: "Bobby",
-                    status: "Host"
-                },
-                {
-                    name: "Alex",
-                    status: "Not Ready"
-                },
-                {
-                    name: "Sam",
-                    status: "Not Ready"
-                },
-                {
-                    name: "Sarah",
-                    status: "Ready"
-                },
-                {
-                    name: "James",
-                    status: "Ready"
-                },
-                {
-                    name: "Bill",
-                    status: "Not Ready"
-                },
-                {
-                    name: "Kim",
-                    status: "Ready"
-                }
-            ],
+            players: [],
             chats: [
                 {
                     name: "Alex",
@@ -94,6 +75,45 @@ export class Lobby extends React.Component<ILobbyProps, ILobbyState> {
         }
     }
 
+    componentDidMount = () => {
+        
+        let state = this.props.location.state;
+        const socket = socketIOClient(`${API_BASE}player`, {
+            path: '/webgame/socket.io/'
+        });
+        console.log("state route shortId", state.shortId)
+        socket.emit("join", {
+            short_id: state.shortId,
+            email: state.email,
+            name: state.name
+        })
+
+        socket.on('joinRes', (data: any) => {
+            console.log("response join", data)
+            // this.state.players.push(data.player);
+            // this.setState({
+            //     players: this.state.players
+            // })
+        })
+
+        socket.on('joinResAll', (data: any) => {
+            console.log("response join all", data)
+            this.setState({
+                players: data.players
+            })
+        })
+
+        // socket.emit("setState", {
+        //     short_id: shortId
+        // });
+
+        // socket.on("setStateRes", (data: any) => {
+        //     console.log("data", data)
+
+        // });
+    };
+    
+
     suffix = () => {
         return (
             <AudioOutlined
@@ -116,15 +136,15 @@ export class Lobby extends React.Component<ILobbyProps, ILobbyState> {
                                 className="lobby-ready-card"
                                 title="Ready to play?"
                                 bordered={true}
-                                style={{ width: 350, paddingTop: 0, paddingBottom: 0 }}
+                                style={{ width: 350, height: 550, paddingTop: 0, paddingBottom: 0 }}
                                 headStyle={{ ...styles.cardHeader }}
                             >
                                 <div style={{ height: 400, overflow: 'auto' }}>
-                                    {this.state.playerStatus.map((player: any, index: number) => {
+                                    {this.state.players.map((player: any, index: number) => {
                                         return (
                                             <div className="player-status-card">
                                                 <span className="player-name">{player.name}</span>
-                                                <span className="player-status" style={{ color: player.status == "Host" ? Colors.PRIMARY : player.status == "Ready" ? Colors.LAWNGREEN : Colors.RED }}>{player.status}</span>
+                                        <span className="player-status" style={{ color: player.isHost ? Colors.PRIMARY : player.state == "READY" ? Colors.LAWNGREEN : Colors.RED }}>{player.isHost ? 'HOST': player.state}</span>
                                             </div>
                                         )
                                     })}

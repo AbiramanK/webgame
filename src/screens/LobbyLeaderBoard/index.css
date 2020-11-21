@@ -1,0 +1,69 @@
+.lobby-container {
+    height: 100%;
+    background-color: #f5f5f5;
+}
+.lobby-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.lobby-site-card-border-less-wrapper {
+    padding: 30px;
+    background: #f5f5f5;
+    height: 90%;
+    width: 100%;
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    align-items: center;
+}
+.lobby-ready-card {
+    height: 100%;
+    border-radius: 10px;
+}
+.chat-card {
+    height: 100%;
+    border-radius: 10px;
+}
+.player-status-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom-style: solid;
+    border-bottom-width: 0.6px;
+    border-bottom-color: #D3D3D3;
+    padding-block: 10px;
+}
+.player-name {
+    font-size: 16px;
+}
+.player-status {
+    font-size: 16px;
+    text-align: left;
+}
+.lobby-ready-buttom {
+    /* margin-top: 15px; */
+    background-color: #440088;
+    border-radius: 5px;
+    color: #FFFFFF;
+    border-style: none;
+}
+.lobby-chat-message-card-container {
+    margin-block: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: left;
+}
+#lobby-chat-message-card .ant-card-body {
+    padding: 14px;
+    border-style: none;
+    border-width: 0px;
+}
+.lobby-player-name-text {
+    width: 80%;
+}
+.chact-text-input-box {
+    height: 50px;
+    border-radius: 5px;
+}

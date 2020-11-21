@@ -8,7 +8,8 @@ import 'antd/dist/antd.css';
 
 import {
   Login,
-  Lobby
+  Lobby,
+  LobbyLeaderBoard
 } from './screens';
 
 const App = () => {
@@ -23,6 +24,11 @@ const App = () => {
           <Route 
             path="/lobby"
             component={Lobby}
+            exact
+          />
+          <Route 
+            path="/lobby-leader-board"
+            component={LobbyLeaderBoard}
             exact
           />
         </Switch>
