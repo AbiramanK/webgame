@@ -71,7 +71,7 @@ export class Lobby extends React.Component<ILobbyProps, ILobbyState> {
     public render() {
         return (
             <div className="lobby-container">
-                <HeaderComponent />
+                <HeaderComponent short_id={ this.props.location.state.data.game.short_id }/>
                 <Row className="lobby-row">
                     <Col>
                         <div className="lobby-site-card-border-less-wrapper">

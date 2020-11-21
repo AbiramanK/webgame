@@ -82,7 +82,7 @@ export class LobbyLeaderBoard extends React.Component<ILobbyLeaderBoardProps, IL
     public render() {
         return (
             <div className="lobby-container">
-                <HeaderComponent />
+                <HeaderComponent short_id={ '' }/>
                 <div
                     style={{
                         display: 'flex',

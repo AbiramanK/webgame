@@ -89,7 +89,7 @@ export class Login extends React.Component<ILoginProps, ILoginState> {
     public render() {
         return (
             <div className="login-container">
-                <HeaderComponent />
+                <HeaderComponent short_id={ '' }/>
 
                 <div className="site-card-border-less-wrapper">
                     <Card
