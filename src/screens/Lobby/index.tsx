@@ -16,30 +16,37 @@ export interface ILobbyProps extends RouteComponentProps<{}, {}, LocationState> 
 }
 
 export interface ILobbyState {
-    players: Array<object>;
+    player: any,
+    players: Array<object>
 } 
 
 export class Lobby extends React.Component<ILobbyProps, ILobbyState> {
     constructor(props: ILobbyProps) {
         super(props);
 
-        this.state = { players: [] }
+        this.state = { 
+            player: this.props.location.state.data.player,
+            players: this.props.location.state.data.game.players
+        }
     }
 
-    componentDidMount = () => {
-        this.setState({ players: this.props.location.state.data.game.players })
-        
+    componentDidMount = () => {        
         playerIO.on('joinResAll', (data: any) => {
             console.log('Lobby_componentDidMount_joinResAll', data)
-            if(!data.error) this.setState({ players: data.players })
+            if(!data.error) this.setState({ ...this.state, players: data.players })
         })
 
         playerIO.on('setStateRes', (data: any) => {
-            if(!data.error) this.setState({ players: data.players })
+            console.log('Lobby_componentDidMount_setStateRes', data)
+            if(!data.error) this.setState({ 
+                players: data.players, 
+                player: data.players.find((player: any) => player.email === this.state.player.email) 
+            })
         })
 
         playerIO.on('setStateResAll', (data: any) => {
-            if(!data.error) this.setState({ players: data.players })
+            console.log('Lobby_componentDidMount_setStateResAll', data)
+            if(!data.error) this.setState({ ...this.state, players: data.players })
         })
     };
     
@@ -55,10 +62,10 @@ export class Lobby extends React.Component<ILobbyProps, ILobbyState> {
         )
     }
 
-    handleReady = () => {
+    handleReadyState = (state: any) => {
         const game = this.props.location.state.data.game
-        const player = this.props.location.state.data.player
-        playerIO.emit('setState', { short_id: game.short_id, email: player.email, state: 'READY' })
+        const player = this.state.player
+        playerIO.emit('setState', { short_id: game.short_id, email: player.email, state })
     }
 
     public render() {
@@ -99,8 +106,8 @@ export class Lobby extends React.Component<ILobbyProps, ILobbyState> {
                                     <Button
                                         type="primary"
                                         className="lobby-ready-buttom"
-                                        onClick={ this.handleReady }
-                                    >Ready</Button>
+                                        onClick={ () => this.handleReadyState(this.state.player.state === 'READY' ? 'NOT-READY' : 'READY') }
+                                    >{ this.state.player.state === 'READY' ? 'NOT-READY' : 'READY' }</Button>
                                 </div>
                             </Card>
                         </div>
