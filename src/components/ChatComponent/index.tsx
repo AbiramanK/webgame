@@ -1,17 +1,11 @@
 import * as React from 'react';
-import {
-    Card,
-    Input,
-    Typography
-} from 'antd';
-import {
-    ArrowRightOutlined
-} from '@ant-design/icons';
-import {
-    Colors
-} from './../../Colors';
+import { Card, Input, Typography } from 'antd';
+import { ArrowRightOutlined } from '@ant-design/icons';
+import { Colors } from './../../Colors';
+import { chatIO } from '../../SocketIO'
 
 export interface IChatComponentProps {
+    data: any
 }
 
 export interface IChatComponentState {
@@ -24,28 +18,43 @@ export class ChatComponent extends React.Component<IChatComponentProps, IChatCom
 
         this.state = {
             chats: [
-                {
-                    name: "Alex",
-                    message: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut.",
-                    type: "RECEIVE"
-                },
-                {
-                    name: "Alex",
-                    message: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut.",
-                    type: "RECEIVE"
-                },
-                {
-                    name: "James",
-                    message: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut.",
-                    type: "SENT"
-                },
-                {
-                    name: "Alex",
-                    message: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut.",
-                    type: "RECEIVE"
-                }
             ]
         }
+    }
+
+    componentDidMount = () => {
+        chatIO.on('joinRes', (data: any) => {
+            this.setState({ 
+                chats: data.chats.map((chat: any) => { 
+                    chat = { ...chat, type: this.props.data.player.email === chat.email ? 'SEND' : 'RECEIVE' }
+                    return chat
+                })
+            })
+        })
+
+        chatIO.on('messageRes', (data: any) => {
+            if(data.email !== this.props.data.player.email) data.type = 'RECEIVE'
+            this.setState({ chats: [ ...this.state.chats, data ] })
+        })
+
+        chatIO.on('messageResAll', (data: any) => {
+            if(data.email !== this.props.data.player.email) data.type = 'RECEIVE'
+            this.setState({ chats: [ ...this.state.chats, data ] })
+        })
+
+        chatIO.emit('join', { short_id: this.props.data.game.short_id })
+    }
+
+    handleSubmit = (e: any) => {
+        e.preventDefault()
+        const game = this.props.data.game 
+        const player = this.props.data.player
+        chatIO.emit('message', {
+            short_id: game.short_id,
+            name: player.name,
+            email: player.email,
+            message: Object.fromEntries(new FormData(e.target)).message
+        })
     }
 
     public render() {
@@ -78,17 +87,15 @@ export class ChatComponent extends React.Component<IChatComponentProps, IChatCom
                             })
                         }
                     </div>
-                    <Input
-                        className="chact-text-input-box"
-                        placeholder="Write a reply..."
-                        size="large"
-                        suffix={<ArrowRightOutlined
-                            style={{
-                                fontSize: 16,
-                                color: '#1890ff',
-                            }}
-                        />}
-                    />
+                    <form onSubmit={ this.handleSubmit }>
+                        <Input
+                            className="chact-text-input-box"
+                            placeholder="Write a reply..."
+                            name="message"
+                            size="large"
+                            suffix={ <ArrowRightOutlined style={{ fontSize: 16, color: '#1890ff' }}/> }
+                        />
+                    </form>
                 </Card>
             </div>
         );

@@ -123,7 +123,7 @@ export class LobbyLeaderBoard extends React.Component<ILobbyLeaderBoardProps, IL
                         </div>
                     </Col>
                     <Col>
-                        <ChatComponent />
+                        <ChatComponent data={ undefined }/>
                     </Col>
                 </Row>
             </div>

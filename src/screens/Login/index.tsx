@@ -1,23 +1,9 @@
 import * as React from 'react';
 import './index.css'
-import {
-    withRouter,
-    RouteComponentProps
-} from 'react-router-dom';
-import {
-    Card,
-    Input,
-    Button,
-    Modal,
-} from 'antd';
-import {
-    Colors
-} from './../../Colors';
-
-import {
-    HeaderComponent
-} from './../../components';
-
+import { withRouter, RouteComponentProps } from 'react-router-dom';
+import { Card, Input, Button, Modal } from 'antd';
+import { Colors } from './../../Colors';
+import { HeaderComponent } from './../../components';
 import { playerIO } from '../../SocketIO'
 
 export interface ILoginProps extends RouteComponentProps {
@@ -63,9 +49,7 @@ export class Login extends React.Component<ILoginProps, ILoginState> {
         playerIO.on("joinRes", (data: any) => {
             console.log("Login_login_joinRes", data)
 
-            if(!data.error) {
-                this.props.history.push('/lobby', data)
-            }
+            if(!data.error) this.props.history.push('/lobby', { data })
         })
     }
 

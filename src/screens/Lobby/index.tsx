@@ -1,30 +1,13 @@
 import * as React from 'react';
 import './index.css'
-import {
-    Card,
-    Button,
-    Row,
-    Col,
-} from 'antd';
-import {
-    AudioOutlined,
-} from '@ant-design/icons';
-import {
-    RouteComponentProps,
-    withRouter,
-} from 'react-router-dom';
-import {
-    Colors
-} from './../../Colors';
-import {
-    HeaderComponent,
-    ChatComponent
-} from './../../components';
+import { Card, Button, Row, Col } from 'antd';
+import { AudioOutlined } from '@ant-design/icons';
+import { RouteComponentProps, withRouter } from 'react-router-dom';
+import { Colors } from './../../Colors';
+import { HeaderComponent, ChatComponent } from './../../components';
+import { playerIO } from '../../SocketIO'
 
 interface LocationState {
-    playerIO: any,
-    chatIO: any,
-    gameIO: any,
     data: any
 }
  
@@ -34,62 +17,30 @@ export interface ILobbyProps extends RouteComponentProps<{}, {}, LocationState> 
 
 export interface ILobbyState {
     players: Array<object>;
-    chats: Array<object>;
 } 
 
 export class Lobby extends React.Component<ILobbyProps, ILobbyState> {
     constructor(props: ILobbyProps) {
         super(props);
 
-        this.state = {
-            players: [],
-            chats: [
-                {
-                    name: "Alex",
-                    message: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut.",
-                    type: "RECEIVE"
-                },
-                {
-                    name: "Alex",
-                    message: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut.",
-                    type: "RECEIVE"
-                },
-                {
-                    name: "James",
-                    message: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut.",
-                    type: "SENT"
-                },
-                {
-                    name: "Alex",
-                    message: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut.",
-                    type: "RECEIVE"
-                }
-            ]
-        }
+        this.state = { players: [] }
     }
 
     componentDidMount = () => {
-
-        console.log(this.props.location)
+        this.setState({ players: this.props.location.state.data.game.players })
         
-        //let state = this.props.location.state;
-        
-        /*
-        socket.on('joinResAll', (data: any) => {
-            console.log("response join all", data)
-            this.setState({
-                players: data.players
-            })
+        playerIO.on('joinResAll', (data: any) => {
+            console.log('Lobby_componentDidMount_joinResAll', data)
+            if(!data.error) this.setState({ players: data.players })
         })
-        */
-        // socket.emit("setState", {
-        //     short_id: shortId
-        // });
 
-        // socket.on("setStateRes", (data: any) => {
-        //     console.log("data", data)
+        playerIO.on('setStateRes', (data: any) => {
+            if(!data.error) this.setState({ players: data.players })
+        })
 
-        // });
+        playerIO.on('setStateResAll', (data: any) => {
+            if(!data.error) this.setState({ players: data.players })
+        })
     };
     
 
@@ -102,6 +53,12 @@ export class Lobby extends React.Component<ILobbyProps, ILobbyState> {
                 }}
             />
         )
+    }
+
+    handleReady = () => {
+        const game = this.props.location.state.data.game
+        const player = this.props.location.state.data.player
+        playerIO.emit('setState', { short_id: game.short_id, email: player.email, state: 'READY' })
     }
 
     public render() {
@@ -123,29 +80,33 @@ export class Lobby extends React.Component<ILobbyProps, ILobbyState> {
                                         this.state.players.map((player: any, index: any) => {
                                             return (
                                                 <div className="player-status-card" key={ index }>
-                                                    <span className="player-name">{player.name}</span>
+                                                    <div>
+                                                        <span className="player-name" style={{ marginRight: 10 }}>{player.name}</span>
+                                                        {
+                                                            player.isHost &&
+                                                            <span className="player-status" style={{ color: Colors.PRIMARY }}>HOST</span>
+                                                        }
+                                                    </div>
                                                     <span className="player-status" 
-                                                        style={{ color: player.isHost ? Colors.PRIMARY : player.state === "READY" ? Colors.LAWNGREEN : Colors.RED }}
-                                                    >{player.isHost ? 'HOST': player.state}</span>
+                                                        style={{ color: player.state === "READY" ? Colors.LAWNGREEN : Colors.RED }}
+                                                    >{player.state}</span>
                                                 </div>
                                             )
                                         })
                                     }
                                 </div>
-                                <div
-                                    className="login-submit-button-container"
-                                >
+                                <div className="login-submit-button-container">
                                     <Button
                                         type="primary"
                                         className="lobby-ready-buttom"
-                                    // onClick={this.login}
+                                        onClick={ this.handleReady }
                                     >Ready</Button>
                                 </div>
                             </Card>
                         </div>
                     </Col>
                     <Col>
-                        <ChatComponent/>
+                        <ChatComponent data={ this.props.location.state.data }/>
                     </Col>
                 </Row>
             </div>
