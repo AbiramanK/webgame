@@ -8,8 +8,7 @@ import {
     Card,
     Input,
     Button,
-    Row,
-    Col
+    Radio
 } from 'antd';
 import {
     Colors
@@ -23,6 +22,7 @@ export interface ILoginProps extends RouteComponentProps {
 }
 
 export interface ILoginState {
+    isHost: Boolean
 }
 
 export class Login extends React.Component<ILoginProps, ILoginState> {
@@ -30,11 +30,22 @@ export class Login extends React.Component<ILoginProps, ILoginState> {
         super(props);
 
         this.state = {
+            isHost: true
         }
     }
 
     login = () => {
         this.props.history.push('lobby');
+    }
+
+    handleRoleUpdate = (e: any) => {
+        this.setState({ isHost: e.target.value })
+    }
+
+    handleSubmit = (e: any) => {
+        e.preventDefault()
+        const formData = Object.fromEntries(new FormData(e.target))
+        console.log(formData)
     }
 
     public render() {
@@ -50,24 +61,44 @@ export class Login extends React.Component<ILoginProps, ILoginState> {
                         style={{ width: 350, paddingTop: 0, paddingBottom: 0 }}
                         headStyle={{ ...styles.cardHeader }}
                     >
-                        <form action="">
+                        <form onSubmit={ this.handleSubmit }>
+                            <div 
+                                className="form-control-input-container"
+                                style={{ marginBottom: 10 }}
+                            >
+                                <label 
+                                    className="form-control-input-label" 
+                                    style={{ marginRight: 20 }}
+                                >Role</label>
+                                <Radio.Group 
+                                    value={ this.state.isHost } 
+                                    onChange={ this.handleRoleUpdate }
+                                >
+                                    <Radio value={ true }>Host</Radio>
+                                    <Radio value={ false }>Invited</Radio>
+                                </Radio.Group>
+                            </div>
+                            {   
+                                this.state.isHost 
+                                ? <></> 
+                                : <div className="form-control-input-container">
+                                    <label className="form-control-input-label">Game ID</label>
+                                    <Input name="game_short_id"/>
+                                </div>
+                            }
                             <div className="form-control-input-container">
                                 <label className="form-control-input-label">Name</label>
-                                <Input />
+                                <Input name="name"/>
                             </div>
-                            <div
-                                className="form-control-input-container"
-                            >
+                            <div className="form-control-input-container">
                                 <label className="form-control-input-label">Email</label>
-                                <Input />
+                                <Input name="email"/>
                             </div>
-                            <div
-                                className="login-submit-button-container"
-                            >
+                            <div className="login-submit-button-container">
                                 <Button
                                     type="primary"
+                                    htmlType="submit"
                                     className="form-control-submit-buttom"
-                                    onClick={this.login}
                                 >Submit</Button>
                             </div>
                         </form>
