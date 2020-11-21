@@ -59,18 +59,24 @@ export class ChatComponent extends React.Component<IChatComponentProps, IChatCom
                     headStyle={{ ...styles.cardHeader, fontSize: 21, padding: 0 }}
                 >
                     <div style={{ height: 400, overflow: 'auto' }}>
-                        {this.state.chats.map((chat: any, index: number) => {
-                            return (
-                                <div className="lobby-chat-message-card-container" style={{ alignItems: chat.type == "RECEIVE" ? "flex-start" : "flex-end" }}>
-                                    <Typography className="lobby-player-name-text">{chat.name}</Typography>
-                                    <Card id="lobby-chat-message-card" className="lobby-chat-message-card" style={{ width: 250, borderRadius: 10, backgroundColor: chat.type == "RECEIVE" ? "#D3D3D3" : Colors.PRIMARY }}>
-                                        <Typography
-                                            style={{ color: chat.type == "RECEIVE" ? Colors.BLACK : Colors.WHITE }}
-                                        >{chat.message}</Typography>
-                                    </Card>
-                                </div>
-                            )
-                        })}
+                        {
+                            this.state.chats.map((chat: any, index: number) => {
+                                return (
+                                    <div className="lobby-chat-message-card-container" 
+                                        style={{ alignItems: chat.type === "RECEIVE" ? "flex-start" : "flex-end" }}
+                                        key={ index }
+                                    >
+                                        <Typography className="lobby-player-name-text">{chat.name}</Typography>
+                                        <Card id="lobby-chat-message-card" 
+                                            className="lobby-chat-message-card" 
+                                            style={{ width: 250, borderRadius: 10, backgroundColor: chat.type === "RECEIVE" ? "#D3D3D3" : Colors.PRIMARY }}
+                                        >
+                                            <Typography style={{ color: chat.type === "RECEIVE" ? Colors.BLACK : Colors.WHITE }}>{chat.message}</Typography>
+                                        </Card>
+                                    </div>
+                                )
+                            })
+                        }
                     </div>
                     <Input
                         className="chact-text-input-box"

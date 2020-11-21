@@ -16,11 +16,9 @@ const App = () => {
   return (
     <Router>
       <Switch>
-          <Route 
-            path="/"
-            component={Login}
-            exact
-          />
+          <Route path="/" exact>
+            <Login/>
+          </Route>
           <Route 
             path="/lobby"
             component={Lobby}

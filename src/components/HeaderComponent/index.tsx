@@ -3,7 +3,6 @@ import './index.css';
 import {
   PageHeader,
   Button,
-  Descriptions
 } from 'antd';
 export interface IHeaderComponentProps {
 }
@@ -27,7 +26,7 @@ export default class HeaderComponent extends React.Component<IHeaderComponentPro
           // onBack={() => window.history.back()}
           title="afino"
           extra={[
-            <Button className="page-header-heading-instruction-button" type="text">Instructions</Button>
+            <Button className="page-header-heading-instruction-button" type="text" key="instruction">Instructions</Button>
           ]}
         >
         </PageHeader>

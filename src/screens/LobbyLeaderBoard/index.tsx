@@ -3,15 +3,12 @@ import './index.css'
 
 import {
     Card,
-    Input,
-    Button,
     Row,
     Col,
     Typography
 } from 'antd';
 import {
     AudioOutlined,
-    ArrowRightOutlined
 } from '@ant-design/icons';
 import {
     RouteComponentProps,

@@ -1,48 +1,41 @@
 import * as React from 'react';
 import './index.css'
-import socketIOClient from 'socket.io-client';
 import {
     Card,
-    Input,
     Button,
     Row,
     Col,
-    Typography
 } from 'antd';
 import {
     AudioOutlined,
-    ArrowRightOutlined
 } from '@ant-design/icons';
 import {
     RouteComponentProps,
     withRouter,
-    useLocation
 } from 'react-router-dom';
 import {
     Colors
 } from './../../Colors';
-import {
-    API_BASE
-} from './../../Configs';
 import {
     HeaderComponent,
     ChatComponent
 } from './../../components';
 
 interface LocationState {
-    shortId: any,
-    email: any,
-    name: any
+    playerIO: any,
+    chatIO: any,
+    gameIO: any,
+    data: any
 }
  
 export interface ILobbyProps extends RouteComponentProps<{}, {}, LocationState> {
-
+   
 }
 
 export interface ILobbyState {
     players: Array<object>;
     chats: Array<object>;
-}
+} 
 
 export class Lobby extends React.Component<ILobbyProps, ILobbyState> {
     constructor(props: ILobbyProps) {
@@ -76,33 +69,19 @@ export class Lobby extends React.Component<ILobbyProps, ILobbyState> {
     }
 
     componentDidMount = () => {
+
+        console.log(this.props.location)
         
-        let state = this.props.location.state;
-        const socket = socketIOClient(`${API_BASE}player`, {
-            path: '/webgame/socket.io/'
-        });
-        console.log("state route shortId", state.shortId)
-        socket.emit("join", {
-            short_id: state.shortId,
-            email: state.email,
-            name: state.name
-        })
-
-        socket.on('joinRes', (data: any) => {
-            console.log("response join", data)
-            // this.state.players.push(data.player);
-            // this.setState({
-            //     players: this.state.players
-            // })
-        })
-
+        //let state = this.props.location.state;
+        
+        /*
         socket.on('joinResAll', (data: any) => {
             console.log("response join all", data)
             this.setState({
                 players: data.players
             })
         })
-
+        */
         // socket.emit("setState", {
         //     short_id: shortId
         // });
@@ -140,14 +119,18 @@ export class Lobby extends React.Component<ILobbyProps, ILobbyState> {
                                 headStyle={{ ...styles.cardHeader }}
                             >
                                 <div style={{ height: 400, overflow: 'auto' }}>
-                                    {this.state.players.map((player: any, index: number) => {
-                                        return (
-                                            <div className="player-status-card">
-                                                <span className="player-name">{player.name}</span>
-                                        <span className="player-status" style={{ color: player.isHost ? Colors.PRIMARY : player.state == "READY" ? Colors.LAWNGREEN : Colors.RED }}>{player.isHost ? 'HOST': player.state}</span>
-                                            </div>
-                                        )
-                                    })}
+                                    {
+                                        this.state.players.map((player: any, index: any) => {
+                                            return (
+                                                <div className="player-status-card" key={ index }>
+                                                    <span className="player-name">{player.name}</span>
+                                                    <span className="player-status" 
+                                                        style={{ color: player.isHost ? Colors.PRIMARY : player.state === "READY" ? Colors.LAWNGREEN : Colors.RED }}
+                                                    >{player.isHost ? 'HOST': player.state}</span>
+                                                </div>
+                                            )
+                                        })
+                                    }
                                 </div>
                                 <div
                                     className="login-submit-button-container"
@@ -162,7 +145,7 @@ export class Lobby extends React.Component<ILobbyProps, ILobbyState> {
                         </div>
                     </Col>
                     <Col>
-                        <ChatComponent />
+                        <ChatComponent/>
                     </Col>
                 </Row>
             </div>

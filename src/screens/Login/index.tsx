@@ -9,9 +9,7 @@ import {
     Input,
     Button,
     Modal,
-    Radio
 } from 'antd';
-import socketIOClient from "socket.io-client";
 import {
     Colors
 } from './../../Colors';
@@ -20,9 +18,7 @@ import {
     HeaderComponent
 } from './../../components';
 
-import {
-    API_BASE
-} from './../../Configs';
+import { playerIO } from '../../SocketIO'
 
 export interface ILoginProps extends RouteComponentProps {
 }
@@ -52,7 +48,25 @@ export class Login extends React.Component<ILoginProps, ILoginState> {
     }
 
     componentDidMount() {
+        playerIO.on("hostRes", (data: any) => {
+            console.log("Login_login_hostRes", data)
 
+            if(!data.error) {
+                playerIO.emit("join", {
+                    short_id: data.short_id,
+                    email: data.email,
+                    name: data.name
+                })
+            } 
+        });
+
+        playerIO.on("joinRes", (data: any) => {
+            console.log("Login_login_joinRes", data)
+
+            if(!data.error) {
+                this.props.history.push('/lobby', data)
+            }
+        })
     }
 
     handleChange(evt: any) {
@@ -62,52 +76,17 @@ export class Login extends React.Component<ILoginProps, ILoginState> {
         });
     }
 
-    login = () => {
-
-        const socket = socketIOClient(`${API_BASE}player`, {
-            path: '/webgame/socket.io/'
-        });
-
-        socket.emit("host", {
-            name: "Abiraman K",
-            email: "abiramancit@gmail.com"
-        });
-
-        socket.on("hostRes", (data: any) => {
-            console.log("data", data)
-            // socket.emit("join", {
-            //     short_id: data.short_id,
-            //     email: data.email,
-            //     name: data.name
-            // })
-            setTimeout(() => {
-                this.props.history.push('lobby', {
-                    shortId: data.short_id,
-                    email: data.email,
-                    name: data.name
-                });
-            }, 2000);
-        });
-
-        socket.on("joinRes", (data: any) => {
-            console.log("join response", data)
-        })
+    login = (e: any) => {
+        e.preventDefault()
+        const formData = Object.fromEntries(new FormData(e.target))
+        playerIO.emit("host", formData)
     }
 
     join = () => {
-        socketIOClient(`${API_BASE}player`, {
-            path: '/webgame/socket.io/'
-        });
-        console.log("join shortId", this.state.shortId)
-        // socket.emit("join", {
-        //     short_id: this.state.shortId,
-        //     name: this.state.name,
-        //     email: this.state.email
-        // });
-        this.props.history.push('lobby', {
-            shortId: this.state.shortId,
-            email: this.state.email,
-            name: this.state.name
+        playerIO.emit("join", {
+            short_id: this.state.shortId,
+            name: this.state.name,
+            email: this.state.email
         });
     }
 
@@ -123,16 +102,6 @@ export class Login extends React.Component<ILoginProps, ILoginState> {
         })
     }
 
-    handleRoleUpdate = (e: any) => {
-        this.setState({ isHost: e.target.value })
-    }
-
-    handleSubmit = (e: any) => {
-        e.preventDefault()
-        const formData = Object.fromEntries(new FormData(e.target))
-        console.log(formData)
-    }
-
     public render() {
         return (
             <div className="login-container">
@@ -146,31 +115,7 @@ export class Login extends React.Component<ILoginProps, ILoginState> {
                         style={{ width: 350, paddingTop: 0, paddingBottom: 0 }}
                         headStyle={{ ...styles.cardHeader }}
                     >
-                        <form onSubmit={ this.handleSubmit }>
-                            <div 
-                                className="form-control-input-container"
-                                style={{ marginBottom: 10 }}
-                            >
-                                <label 
-                                    className="form-control-input-label" 
-                                    style={{ marginRight: 20 }}
-                                >Role</label>
-                                <Radio.Group 
-                                    value={ this.state.isHost } 
-                                    onChange={ this.handleRoleUpdate }
-                                >
-                                    <Radio value={ true }>Host</Radio>
-                                    <Radio value={ false }>Invited</Radio>
-                                </Radio.Group>
-                            </div>
-                            {   
-                                this.state.isHost 
-                                ? <></> 
-                                : <div className="form-control-input-container">
-                                    <label className="form-control-input-label">Game ID</label>
-                                    <Input name="game_short_id"/>
-                                </div>
-                            }
+                        <form onSubmit={ this.login }>
                             <div className="form-control-input-container">
                                 <label className="form-control-input-label">Name</label>
                                 <Input name="name"/>
