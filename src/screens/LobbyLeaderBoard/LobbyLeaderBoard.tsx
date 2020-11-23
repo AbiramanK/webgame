@@ -1,30 +1,13 @@
 import * as React from 'react';
-import './index.css'
+import { Card, Row, Col, Typography } from 'antd';
+import { AudioOutlined } from '@ant-design/icons';
+import { RouteComponentProps, withRouter} from 'react-router-dom';
 
-import {
-    Card,
-    Row,
-    Col,
-    Typography
-} from 'antd';
-import {
-    AudioOutlined,
-} from '@ant-design/icons';
-import {
-    RouteComponentProps,
-    withRouter
-} from 'react-router-dom';
-import {
-    Colors
-} from './../../Colors';
+import { Colors} from '../../Colors';
+import { Header, Chat } from '../../components';
+import moduleStyles from './LobbyLeaderBoard.module.css'
 
-import {
-    HeaderComponent,
-    ChatComponent
-} from './../../components';
-
-export interface ILobbyLeaderBoardProps extends RouteComponentProps {
-}
+export interface ILobbyLeaderBoardProps extends RouteComponentProps {}
 
 export interface ILobbyLeaderBoardState {
     leaderBoard: Array<object>;
@@ -68,21 +51,12 @@ export class LobbyLeaderBoard extends React.Component<ILobbyLeaderBoardProps, IL
         }
     }
 
-    suffix = () => {
-        return (
-            <AudioOutlined
-                style={{
-                    fontSize: 16,
-                    color: '#1890ff',
-                }}
-            />
-        )
-    }
+    suffix = () => (<AudioOutlined style={{ fontSize: 16, color: '#1890ff' }}/>)
 
     public render() {
         return (
-            <div className="lobby-container">
-                <HeaderComponent short_id={ '' }/>
+            <div className={ moduleStyles['lobby-container'] }>
+                <Header/>
                 <div
                     style={{
                         display: 'flex',
@@ -92,18 +66,14 @@ export class LobbyLeaderBoard extends React.Component<ILobbyLeaderBoardProps, IL
                         margin: 10
                     }}
                 >
-                <Typography
-                        style={{ fontSize: 25 }}
-                    >Round 3 Completed! Time Until Next Round: 23s</Typography>
-                    <Typography
-                        style={{ fontSize: 16 }}
-                    >Rounds Remaining: 3</Typography>
+                <Typography style={{ fontSize: 25 }}>Round 3 Completed! Time Until Next Round: 23s</Typography>
+                    <Typography style={{ fontSize: 16 }}>Rounds Remaining: 3</Typography>
                 </div>
-                <Row className="lobby-row">
+                <Row className={ moduleStyles['lobby-row'] }>
                     <Col>
-                        <div className="lobby-site-card-border-less-wrapper">
+                        <div className={ moduleStyles['lobby-site-card-border-less-wrapper'] }>
                             <Card
-                                className="lobby-ready-card"
+                                className={ moduleStyles['lobby-ready-card'] }
                                 title="Leaderboard"
                                 bordered={true}
                                 style={{ width: 350, height: 550, paddingTop: 0, paddingBottom: 0 }}
@@ -112,9 +82,14 @@ export class LobbyLeaderBoard extends React.Component<ILobbyLeaderBoardProps, IL
                                 <div style={{ height: 400, overflow: 'auto' }}>
                                     {this.state.leaderBoard.map((player: any, index: number) => {
                                         return (
-                                            <div className="player-status-card">
-                                                <span className="player-name">{player.name}</span>
-                                                <span className="player-status" style={{ color: Colors.BLACK }}>{player.points}</span>
+                                            <div className={ moduleStyles['player-status-card'] }>
+                                                <span className={ moduleStyles['player-name'] }>{ player.name }</span>
+                                                <span 
+                                                    className={ moduleStyles['player-status'] } 
+                                                    style={{ color: Colors.BLACK }}
+                                                >
+                                                    { player.points }
+                                                </span>
                                             </div>
                                         )
                                     })}
@@ -123,7 +98,7 @@ export class LobbyLeaderBoard extends React.Component<ILobbyLeaderBoardProps, IL
                         </div>
                     </Col>
                     <Col>
-                        <ChatComponent data={ undefined }/>
+                        <Chat join={ false }/>
                     </Col>
                 </Row>
             </div>

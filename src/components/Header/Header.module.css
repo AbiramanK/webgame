@@ -1,14 +1,14 @@
-.site-page-header-ghost-wrapper {
+.header-wrapper {
     background-color: #f5f5f5;
     border-bottom-color: #D3D3D3;
     border-bottom-width: 0.2px;
     border-bottom-style: solid;
 }
-.ant-page-header-heading-title{
+.title {
     color: #440088;
     font-size: 32px;
 }
-.page-header-heading-instruction-button {
+.instruction-button {
     color: #440088;
     font-size: 16px;
 }

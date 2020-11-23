@@ -1,7 +1,7 @@
-import HeaderComponent from './HeaderComponent';
-import ChatComponent from './ChatComponent';
+import Header from './Header/Header';
+import Chat from './Chat/Chat';
 
 export {
-    HeaderComponent,
-    ChatComponent
+    Header,
+    Chat
 }
