@@ -68,9 +68,21 @@ export class Lobby extends React.Component<ILobbyProps, ILobbyState> {
     }
 
     public render() {
+        const href = window.location.href
+        const split = href.split('/')
+        split.pop()
+        const link = split.join('/')
+        
         return (
             <div className={ styles['container'] }>
                 <Header/>
+                <Row className={ styles['row'] } style={{ marginLeft: 20, justifyContent: 'left', color: Colors.PRIMARY }}>
+                    <Col>
+                        <span style={{ color: Colors.DARKGREY, MozUserSelect: 'none', WebkitUserSelect: 'none', msUserSelect: 'none' }}>
+                            Invitation Link:
+                        </span> { link }
+                    </Col>
+                </Row>
                 <Row className={ styles['row'] }>
                     <Col>
                         <div className={ styles['card-wrapper'] }>

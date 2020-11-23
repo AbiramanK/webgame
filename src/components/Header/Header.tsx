@@ -3,7 +3,6 @@ import { withRouter, RouteComponentProps } from 'react-router-dom'
 import { PageHeader, Button } from 'antd';
 
 import styles from './Header.module.css'
-import { vars } from '../../SocketIO'
 
 export interface IHeaderProps extends RouteComponentProps {}
 
@@ -21,9 +20,12 @@ export class Header extends React.Component<IHeaderProps, IHeaderState> {
       <div className={ styles['header-wrapper'] }>
         <PageHeader
           ghost={ true }
-          title="afino"
-          subTitle={ this.props.location.pathname === '/game-rooms/:short_id/game' && `Game ID: ${vars.game.short_id}` }
-          extra={[
+          title={
+            <span className={ styles['title'] }>
+              afino
+            </span>
+          }
+          extra={
             <Button 
               className={ styles['instruction-button'] } 
               type="text" 
@@ -31,7 +33,7 @@ export class Header extends React.Component<IHeaderProps, IHeaderState> {
             >
               Instructions
             </Button>
-          ]}
+          }
         >
         </PageHeader>
       </div>
