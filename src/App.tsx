@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Switch, Route, Redirect } from "react-router-d
 import 'antd/dist/antd.css';
 
 import { Host, Join, Lobby } from './screens';
+import { Cell } from './components'
 import './SocketIO'
 
 const App = () => {
@@ -20,7 +21,8 @@ const App = () => {
           </Route>
           <Route path="/test" exact>
 
-            
+            <Cell/>
+
           </Route>
           <Redirect to="/game-rooms"/>
       </Switch>

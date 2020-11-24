@@ -57,10 +57,10 @@ export class Lobby extends React.Component<ILobbyProps, ILobbyState> {
         })
     };
     
-    handleReadyState = (state: any) => {
+    handleReadyState = (state: any) => { 
         const game = vars.game
         const player = this.state.player
-        playerIO.emit('setState', { short_id: game.short_id, email: player.email, state })
+        playerIO.emit('setState', { short_id: game.short_id, player_id: player._id, state })
     }
 
     handleStart = () => {

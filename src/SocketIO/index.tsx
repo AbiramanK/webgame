@@ -30,7 +30,7 @@ export const vars = {
         state: undefined,
         isHost: undefined,
         score: undefined,
-        isImposter: undefined
+        isImposter: true
     },
     round: {
         _id: undefined,
