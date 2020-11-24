@@ -18,6 +18,10 @@ const App = () => {
           <Route path="/game-rooms" exact>
             <Host/>
           </Route>
+          <Route path="/test" exact>
+
+            
+          </Route>
           <Redirect to="/game-rooms"/>
       </Switch>
     </Router>
