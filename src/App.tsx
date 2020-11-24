@@ -21,6 +21,7 @@ const App = () => {
           </Route>
           <Route path="/test" exact>
 
+            <Cell isImposter={ false } isJackpot={ true } markChanged={ (mark: string) => console.log(mark) } name={ 'moscow' } image={ 'http://localhost:4000/webgame/locations/Bank.svg' }/>
 
           </Route>
           <Redirect to="/game-rooms"/>

@@ -15,7 +15,7 @@ export class Login extends React.Component<IHostProps, IHostState> {
     constructor(props: IHostProps) {
         super(props);
 
-        this.state = {}
+        this.state = {} 
     }
 
     componentDidMount() {

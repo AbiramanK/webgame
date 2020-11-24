@@ -5,8 +5,11 @@ import styles from './Cell.module.css'
 import { Colors } from '../../Colors'
 
 export interface ICellProps extends RouteComponentProps {
-    isImposter: boolean
-    markChanged: (mark: 'NOTHING' | 'Q-MARK' | 'X-MARK') => void
+    isImposter: boolean,
+    isJackpot?: boolean,
+    name?: string,
+    image?: string,
+    markChanged?: (mark: 'NOTHING' | 'Q-MARK' | 'X-MARK') => void
 }
 
 export interface ICellState {
@@ -26,27 +29,27 @@ export class Cell extends React.Component<ICellProps, ICellState> {
 
     handleChange = (mark: 'NOTHING' | 'Q-MARK' | 'X-MARK') => {
         this.setState({ ...this.state, mark })
-        this.props.markChanged(mark)
+        if(this.props.markChanged) this.props.markChanged(mark)
     }
-
+ 
     public render() {
         return (
-            <div className={ styles['container'] } 
-                onMouseOver={ () => this.setState({ ...this.state, mouseOver: true }) }
-                onMouseLeave={ () => this.setState({ ...this.state, mouseOver: false }) }
-            >
+            <>
                 {
                     this.props.isImposter 
                     ? this.ifImposter()
                     : this.ifNotImposter()
                 }
-            </div>
+            </>
         )
     }
 
     ifImposter = () => {
         return (
-            <>
+            <div className={ styles['imposter'] } 
+                onMouseOver={ () => this.setState({ ...this.state, mouseOver: true }) }
+                onMouseLeave={ () => this.setState({ ...this.state, mouseOver: false }) }
+            >
                 <div className={ styles['nothing'] } 
                     style={ 
                         this.state.mark === 'NOTHING'
@@ -83,12 +86,24 @@ export class Cell extends React.Component<ICellProps, ICellState> {
                     }
                     onClick={ () => this.handleChange('X-MARK') }
                 >X</div>
-            </>
+            </div>
         )
     }
 
-    ifNotImposter = () => {
-        return <div></div>
+    ifNotImposter = () => { 
+
+        return (
+            <div className={ styles['not-imposter'] }
+                style={ 
+                    this.props.isJackpot 
+                    ? { boxShadow: `0 0 0 3px white, 0 0 0 6px ${Colors.SECONDARY}` }
+                    : {}
+                }    
+            >
+                <img alt="" src={ this.props.image } className={ styles['image'] }/>
+                <div>{ this.props.name }</div>
+            </div>
+        )
     }
 }
 

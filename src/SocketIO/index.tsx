@@ -19,6 +19,7 @@ export const vars = {
                 email: undefined,
                 state: undefined,
                 isHost: undefined,
+                score: undefined
             }
         ],
     },
