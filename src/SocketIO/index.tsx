@@ -103,5 +103,6 @@ export const vars = {
                 }
             }
         ]
-    ]
+    ],
+    ROUND_TIMEOUT: undefined
 }

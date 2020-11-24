@@ -98,7 +98,7 @@ export class LobbyLeaderBoard extends React.Component<ILobbyLeaderBoardProps, IL
                         </div>
                     </Col>
                     <Col>
-                        <Chat join={ false }/>
+                        <Chat lobby={ false } showInput={ true }/>
                     </Col>
                 </Row>
             </div>

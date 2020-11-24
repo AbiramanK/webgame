@@ -2,7 +2,7 @@ import React from 'react'
 import { RouteComponentProps, withRouter } from 'react-router-dom'
 import { Row, Col } from 'antd'
 
-import { vars } from '../../SocketIO'
+import { vars, gameIO } from '../../SocketIO'
 import Cell from '../Cell/Cell'
 
 export interface IMatrixProps extends RouteComponentProps {}
@@ -16,6 +16,21 @@ export class Matrix extends React.Component<IMatrixProps, IMatrixState> {
         this.state = {}
     }
 
+    componentDidMount = () => {
+        gameIO.on('updateGuessRes', (data: any) => {
+            console.log('Matrix_updateGuessRes', data)
+        })
+    }
+
+    updateGuess = (i: number, j: number, mark: 'NOTHING' | 'Q-MARK' | 'X-MARK') => {
+        gameIO.emit('updateGuess', { 
+            short_id: vars.game.short_id, 
+            round_id: vars.round._id, 
+            guess_id: vars.tempGuesses[i][j]._id, 
+            type: mark
+        })
+    }
+
     public render() {
         const rows = vars.round.tiles.rows
         const columns = vars.round.tiles.columns
@@ -25,6 +40,7 @@ export class Matrix extends React.Component<IMatrixProps, IMatrixState> {
         const location = vars.location
 
         const matrix = []
+        const spanCol = columns ? 24 / columns : 1
         if(rows && columns && isImposter) {
             for(let i = 0; i < rows; i += 1) {
                 const row = []
@@ -32,16 +48,16 @@ export class Matrix extends React.Component<IMatrixProps, IMatrixState> {
                     const cell = isImposter
                         ?   <Cell isImposter={ true }
                                 tempGuess={ tempGuesses[i][j].type }
-                                markChanged={ (mark: 'NOTHING' | 'Q-MARK' | 'X-MARK') => console.log(mark) }
+                                markChanged={ (mark: 'NOTHING' | 'Q-MARK' | 'X-MARK') => this.updateGuess(i, j, mark) }
                             />
                         :   <Cell isImposter={ false }
                                 name={ locations[i][j].name }
                                 image={ locations[i][j].image }
                                 isJackpot={ location.position.i === i && location.position.j === j }
                             />
-                    row.push(<Col>{ cell }</Col>)
+                    row.push(<Col key={ `${i}-${j}` } span={ spanCol }>{ cell }</Col>)
                 }
-                matrix.push(<Row>{ row }</Row>)
+                matrix.push(<Row key={ `${i}` }>{ row }</Row>)
             }
         }
 

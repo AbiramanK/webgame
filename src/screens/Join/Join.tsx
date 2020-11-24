@@ -30,7 +30,7 @@ export class Login extends React.Component<IHostProps, IHostState> {
                 vars.game = data.game
                 vars.player = data.player
                 
-                this.props.history.push(`/game-rooms/${data.game.short_id}/game`)
+                this.props.history.push(`/game-rooms/${data.game.short_id}/lobby`)
             }
         })
     }

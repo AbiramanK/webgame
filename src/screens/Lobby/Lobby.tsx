@@ -5,9 +5,7 @@ import { Card, Button, Row, Col } from 'antd';
 import styles from './Lobby.module.css'
 import { Colors } from '../../Colors';
 import { Header, Chat } from '../../components';
-import { playerIO, vars } from '../../SocketIO'
-import Answer from "../../components/Modelask/Answer";
-import Question from "../../components/Modelask/Question";
+import { playerIO, vars, chatIO, gameIO } from '../../SocketIO'
 
 export interface IChat {
     name: string,
@@ -20,7 +18,7 @@ export interface ILobbyProps extends RouteComponentProps {}
 export interface ILobbyState {
     chats: IChat[]
     player: any,
-    players: Array<object>
+    players: object[]
 } 
 
 export class Lobby extends React.Component<ILobbyProps, ILobbyState> {
@@ -53,11 +51,90 @@ export class Lobby extends React.Component<ILobbyProps, ILobbyState> {
         })
 
         playerIO.on('setStateResAll', (data: any) => {
-            console.log('Lobby_componentDidMount_setStateResAll', data)
+            console.log('Lobby_setStateResAll', data)
 
             if(!data.error) this.setState({ ...this.state, players: data.players })
         })
-    };
+
+        chatIO.on('startGameRes', (data: any) => {
+            console.log('Lobby_startGameRes', data)
+
+            if(!data.error) gameIO.emit('start', { short_id: vars.game.short_id, player_id: vars.player._id })
+        })
+
+        chatIO.on('startGameResAll', (data: any) => {
+            console.log('Lobby_startGameResAll', data)
+
+            if(!data.error) gameIO.emit('start', { short_id: vars.game.short_id, player_id: vars.player._id })
+        })
+
+        gameIO.on('startRes', (data: any) => {
+            console.log('Lobby_startRes', data)
+
+            if(!data.error && vars.player.isHost) gameIO.emit('newRound', { short_id: vars.game.short_id })
+        })
+
+        gameIO.on('newRoundRes', (data: any) => {
+            console.log('Lobby_newRoundRes', data)
+
+            if(!data.error) {
+                vars.ROUND_TIMEOUT = data.ROUND_TIMEOUT 
+
+                gameIO.emit('info', { 
+                    short_id: vars.game.short_id, 
+                    email: vars.player.email, 
+                    round_id: data.round_id 
+                })
+            }
+        })
+
+        gameIO.on('newRoundResAll', (data: any) => {
+            console.log('Lobby_newRoundResAll', data)
+
+            if(!data.error) {
+                vars.ROUND_TIMEOUT = data.ROUND_TIMEOUT 
+                
+                gameIO.emit('info', { 
+                    short_id: vars.game.short_id, 
+                    email: vars.player.email, 
+                    round_id: data.round_id 
+                })
+            }
+        })
+
+        gameIO.on('infoRes', (data: any) => {
+            console.log('Lobby_infoRes', data)
+
+            if(!data.error) {
+                data.round.tiles.locations = this.parseLocations(data.round.tiles)
+                data.tempGuesses = this.parseTempGuesses(data.round.tiles, data.tempGuesses)
+
+                vars.player.isImposter = data.isImposter
+                vars.round = data.round
+                vars.location = data.location
+                vars.tempGuesses = data.tempGuesses
+
+                this.props.history.replace(`/game-rooms/${vars.game.short_id}/game`)
+            }
+        })
+    }
+
+    parseLocations = (tiles: any) => {
+        const parsedLocations = new Array(tiles.rows).fill(undefined).map(() => new Array(tiles.columns).fill(undefined))
+        tiles.locations.forEach((location: any) => {
+            parsedLocations[location.position.i][location.position.j] = {
+                name: location.name,
+                image: location.image
+            }
+        })
+        return parsedLocations
+    }
+
+    parseTempGuesses = (tiles: any, tempGuesses: any) => {
+        const parsedGuesses = new Array(tiles.rows).fill(undefined).map(() => new Array(tiles.columns).fill(undefined))
+        tempGuesses.forEach((guess: any) => { parsedGuesses[guess.position.i][guess.position.j] = guess })
+        return parsedGuesses
+    }
     
     handleReadyState = (state: any) => { 
         const game = vars.game
@@ -65,9 +142,7 @@ export class Lobby extends React.Component<ILobbyProps, ILobbyState> {
         playerIO.emit('setState', { short_id: game.short_id, player_id: player._id, state })
     }
 
-    handleStart = () => {
-        console.log('start')
-    }
+    handleStart = () => chatIO.emit('startGame', { short_id: vars.game.short_id })
 
     public render() {
         const href = window.location.href
@@ -138,12 +213,9 @@ export class Lobby extends React.Component<ILobbyProps, ILobbyState> {
                                 }
                             </Card>
                         </div>
-                        {/* these are the popup models for asking and answering the question */}
-                        {/* <Answer show={true}/> */}
-                        {/* <Question  show={true}/> */}
                     </Col>
                     <Col>
-                        <Chat join={ true }/>
+                        <Chat lobby={ true } showInput={ true }/>
                     </Col>
                 </Row>
             </div>

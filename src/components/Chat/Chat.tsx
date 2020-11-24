@@ -13,11 +13,12 @@ export interface IChat {
 }
 
 export interface IChatProps {
-    join: boolean
+    lobby: boolean,
+    showInput: boolean
 }
 
 export interface IChatState {
-    chats: Array<IChat>
+    chats: IChat[]
 }
 
 export class Chat extends React.Component<IChatProps, IChatState> {
@@ -30,19 +31,19 @@ export class Chat extends React.Component<IChatProps, IChatState> {
     }
 
     componentDidMount = () => {
-        chatIO.on('messageRes', (data: any) => {
-            console.log('Chat_messageRes', data)
+        if(this.props.lobby) {
+            chatIO.on('messageRes', (data: any) => {
+                console.log('Chat_messageRes', data)
 
-            if(!data.error) this.setState({ chats: [ ...this.state.chats, data ] })
-        })
+                if(!data.error) this.setState({ chats: [ ...this.state.chats, data ] })
+            })
 
-        chatIO.on('messageResAll', (data: any) => {
-            console.log('Chat_messageResAll', data)
+            chatIO.on('messageResAll', (data: any) => {
+                console.log('Chat_messageResAll', data)
 
-            if(!data.error) this.setState({ chats: [ ...this.state.chats, data ] })
-        })
+                if(!data.error) this.setState({ chats: [ ...this.state.chats, data ] })
+            })
 
-        if(this.props.join) {
             chatIO.on('joinRes', (data: any) => {
                 console.log('Chat_joinRes', data)
 
@@ -50,6 +51,8 @@ export class Chat extends React.Component<IChatProps, IChatState> {
             })
 
             chatIO.emit('join', { short_id: vars.game.short_id })
+        } else {
+
         }
     }
 
@@ -98,15 +101,18 @@ export class Chat extends React.Component<IChatProps, IChatState> {
                             })
                         }
                     </div>
-                    <form onSubmit={ this.sendMessage }>
-                        <Input
-                            className={ styles['input'] }
-                            placeholder="Write a reply..."
-                            name="message"
-                            size="large"
-                            suffix={ <ArrowRightOutlined style={{ fontSize: 16, color: '#1890ff' }}/> }
-                        />
-                    </form>
+                    {
+                        this.props.showInput &&
+                        <form onSubmit={ this.sendMessage }>
+                            <Input
+                                className={ styles['input'] }
+                                placeholder="Write a reply..."
+                                name="message"
+                                size="large"
+                                suffix={ <ArrowRightOutlined style={{ fontSize: 16, color: '#1890ff' }}/> }
+                            />
+                        </form>
+                    }
                 </Card>
             </div>
         );
