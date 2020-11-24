@@ -1,0 +1,81 @@
+.container {
+    max-width: 1400px;
+    /* min-width: 1024px; */
+    margin: 1em auto;
+    padding: 0.5em 2em;
+    display: grid;
+    grid-template-columns: 4fr 1fr;
+    grid-template-rows: 1fr auto;
+    gap: 1em;
+    box-sizing: border-box;
+}
+
+.HUD {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.userInfo {
+    box-sizing: border-box;
+}
+
+.userInfo h1 {
+    font-weight: bold;
+    margin: 0;
+}
+.userInfo p {
+}
+
+.userActionBtn {
+    padding: 0.5em 1.5em;
+    margin: 0 1em;
+    color: white;
+    font-size: large;
+    background-color: #440088;
+    border-radius: 0.25em;
+    outline: none;
+    border: none;
+    cursor: pointer;
+    transition: 0.15s all;
+}
+.userActionBtn:hover {
+    background-color: rgba(69, 0, 138, 0.8);
+}
+
+.timer {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: space-evenly;
+}
+
+.timer .timeDisplay {
+    text-align: center;
+    font-weight: bold;
+}
+
+.timeDisplay h1 {
+    margin: 0 0 0 0.2em;
+}
+
+.gameMatrix {
+    padding: 0 0.5em;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-template-rows: repeat(4, 120px);
+}
+
+.cell {
+    margin: 0.25em;
+    /* padding: 2em; */
+    background-color: rgba(68, 0, 136, 0.5);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.15s transform;
+}
+.cell:hover {
+    background-color: rgba(68, 0, 136, 0.7);
+    transform: scale(1.02);
+}
