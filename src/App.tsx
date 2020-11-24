@@ -21,7 +21,6 @@ const App = () => {
           </Route>
           <Route path="/test" exact>
 
-            <Cell/>
 
           </Route>
           <Redirect to="/game-rooms"/>
