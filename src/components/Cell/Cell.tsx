@@ -92,12 +92,11 @@ export class Cell extends React.Component<ICellProps, ICellState> {
     }
 
     ifNotImposter = () => { 
-
         return (
             <div className={ styles['not-imposter'] }
                 style={ 
                     this.props.isJackpot 
-                    ? { boxShadow: `0 0 0 3px white, 0 0 0 6px ${Colors.SECONDARY}` }
+                    ? { boxShadow: `0 0 0 3px ${Colors.BACKGROUND}, 0 0 0 6px ${Colors.PRIMARY}` }
                     : {}
                 }    
             >

@@ -53,7 +53,13 @@ export class Game extends React.Component<IGameProps, IGameState> {
                 <div className={styles['container']}>
                     <div className={ styles['HUD'] }>
                         <div className={ styles['userInfo'] }>
-                            <h1>You are the Imposter!</h1>
+                            <h1>
+                                {
+                                    vars.player.isImposter
+                                    ? 'You are the Imposter!'
+                                    : 'You are not the Imposter'
+                                }
+                            </h1>
                             <p>
                                 Try your best to blend in with the others and
                                 guess the location.

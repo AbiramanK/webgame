@@ -1,6 +1,5 @@
 .container {
     max-width: 1400px;
-    /* min-width: 1024px; */
     margin: 1em auto;
     padding: 0.5em 2em;
     display: grid;

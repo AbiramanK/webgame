@@ -7,5 +7,6 @@ export const Colors = {
     LAWNGREEN: '#7CFC00',
     RED: '#F33333',
     GREY: '#D3D3D3',
-    DARKGREY: '#737373'
+    DARKGREY: '#737373',
+    BACKGROUND: '#f5f5f5'
 }

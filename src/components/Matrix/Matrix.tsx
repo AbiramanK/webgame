@@ -41,7 +41,7 @@ export class Matrix extends React.Component<IMatrixProps, IMatrixState> {
 
         const matrix = []
         const spanCol = columns ? 24 / columns : 1
-        if(rows && columns && isImposter) {
+        if(rows && columns && isImposter !== undefined) {
             for(let i = 0; i < rows; i += 1) {
                 const row = []
                 for(let j = 0; j < columns; j += 1) {
