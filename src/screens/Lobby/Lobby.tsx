@@ -6,6 +6,8 @@ import styles from './Lobby.module.css'
 import { Colors } from '../../Colors';
 import { Header, Chat } from '../../components';
 import { playerIO, vars } from '../../SocketIO'
+import Answer from "../../components/Modelask/Answer";
+import Question from "../../components/Modelask/Question";
 
 export interface IChat {
     name: string,
@@ -136,6 +138,9 @@ export class Lobby extends React.Component<ILobbyProps, ILobbyState> {
                                 }
                             </Card>
                         </div>
+                        {/* these are the popup models for asking and answering the question */}
+                        {/* <Answer show={true}/> */}
+                        {/* <Question  show={true}/> */}
                     </Col>
                     <Col>
                         <Chat join={ true }/>
