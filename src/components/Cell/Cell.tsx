@@ -9,6 +9,7 @@ export interface ICellProps extends RouteComponentProps {
     isJackpot?: boolean,
     name?: string,
     image?: string,
+    tempGuess?: 'NOTHING' | 'Q-MARK' | 'X-MARK',
     markChanged?: (mark: 'NOTHING' | 'Q-MARK' | 'X-MARK') => void
 }
 
@@ -22,7 +23,7 @@ export class Cell extends React.Component<ICellProps, ICellState> {
         super(props);
 
         this.state = {
-            mark: 'NOTHING',
+            mark: props.tempGuess ? props.tempGuess : 'NOTHING',
             mouseOver: false
         }
     }

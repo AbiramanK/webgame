@@ -1,6 +1,7 @@
 .ant-modal-content{
   border-radius: 10px;
 }
+
 .ant-modal-header {
   color: aliceblue;
   background-color: #440088;
@@ -11,6 +12,7 @@
   color: aliceblue;
   font-size: 1.4rem;
 }
+
 .Model-Ans button{
   border-radius: 5px;
 }

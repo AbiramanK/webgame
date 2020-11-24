@@ -41,14 +41,16 @@ export const vars = {
             rows: undefined,
             columns: undefined,
             locations: [
-                {
-                    name: undefined,
-                    image: undefined,
-                    position: {
-                        i: undefined,
-                        j: undefined
+                [
+                    {
+                        name: undefined,
+                        image: undefined,
+                        position: {
+                            i: undefined,
+                            j: undefined
+                        }
                     }
-                }
+                ]
             ]
         },
         interactions: [
@@ -91,13 +93,15 @@ export const vars = {
         answer: undefined
     },
     tempGuesses: [
-        {
-            _id: undefined,
-            type: undefined,
-            position: {
-                i: undefined,
-                j: undefined
+        [
+            {
+                _id: undefined,
+                type: undefined,
+                position: {
+                    i: undefined,
+                    j: undefined
+                }
             }
-        }
+        ]
     ]
 }
