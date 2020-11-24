@@ -64,7 +64,7 @@ class Question extends React.Component {
             ]}
             width={700}
           >
-            <h3>Who whould you like to ask?</h3>
+            <h3>Who would you like to ask?</h3>
             <div
               className="name-inputs"
               style={{ display: "flex", padding: "10px 0px" }}
@@ -85,7 +85,7 @@ class Question extends React.Component {
                 Click here for suggestion!
               </h3>
             </div>
-            <h3>What whould you like to ask?</h3>
+            <h3>What would you like to ask?</h3>
             <Input placeholder="Type your Question here..." />
             <div style={modelStyle.buttonStyle}>
               <Button
