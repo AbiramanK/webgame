@@ -1,0 +1,20 @@
+.ant-modal-content{
+  border-radius: 10px;
+}
+.ant-modal-header {
+  color: aliceblue;
+  background-color: #440088;
+  text-align: center;
+  border-radius: 10px 10px 0 0;
+}
+.ant-modal-title{
+  color: aliceblue;
+  font-size: 1.4rem;
+}
+.Model-Ans button{
+  border-radius: 5px;
+}
+
+.anticon svg{
+  color: white;
+}
