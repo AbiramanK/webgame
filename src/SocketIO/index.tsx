@@ -55,6 +55,7 @@ export const vars = {
         },
         interactions: [
             {
+                _id: undefined,
                 question: {
                     from: {
                         name: undefined,
@@ -78,20 +79,6 @@ export const vars = {
             j: undefined,
         }
     },
-    interaction: {
-        question: {
-            from: {
-                name: undefined,
-                email: undefined
-            },
-            to: {
-                name: undefined,
-                email: undefined
-            },
-            question: undefined
-        },
-        answer: undefined
-    },
     tempGuesses: [
         [
             {
@@ -104,5 +91,6 @@ export const vars = {
             }
         ]
     ],
+    interaction_id: undefined,
     ROUND_TIMEOUT: undefined
 }

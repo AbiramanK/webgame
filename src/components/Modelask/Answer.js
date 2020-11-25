@@ -6,28 +6,9 @@ import { Colors } from "../../Colors";
 class Answer extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { visible: this.props.show };
+
+    this.state = { answer: '' };
   }
-
-  showModal = () => {
-    this.setState({
-      visible: true,
-    });
-  };
-
-  handleOk = (e) => {
-    console.log(e);
-    this.setState({
-      visible: false,
-    });
-  };
-
-  handleCancel = (e) => {
-    console.log(e);
-    this.setState({
-      visible: false,
-    });
-  };
 
   render() {
     const modelStyle = {
@@ -40,23 +21,19 @@ class Answer extends React.Component {
     };
 
     return (
-      <>
-        {/* {<Button type="primary" onClick={this.showModal}>
-          Open Modal
-        </Button> */}
-        {this.showModal && (
           <Modal
             className="Model-Ans"
-            title="James Asked You a Question"
-            visible={this.state.visible}
+            title={ `${this.props.from.name} asked you a question` }
+            visible={ this.props.show }
             style={{ borderRadius: "10px" }}
-            onOk={this.handleOk}
-            onCancel={this.handleCancel}
+            onOk={ () => this.props.handleAnswer(this.state) }
+            onCancel={this.props.handleCancel}
             footer={[
               <Button
                 size="middle"
                 style={{ backgroundColor: Colors.PRIMARY, color: Colors.WHITE }}
-                onClick={this.handleCancel}
+                onClick={this.props.handleCancel}
+                key="key"
               >
                 Skip
               </Button>,
@@ -64,11 +41,14 @@ class Answer extends React.Component {
             width={700}
           >
             <h3 style={{ color: "#000000" }}>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-              eiusmod tempor incididunt ut labore et?
+              {
+                this.props.from.question
+              }
             </h3>
             <h3>How do You Respond?</h3>
-            <Input placeholder="Type your answer here..." />
+            <Input placeholder="Type your answer here..." 
+              onChange={ e => this.setState({ ...this.state, answer: e.target.value }) }
+            />
             <div style={modelStyle.buttonStyle}>
               <Button
                 size="large"
@@ -78,13 +58,12 @@ class Answer extends React.Component {
                   marginTop: "30px",
                   padding: "0 30px",
                 }}
+                onClick={ () => this.props.handleAnswer(this.state) }
               >
                 Answer
               </Button>
             </div>
           </Modal>
-        )}
-      </>
     );
   }
 }

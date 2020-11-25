@@ -37,14 +37,7 @@ export class Login extends React.Component<IHostProps, IHostState> {
         })
     }
 
-    host = (values: any) => {
-        console.log(values)
-        playerIO.emit("host", values)
-    }
-
-    showModal = () => this.setState({ isModalVisible: true })
-
-    hideModal = () => this.setState({ isModalVisible: false })
+    host = (values: any) => playerIO.emit("host", values)
 
     public render() {
         return (

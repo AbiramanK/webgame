@@ -2,32 +2,17 @@ import React from "react";
 import { Modal, Button, Input, Select } from "antd";
 import "./Question.css";
 import { Colors } from "../../Colors";
+import { vars } from '../../SocketIO'
 
 class Question extends React.Component {
   constructor(props) {
-    super(props);
-    this.state = { visible: this.props.show };
+    super(props)
+
+    this.state = {
+      player_id: vars.game.players.find(player => player._id !== vars.player._id)._id,
+      question: ''
+    }
   }
-
-  showModal = () => {
-    this.setState({
-      visible: true,
-    });
-  };
-
-  handleOk = (e) => {
-    console.log(e);
-    this.setState({
-      visible: false,
-    });
-  };
-
-  handleCancel = (e) => {
-    console.log(e);
-    this.setState({
-      visible: false,
-    });
-  };
 
   render() {
     const { Option } = Select;
@@ -42,14 +27,12 @@ class Question extends React.Component {
     };
 
     return (
-      <>
-        {this.showModal && (
           <Modal
             className="Model-Que"
             title="Your turn to ask a question!"
-            visible={this.state.visible}
-            onOk={this.handleOk}
-            onCancel={this.handleCancel}
+            visible={this.props.show}
+            onOk={() => this.props.handleAsk(this.state)}
+            onCancel={this.props.handleCancel}
             footer={[
               <Button
                 style={{
@@ -57,7 +40,8 @@ class Question extends React.Component {
                   color: Colors.WHITE,
                   borderRadius: "5px",
                 }}
-                onClick={this.handleCancel}
+                onClick={this.props.handleCancel}
+                key="button"
               >
                 Skip
               </Button>,
@@ -70,9 +54,16 @@ class Question extends React.Component {
               style={{ display: "flex", padding: "10px 0px" }}
             >
               <Input.Group compact>
-                <Select defaultValue="Option-1" style={{ width: "90%" }}>
-                  <Option value="Option-1">James</Option>
-                  <Option value="Option-2">Michal</Option>
+                <Select defaultValue={ this.state.player_id } 
+                  style={{ width: "90%" }}
+                  onChange={ e => this.setState({ ...this.state, player_id: e.target.value }) }
+                >
+                  {
+                    vars.game.players.map(player => {
+                      return player._id !== vars.player._id 
+                      && <Option value={ player._id } key={ player._id }>{ player.name }</Option>
+                    })
+                  }
                 </Select>
               </Input.Group>
               <h3
@@ -86,7 +77,9 @@ class Question extends React.Component {
               </h3>
             </div>
             <h3>What would you like to ask?</h3>
-            <Input placeholder="Type your Question here..." />
+            <Input placeholder="Type your Question here..." 
+              onChange={ e => this.setState({ ...this.state, question: e.target.value }) }
+            />
             <div style={modelStyle.buttonStyle}>
               <Button
                 size="large"
@@ -97,14 +90,13 @@ class Question extends React.Component {
                   padding: "0 30px",
                   borderRadius: "5px",
                 }}
+                onClick={ () => this.props.handleAsk(this.state) }
               >
                 Ask
               </Button>
             </div>
           </Modal>
-        )}
-      </>
-    );
+    )
   }
 }
 

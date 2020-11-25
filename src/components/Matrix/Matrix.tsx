@@ -22,6 +22,11 @@ export class Matrix extends React.Component<IMatrixProps, IMatrixState> {
         })
     }
 
+    componentWillUnmount = () => {
+        gameIO.off('updateGuessRes')
+        this.setState = () => {}
+    }
+
     updateGuess = (i: number, j: number, mark: 'NOTHING' | 'Q-MARK' | 'X-MARK') => {
         gameIO.emit('updateGuess', { 
             short_id: vars.game.short_id, 

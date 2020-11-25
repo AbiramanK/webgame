@@ -36,13 +36,17 @@ export class Lobby extends React.Component<ILobbyProps, ILobbyState> {
         playerIO.on('joinResAll', (data: any) => {
             console.log('Lobby_joinResAll', data)
 
-            if(!data.error) this.setState({ ...this.state, players: data.players })
+            if(!data.error) {
+                vars.game.players = data.players 
+                this.setState({ ...this.state, players: data.players })
+            }
         })
 
         playerIO.on('setStateRes', (data: any) => {
             console.log('Lobby_setStateRes', data)
             
             if(!data.error) {
+                vars.game.players = data.players 
                 this.setState({ 
                     players: data.players, 
                     player: data.players.find((player: any) => player.email === this.state.player.email) 
@@ -53,7 +57,10 @@ export class Lobby extends React.Component<ILobbyProps, ILobbyState> {
         playerIO.on('setStateResAll', (data: any) => {
             console.log('Lobby_setStateResAll', data)
 
-            if(!data.error) this.setState({ ...this.state, players: data.players })
+            if(!data.error) {
+                vars.game.players = data.players 
+                this.setState({ ...this.state, players: data.players })
+            }
         })
 
         chatIO.on('startGameRes', (data: any) => {
@@ -215,7 +222,7 @@ export class Lobby extends React.Component<ILobbyProps, ILobbyState> {
                         </div>
                     </Col>
                     <Col>
-                        <Chat lobby={ true } showInput={ true }/>
+                        <Chat join={ true } showInput={ true } chats={ [] }/>
                     </Col>
                 </Row>
             </div>

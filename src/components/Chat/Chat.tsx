@@ -13,8 +13,9 @@ export interface IChat {
 }
 
 export interface IChatProps {
-    lobby: boolean,
-    showInput: boolean
+    chats: IChat[]
+    showInput: boolean,
+    join: boolean
 }
 
 export interface IChatState {
@@ -31,29 +32,36 @@ export class Chat extends React.Component<IChatProps, IChatState> {
     }
 
     componentDidMount = () => {
-        if(this.props.lobby) {
-            chatIO.on('messageRes', (data: any) => {
-                console.log('Chat_messageRes', data)
+        this.setState({ chats: this.props.chats })
+        chatIO.on('messageRes', (data: any) => {
+            console.log('Chat_messageRes', data)
 
-                if(!data.error) this.setState({ chats: [ ...this.state.chats, data ] })
-            })
+            if(!data.error) this.setState({ chats: [ ...this.state.chats, data ] })
+        })
 
-            chatIO.on('messageResAll', (data: any) => {
-                console.log('Chat_messageResAll', data)
+        chatIO.on('messageResAll', (data: any) => {
+            console.log('Chat_messageResAll', data)
 
-                if(!data.error) this.setState({ chats: [ ...this.state.chats, data ] })
-            })
+            if(!data.error) this.setState({ chats: [ ...this.state.chats, data ] })
+        })
 
+        if(this.props.join) {
             chatIO.on('joinRes', (data: any) => {
                 console.log('Chat_joinRes', data)
 
                 if(!data.error) this.setState({ chats: data.chats })
             })
-
+            
             chatIO.emit('join', { short_id: vars.game.short_id })
-        } else {
-
         }
+    }
+
+    componentWillUnmount = () => {
+        chatIO.off('messageRes')
+        chatIO.off('messageResAll')
+        chatIO.off('joinRes')
+        chatIO.off('join')
+        this.setState = () => {}
     }
 
     sendMessage = (e: any) => {
