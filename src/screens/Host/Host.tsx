@@ -52,8 +52,8 @@ export class Login extends React.Component<IHostProps, IHostState> {
                         headStyle={{ ...jsxStyles.cardHeader }}
                     >
                         <Form layout="vertical" onFinish={ this.host }>
-                            <Form.Item label="Name" name="name"><Input/></Form.Item>
-                            <Form.Item label="Email" name="email"><Input/></Form.Item>
+                            <Form.Item label="Name" name="name" className={ styles['input-label'] }><Input/></Form.Item>
+                            <Form.Item label="Email" name="email" className={ styles['input-label'] }><Input/></Form.Item>
                             <Button 
                                 type="primary" 
                                 htmlType="submit" 

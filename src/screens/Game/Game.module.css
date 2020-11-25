@@ -29,7 +29,7 @@
     margin: 0 1em;
     color: white;
     font-size: large;
-    background-color: #440088;
+    background-color:  #5D22A1;
     border-radius: 0.25em;
     outline: none;
     border: none;
@@ -37,7 +37,7 @@
     transition: 0.15s all;
 }
 .userActionBtn:hover {
-    background-color: rgba(69, 0, 138, 0.8);
+    background-color: #8c44d3;
 }
 
 .timer {

@@ -19,8 +19,7 @@
     justify-content: center;
     text-align: left;
 }
-.chat-message-card .ant-card-body {
-    padding: 14px;
+.chat-message-card {
     border-style: none;
     border-width: 0px;
 }

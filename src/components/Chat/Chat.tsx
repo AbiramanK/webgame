@@ -1,10 +1,10 @@
 import React from 'react';
 import { Card, Input, Typography } from 'antd';
-import { ArrowRightOutlined } from '@ant-design/icons';
 
 import styles from './Chat.module.css'
 import { Colors } from '../../Colors';
 import { chatIO, vars } from '../../SocketIO'
+import send from '../../assets/send.svg'
 
 export interface IChat {
     name: string,
@@ -66,11 +66,12 @@ export class Chat extends React.Component<IChatProps, IChatState> {
 
     sendMessage = (e: any) => {
         e.preventDefault()
-        chatIO.emit('message', {
+        const message = Object.fromEntries(new FormData(e.target)).message
+        if(message) chatIO.emit('message', {
             short_id: vars.game.short_id,
             name: vars.player.name,
             email: vars.player.email,
-            message: Object.fromEntries(new FormData(e.target)).message
+            message
         })
     }
 
@@ -95,10 +96,12 @@ export class Chat extends React.Component<IChatProps, IChatState> {
                                         <Typography className={ styles['chat-player-name'] }>{ chat.name }</Typography>
                                         <Card 
                                             className={ styles['chat-message-card'] }
+                                            bodyStyle={{ paddingTop: 10, paddingBottom: 10, paddingLeft: 16, paddingRight: 16 }}
                                             style={{ 
                                                 width: 250, 
                                                 borderRadius: 10, 
-                                                backgroundColor: chat.email === vars.player.email ? Colors.PRIMARY : Colors.GREY }}
+                                                backgroundColor: chat.email === vars.player.email ? Colors.PRIMARY : Colors.GREY,
+                                            }}
                                         >
                                             <Typography style={{ color: chat.email === vars.player.email ? Colors.WHITE : Colors.BLACK }}>
                                                 { chat.message }
@@ -117,7 +120,12 @@ export class Chat extends React.Component<IChatProps, IChatState> {
                                 placeholder="Write a reply..."
                                 name="message"
                                 size="large"
-                                suffix={ <ArrowRightOutlined style={{ fontSize: 16, color: '#1890ff' }}/> }
+                                suffix={ 
+                                    <label>
+                                        <img alt="" src={ send } style={{ cursor: 'pointer' }}/> 
+                                        <button type="submit" style={{ display: 'none' }}/>
+                                    </label>
+                                }
                             />
                         </form>
                     }

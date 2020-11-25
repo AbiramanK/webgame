@@ -5,10 +5,9 @@
     border-bottom-style: solid;
 }
 .title {
-    color: #440088;
-    font-size: 32px;
+    height: 24px;
 }
 .instruction-button {
-    color: #440088;
+    color: #5D22A1;
     font-size: 16px;
 }

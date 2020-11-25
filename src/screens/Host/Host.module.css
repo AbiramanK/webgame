@@ -15,12 +15,13 @@
     border-radius: 10px;
 }
 .submit-button {
-    background-color: #440088;
+    background-color:#5D22A1;
     border-radius: 5px;
     color: #FFFFFF;
     border-style: none;
     margin: 0 auto;
     display: block;
+    padding: 0 30px;
 }
 .submit-button:hover {
     background-color: #8c44d3;
@@ -32,5 +33,5 @@
     margin-block: 10px;
 }
 .input-label {
-    margin-bottom: 5px;
+    font-weight: 500;
 }

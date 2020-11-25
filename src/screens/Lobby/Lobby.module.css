@@ -44,14 +44,14 @@
     box-shadow: none;
 }
 .player-button:hover {
-    box-shadow: 0 0 0 0.5px #440088 inset;
+    box-shadow: 0 0 0 0.5px #5D22A1 inset;
 }
 .player-status {
     font-size: 16px;
     text-align: left;
 }
 .ready-button {
-    background-color: #440088;
+    background-color:#5D22A1;
     border-radius: 5px;
     color: #FFFFFF;
     border-style: none;   
