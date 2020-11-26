@@ -19,7 +19,8 @@ export interface IChatProps {
 }
 
 export interface IChatState {
-    chats: IChat[]
+    chats: IChat[],
+    input: string
 }
 
 export class Chat extends React.Component<IChatProps, IChatState> {
@@ -27,7 +28,8 @@ export class Chat extends React.Component<IChatProps, IChatState> {
         super(props);
 
         this.state = {
-            chats: []
+            chats: [],
+            input: ''
         }
     }
 
@@ -66,6 +68,7 @@ export class Chat extends React.Component<IChatProps, IChatState> {
 
     sendMessage = (e: any) => {
         e.preventDefault()
+        this.setState({ ...this.state, input: '' })
         const message = Object.fromEntries(new FormData(e.target)).message
         if(message) chatIO.emit('message', {
             short_id: vars.game.short_id,
@@ -116,6 +119,8 @@ export class Chat extends React.Component<IChatProps, IChatState> {
                         this.props.showInput &&
                         <form onSubmit={ this.sendMessage }>
                             <Input
+                                value={ this.state.input }
+                                onChange={ e => this.setState({ ...this.state, input: e.target.value })}
                                 className={ styles['input'] }
                                 placeholder="Write a reply..."
                                 name="message"

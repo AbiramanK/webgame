@@ -5,7 +5,7 @@ import { Card, Input, Button, Form } from 'antd';
 import styles from './Host.module.css'
 import { Colors } from '../../Colors';
 import { Header } from '../../components';
-import { playerIO, vars } from '../../SocketIO'
+import { playerIO, vars, chatIO } from '../../SocketIO'
 
 export interface IHostProps extends RouteComponentProps {}
 
@@ -29,12 +29,21 @@ export class Login extends React.Component<IHostProps, IHostState> {
             console.log("Host_joinRes", data)
 
             if(!data.error) {
+                vars.init = true
                 vars.game = data.game
                 vars.player = data.player
         
                 this.props.history.push(`/game-rooms/${data.game.short_id}/lobby`)
             }
         })
+    }
+
+    componentWillUnmount = () => {
+        playerIO.off("hostRes")
+        playerIO.off("joinRes")
+        chatIO.off('joinRes')
+        chatIO.off('join')
+        this.setState = () => {}
     }
 
     host = (values: any) => playerIO.emit("host", values)

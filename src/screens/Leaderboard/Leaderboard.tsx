@@ -17,7 +17,11 @@ export interface LocationState {
     roundsLeft: number
 }
 
-export interface ILeaderboardProps extends RouteComponentProps<{}, {}, LocationState> {}
+export interface MatchParams {
+    short_id: string
+}
+
+export interface ILeaderboardProps extends RouteComponentProps<MatchParams, {}, LocationState> {}
 
 export interface ILeaderboardState {
     roundsRemaining: number
@@ -42,6 +46,11 @@ export class Leaderboard extends React.Component<ILeaderboardProps, ILeaderboard
     }
 
     componentDidMount = () => {
+        if(!vars.init) {
+            this.props.history.replace(`/game-rooms/${this.props.match.params.short_id}`)
+            return 
+        }
+
         gameIO.on('newRoundRes', (data: any) => {
             console.log('Lobby_newRoundRes', data)
 

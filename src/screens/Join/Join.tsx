@@ -5,7 +5,7 @@ import { Card, Input, Button, Form } from 'antd'
 import styles from './Join.module.css'
 import { Colors } from '../../Colors'
 import { Header } from '../../components'
-import { playerIO, vars } from '../../SocketIO'
+import { playerIO, vars, chatIO } from '../../SocketIO'
 
 export interface IRouteParams {
     short_id: string
@@ -27,12 +27,30 @@ export class Login extends React.Component<IHostProps, IHostState> {
             console.log('Join_joinRes', data)
 
             if(!data.error) {
+                vars.init = true
                 vars.game = data.game
                 vars.player = data.player
-                
-                this.props.history.push(`/game-rooms/${data.game.short_id}/lobby`)
+
+                if(vars.game.state === 'LOBBY') {
+                    this.props.history.push(`/game-rooms/${data.game.short_id}/lobby`)
+                } else {
+                    chatIO.on('joinRes', (data: any) => {
+                        console.log('Chat_joinRes', data)
+        
+                        if(!data.error) this.setState({ chats: data.chats })
+                    })
+                    
+                    chatIO.emit('join', { short_id: vars.game.short_id })
+                }
             }
         })
+    }
+
+    componentWillUnmount = () => {
+        playerIO.off("joinRes")
+        chatIO.off('joinRes')
+        chatIO.off('join')
+        this.setState = () => {}
     }
 
     join = (values: any) => playerIO.emit('join', { ...values, short_id: this.props.match.params.short_id })

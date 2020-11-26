@@ -7,6 +7,7 @@ export const chatIO = io(`${API_BASE}/chat`, { path: '/webgame/socket.io/' })
 export const gameIO = io(`${API_BASE}/game`, { path: '/webgame/socket.io/' })
 
 export const vars = {
+    init: false,
     game: {
         _id: undefined,
         short_id: undefined,

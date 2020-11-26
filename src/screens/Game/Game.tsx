@@ -6,7 +6,11 @@ import { Chat, Header, Matrix, Question, Answer, Voting } from '../../components
 import { gameIO, vars, chatIO } from '../../SocketIO'
 import { clearInterval } from 'timers';
 
-export interface IGameProps extends RouteComponentProps {}
+export interface MatchParams {
+    short_id: string
+}
+
+export interface IGameProps extends RouteComponentProps<MatchParams> {}
 
 export interface IGameState {
     counter: number | undefined,
@@ -46,6 +50,11 @@ export class Game extends React.Component<IGameProps, IGameState> {
     }
 
     componentDidMount = () => {
+        if(!vars.init) {
+            this.props.history.replace(`/game-rooms/${this.props.match.params.short_id}`)
+            return 
+        }
+        
         if(this.state.countdown) clearInterval(this.state.countdown)
         this.setState({ 
             ...this.state,

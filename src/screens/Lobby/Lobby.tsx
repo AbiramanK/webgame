@@ -12,8 +12,12 @@ export interface IChat {
     email: string,
     message: string
 }
+
+export interface MatchParams {
+    short_id: string
+}
  
-export interface ILobbyProps extends RouteComponentProps {}
+export interface ILobbyProps extends RouteComponentProps<MatchParams> {}
 
 export interface ILobbyState {
     chats: IChat[]
@@ -32,7 +36,28 @@ export class Lobby extends React.Component<ILobbyProps, ILobbyState> {
         }
     }
 
-    componentDidMount = () => {        
+    componentDidMount = () => {     
+        if(!vars.init) {
+            this.props.history.replace(`/game-rooms/${this.props.match.params.short_id}`)
+            return 
+        } 
+
+        gameIO.on('infoRes', (data: any) => {
+            console.log('Lobby_infoRes', data)
+
+            if(!data.error) {
+                data.round.tiles.locations = this.parseLocations(data.round.tiles)
+                data.tempGuesses = this.parseTempGuesses(data.round.tiles, data.tempGuesses)
+
+                vars.player.isImposter = data.isImposter
+                vars.round = data.round
+                vars.location = data.location
+                vars.tempGuesses = data.tempGuesses
+
+                this.props.history.replace(`/game-rooms/${vars.game.short_id}/game`)
+            }
+        })
+
         playerIO.on('joinResAll', (data: any) => {
             console.log('Lobby_joinResAll', data)
 
@@ -109,21 +134,7 @@ export class Lobby extends React.Component<ILobbyProps, ILobbyState> {
             }
         })
 
-        gameIO.on('infoRes', (data: any) => {
-            console.log('Lobby_infoRes', data)
-
-            if(!data.error) {
-                data.round.tiles.locations = this.parseLocations(data.round.tiles)
-                data.tempGuesses = this.parseTempGuesses(data.round.tiles, data.tempGuesses)
-
-                vars.player.isImposter = data.isImposter
-                vars.round = data.round
-                vars.location = data.location
-                vars.tempGuesses = data.tempGuesses
-
-                this.props.history.replace(`/game-rooms/${vars.game.short_id}/game`)
-            }
-        })
+        
     }
 
     componentWillUnmount = () => {
