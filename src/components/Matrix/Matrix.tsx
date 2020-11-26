@@ -5,7 +5,9 @@ import { Row, Col } from 'antd'
 import { vars, gameIO } from '../../SocketIO'
 import Cell from '../Cell/Cell'
 
-export interface IMatrixProps extends RouteComponentProps {}
+export interface IMatrixProps extends RouteComponentProps {
+    isFinalGuessTime: boolean
+}
 
 export interface IMatrixState {}
 
@@ -20,10 +22,43 @@ export class Matrix extends React.Component<IMatrixProps, IMatrixState> {
         gameIO.on('updateGuessRes', (data: any) => {
             console.log('Matrix_updateGuessRes', data)
         })
+
+        gameIO.on('finalGuessRes', (data: any) => {
+            console.log('Matrix_finalGuessRes', data)
+
+            if(!data.error) gameIO.emit('leaderboard', {
+                short_id: vars.game.short_id,
+                round_id: vars.round._id
+            })
+        })
+
+        gameIO.on('finalGuessResAll', (data: any) => {
+            console.log('Matrix_finalGuessResAll', data)
+
+            if(!data.error) gameIO.emit('leaderboard', {
+                short_id: vars.game.short_id,
+                round_id: vars.round._id
+            })
+        })
+
+        gameIO.on('leaderboardRes', (data: any) => {
+            console.log('Matrix_leaderboardRes', data)
+
+            if(!data.error) {
+                vars.game.players = data.players 
+                this.props.history.replace({
+                    pathname: `/game-rooms/${vars.game.short_id}/leaderboard`,
+                    state: { roundsLeft: data.roundsLeft }
+                })
+            }
+        })
     }
 
     componentWillUnmount = () => {
         gameIO.off('updateGuessRes')
+        gameIO.off('finalGuessRes')
+        gameIO.off('finalGuessResAll')
+        gameIO.off('leaderboardRes')
         this.setState = () => {}
     }
 
@@ -33,6 +68,15 @@ export class Matrix extends React.Component<IMatrixProps, IMatrixState> {
             round_id: vars.round._id, 
             guess_id: vars.tempGuesses[i][j]._id, 
             type: mark
+        })
+    }
+
+    handleFinalGuess = (i: number, j: number) => {
+        gameIO.emit('finalGuess', {
+            short_id: vars.game.short_id, 
+            round_id: vars.round._id, 
+            player_id: vars.player._id,
+            position: { i, j }
         })
     }
 
@@ -54,6 +98,8 @@ export class Matrix extends React.Component<IMatrixProps, IMatrixState> {
                         ?   <Cell isImposter={ true }
                                 tempGuess={ tempGuesses[i][j].type }
                                 markChanged={ (mark: 'NOTHING' | 'Q-MARK' | 'X-MARK') => this.updateGuess(i, j, mark) }
+                                isFinalGuessTime={ this.props.isFinalGuessTime }
+                                finalGuessed={ () => this.handleFinalGuess(i, j) }
                             />
                         :   <Cell isImposter={ false }
                                 name={ locations[i][j].name }

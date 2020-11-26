@@ -17,7 +17,8 @@ export interface IGameState {
         name: string | undefined,
         email: string | undefined,
         question: string | undefined
-    }
+    },
+    isFinalGuessTime: boolean
 }
 
 export class Game extends React.Component<IGameProps, IGameState> {
@@ -33,13 +34,16 @@ export class Game extends React.Component<IGameProps, IGameState> {
                 name: undefined,
                 email: undefined,
                 question: undefined
-            }
+            },
+            isFinalGuessTime: false
         }
     }
 
     componentDidMount = () => {
         if(this.state.countdown) clearInterval(this.state.countdown)
         this.setState({ 
+            ...this.state,
+            isFinalGuessTime: false,
             counter: vars.ROUND_TIMEOUT, 
             countdown: setInterval(() => {
                 if(this.state.counter !== undefined) {
@@ -51,6 +55,7 @@ export class Game extends React.Component<IGameProps, IGameState> {
                     } else {
                         if(this.state.countdown) clearInterval(this.state.countdown)
                         this.setState({
+                            ...this.state,
                             counter: 0,
                             countdown: undefined
                         })
@@ -215,9 +220,15 @@ export class Game extends React.Component<IGameProps, IGameState> {
                                 <button className={ styles['userActionBtn'] }>
                                     Call a meeting!
                                 </button>
-                                <button className={ styles['userActionBtn'] }>
-                                    Guess the location!
-                                </button>
+                                {
+                                    vars.player.isImposter &&
+                                    <button 
+                                        className={ styles['userActionBtn'] }
+                                        onClick={ () => this.setState({ ...this.state, isFinalGuessTime: true }) }
+                                    >
+                                        Guess the location!
+                                    </button>
+                                }
                             </div>
                         </div>
                         <div className={ styles['timer'] }>
@@ -243,7 +254,7 @@ export class Game extends React.Component<IGameProps, IGameState> {
                             </div>
                         </div>
                         <div className={ styles['gameMatrix'] }>
-                            <Matrix/>
+                            <Matrix isFinalGuessTime={ this.state.isFinalGuessTime }/>
                         </div>
                         <div className={ styles['chat'] }>
                             <Chat join={ false } showInput={ false } chats={ [] }/>

@@ -126,6 +126,19 @@ export class Lobby extends React.Component<ILobbyProps, ILobbyState> {
         })
     }
 
+    componentWillUnmount = () => {
+        playerIO.off('joinResAll')
+        playerIO.off('setStateRes')
+        playerIO.off('setStateResAll')
+        chatIO.off('startGameRes')
+        chatIO.off('startGameResAll')
+        gameIO.off('startRes')
+        gameIO.off('newRoundRes')
+        gameIO.off('newRoundResAll')
+        gameIO.off('infoRes')
+        this.setState = () => {}
+    }
+
     parseLocations = (tiles: any) => {
         const parsedLocations = new Array(tiles.rows).fill(undefined).map(() => new Array(tiles.columns).fill(undefined))
         tiles.locations.forEach((location: any) => {

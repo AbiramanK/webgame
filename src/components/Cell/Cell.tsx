@@ -5,12 +5,14 @@ import styles from './Cell.module.css'
 import { Colors } from '../../Colors'
 
 export interface ICellProps extends RouteComponentProps {
-    isImposter: boolean,
-    isJackpot?: boolean,
-    name?: string,
-    image?: string,
-    tempGuess?: 'NOTHING' | 'Q-MARK' | 'X-MARK',
+    isImposter: boolean
+    isJackpot?: boolean
+    name?: string
+    image?: string
+    tempGuess?: 'NOTHING' | 'Q-MARK' | 'X-MARK'
     markChanged?: (mark: 'NOTHING' | 'Q-MARK' | 'X-MARK') => void
+    isFinalGuessTime?: boolean
+    finalGuessed?: () => void
 }
 
 export interface ICellState {
@@ -37,11 +39,27 @@ export class Cell extends React.Component<ICellProps, ICellState> {
         return (
             <>
                 {
-                    this.props.isImposter 
-                    ? this.ifImposter()
-                    : this.ifNotImposter()
+                    this.props.isFinalGuessTime
+                    ? this.ifFinalGuessTime()
+                    : this.props.isImposter 
+                        ? this.ifImposter()
+                        : this.ifNotImposter()
                 }
             </>
+        )
+    }
+
+    ifFinalGuessTime = () => {
+        return (
+            <div 
+                className={ styles['final-guess'] } 
+                onClick={ 
+                    () => {
+                        if(this.props.finalGuessed) {
+                            this.props.finalGuessed()
+                        }
+                    }
+                }/>
         )
     }
 
@@ -96,7 +114,10 @@ export class Cell extends React.Component<ICellProps, ICellState> {
             <div className={ styles['not-imposter'] }
                 style={ 
                     this.props.isJackpot 
-                    ? { boxShadow: `0 0 0 3px ${Colors.BACKGROUND}, 0 0 0 6px ${Colors.PRIMARY}` }
+                    ? { 
+                        boxShadow: `0 0 0 3px ${Colors.BACKGROUND}, 0 0 0 6px ${Colors.PRIMARY}`,
+                        background: Colors.PRIMARY 
+                    }
                     : {}
                 }    
             >
