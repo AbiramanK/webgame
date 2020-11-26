@@ -40,18 +40,6 @@ export class Matrix extends React.Component<IMatrixProps, IMatrixState> {
                 round_id: vars.round._id
             })
         })
-
-        gameIO.on('leaderboardRes', (data: any) => {
-            console.log('Matrix_leaderboardRes', data)
-
-            if(!data.error) {
-                vars.game.players = data.players 
-                this.props.history.replace({
-                    pathname: `/game-rooms/${vars.game.short_id}/leaderboard`,
-                    state: { roundsLeft: data.roundsLeft }
-                })
-            }
-        })
     }
 
     componentWillUnmount = () => {

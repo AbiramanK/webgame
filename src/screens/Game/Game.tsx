@@ -2,7 +2,7 @@ import React from 'react';
 import { withRouter, RouteComponentProps } from 'react-router-dom'
 
 import styles from './Game.module.css';
-import { Chat, Header, Matrix, Question, Answer } from '../../components';
+import { Chat, Header, Matrix, Question, Answer, Voting } from '../../components';
 import { gameIO, vars, chatIO } from '../../SocketIO'
 import { clearInterval } from 'timers';
 
@@ -18,7 +18,9 @@ export interface IGameState {
         email: string | undefined,
         question: string | undefined
     },
-    isFinalGuessTime: boolean
+    isFinalGuessTime: boolean,
+    vote: boolean,
+    caller: string
 }
 
 export class Game extends React.Component<IGameProps, IGameState> {
@@ -35,7 +37,9 @@ export class Game extends React.Component<IGameProps, IGameState> {
                 email: undefined,
                 question: undefined
             },
-            isFinalGuessTime: false
+            isFinalGuessTime: false,
+            vote: false,
+            caller: ''
         }
     }
 
@@ -142,6 +146,60 @@ export class Game extends React.Component<IGameProps, IGameState> {
         })
 
         gameIO.on('skipRes', (data: any) => console.log('Game_skipRes', data))
+
+        gameIO.on('callMeetingRes', (data: any) => {
+            console.log('Game_callMeeting', data)
+
+            if(!data.error) this.setState({ 
+                ...this.state, 
+                vote: true,
+                caller: data.name
+            })
+        })
+
+        gameIO.on('callMeetingResAll', (data: any) => {
+            console.log('Game_callMeetingAll', data)
+
+            if(!data.error) this.setState({ 
+                ...this.state, 
+                vote: true,
+                caller: data.name
+            })
+        })
+        
+        gameIO.on('voteRes', (data: any) => {
+            console.log('Voting_voteRes', data)
+
+            if(!data.error) {
+                if(data.completed) gameIO.emit('leaderboard', {
+                    short_id: vars.game.short_id,
+                    round_id: vars.round._id
+                })
+            }
+        })
+        
+        gameIO.on('voteResAll', (data: any) => {
+            console.log('Game_voteResAll', data)
+
+            if(!data.error) {
+                if(data.completed) gameIO.emit('leaderboard', {
+                    short_id: vars.game.short_id,
+                    round_id: vars.round._id
+                })
+            }
+        })
+
+        gameIO.on('leaderboardRes', (data: any) => {
+            console.log('Game_leaderboardRes', data)
+
+            if(!data.error) {
+                vars.game.players = data.players 
+                this.props.history.replace({
+                    pathname: `/game-rooms/${vars.game.short_id}/leaderboard`,
+                    state: { roundsLeft: data.roundsLeft }
+                })
+            }
+        })
     }
 
     componentWillUnmount = () => {
@@ -151,6 +209,10 @@ export class Game extends React.Component<IGameProps, IGameState> {
         gameIO.off('skipRes')
         gameIO.off('answerRes')
         gameIO.off('answerResAll')
+        gameIO.off('callMeetingRes')
+        gameIO.off('callMeetingResAll')
+        gameIO.off('voteRes')
+        gameIO.off('voteResAll')
         this.setState = () => {}
     }
 
@@ -165,7 +227,7 @@ export class Game extends React.Component<IGameProps, IGameState> {
         this.setState({ ...this.state, question: false })
     }
 
-    handleAnswer = (data: any) => { console.log(data)
+    handleAnswer = (data: any) => { 
         gameIO.emit('answer', {  
             short_id: vars.game.short_id, 
             round_id: vars.round._id, 
@@ -185,9 +247,17 @@ export class Game extends React.Component<IGameProps, IGameState> {
                 name: undefined,
                 email: undefined,
                 question: undefined
-            }
+            },
+            vote: false,
+            caller: ''
         })
     }
+
+    handleMeetingCall = () => gameIO.emit('callMeeting', {
+        short_id: vars.game.short_id,
+        round_id: vars.round._id,
+        player_id: vars.player._id
+    })
 
     public render() {
         return (
@@ -217,7 +287,10 @@ export class Game extends React.Component<IGameProps, IGameState> {
                                 </p>
                             </div>
                             <div>
-                                <button className={ styles['userActionBtn'] }>
+                                <button 
+                                    className={ styles['userActionBtn'] }
+                                    onClick={ this.handleMeetingCall }
+                                >
                                     Call a meeting!
                                 </button>
                                 {
@@ -277,6 +350,10 @@ export class Game extends React.Component<IGameProps, IGameState> {
                         handleAnswer={ this.handleAnswer } 
                         handleCancel={ this.handleCancel }
                     />
+                }
+                {
+                    this.state.vote &&
+                    <Voting caller={ this.state.caller } handleCancel={ this.handleCancel }/>
                 }
             </>
         )

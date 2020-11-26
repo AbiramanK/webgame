@@ -4,6 +4,7 @@ import Cell from './Cell/Cell'
 import Matrix from './Matrix/Matrix'
 import Question from './Modelask/Question'
 import Answer from './Modelask/Answer'
+import Voting from './Panel/Voting/Voting'
 
 export {
     Header,
@@ -11,5 +12,6 @@ export {
     Cell,
     Matrix,
     Question,
-    Answer
+    Answer,
+    Voting
 }

@@ -2,6 +2,8 @@ import React from "react";
 import { Modal} from "antd";
 import "./voting.css";
 import { Colors } from "../../../Colors";
+import { gameIO, vars } from '../../../SocketIO'
+
 
 class Voting extends React.Component {
   constructor(props) {
@@ -9,25 +11,24 @@ class Voting extends React.Component {
     this.state = { 
       visible: true,
       voted: false,
-      data: [
-        { name: "James", isVoted:false},
-        { name: "Bobby", isVoted:false},
-        { name: "Alax", isVoted:false},
-        { name: "Sam", isVoted:false},
-        { name: "Sarah", isVoted:false},
-        { name: "Bill", isVoted:false},
-        { name: "Kim", isVoted:false},
-      ] 
+      data: vars.game.players.map(player => {
+        return {
+          player_id: player._id,
+          name: player.name,
+          isVoted: false
+        }
+      }).filter(el => el.player_id !== vars.player._id)
     };
   }
+
   componentDidMount=()=>{
-  this.state.data.forEach((e,el)=>{
-    if(e.isVoted){
-      this.setState({
-        voted: true
-      })
-    }
-  })
+    this.state.data.forEach((e,el)=>{
+      if(e.isVoted){
+        this.setState({
+          voted: true
+        })
+      }
+    })
   }
 
   showModal = () => {
@@ -37,11 +38,20 @@ class Voting extends React.Component {
   };
 
   changeVote = (el) => {
-    // console.log(this.state.data)
     const data = this.state.data
     data[el].isVoted = true;
     this.setState({
       data: [...data ], voted: true
+    })
+    gameIO.emit('vote', {
+      short_id: vars.game.short_id,
+      round_id: vars.round._id,
+      by: {
+        player_id: vars.player._id
+      },
+      for: {
+        player_id: data[el].player_id
+      }
     })
   };
 
@@ -57,12 +67,20 @@ class Voting extends React.Component {
     this.setState({
       visible: false,
     });
+    gameIO.emit('vote', {
+      short_id: vars.game.short_id,
+      round_id: vars.game._id,
+      by: {
+        player_id: vars.player._id
+      },
+      for: {
+        player_id: -1
+      }
+    })
+    this.props.handleCancel()
   };
 
-
-
   render() {
-
     const header ={
       "color": "aliceblue",
       "backgroundColor": "#440088",
@@ -109,32 +127,37 @@ class Voting extends React.Component {
               width={300}
             >
               <div style={header}>
-                  Sarah Called a Meeting!
-                </div>
+                  { this.props.caller }
+              </div>
               <ul style={{padding: "0px"}}>
                 {this.state.data.map((e, el) => {
                   return (
                     <li key={el} style={playerLi}>
                       <span>{e.name}</span>
-                      {!this.state.voted ? (
-                        <span
-                          style={{ cursor: "pointer", color: Colors.RED }}
-                          onClick={()=>this.changeVote(el)}
-                        >
-                          Vote
-                        </span>
-                      ) : (
-                        <span
-                          style={e.isVoted ? { cursor: "pointer", color: Colors.LAWNGREEN } : {  color: Colors.GREY }}
-                        >
-                          Vote
-                        </span>
-                      )}
+                      {
+                        !this.state.voted ? (
+                          <span
+                            style={{ cursor: "pointer", color: Colors.RED }}
+                            onClick={()=>this.changeVote(el)}
+                          >
+                            Vote
+                          </span>
+                        ) : (
+                          <span
+                            style={
+                              e.isVoted 
+                              ? { userSelect: 'none', color: Colors.LAWNGREEN } 
+                              : { userSelect: 'none', color: Colors.GREY }
+                            }
+                          >
+                            Vote
+                          </span>
+                        )
+                      }
                     </li>
                   );
                 })}
                 <div
-                  
                   style={skipButton}
                   onClick={this.handleCancel}
                 >
