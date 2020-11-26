@@ -21,6 +21,7 @@ export interface IGameState {
     isFinalGuessTime: boolean,
     vote: boolean,
     caller: string
+    timeout: boolean
 }
 
 export class Game extends React.Component<IGameProps, IGameState> {
@@ -39,7 +40,8 @@ export class Game extends React.Component<IGameProps, IGameState> {
             },
             isFinalGuessTime: false,
             vote: false,
-            caller: ''
+            caller: '',
+            timeout: false
         }
     }
 
@@ -71,10 +73,12 @@ export class Game extends React.Component<IGameProps, IGameState> {
         gameIO.on('question', (data: any) => {
             console.log('Game_question', data)
 
-            if(!data.error) this.setState({ 
-                ...this.state, 
-                question: true 
-            })
+            if(!data.error) {
+                if(!this.state.timeout && !this.state.vote) this.setState({ 
+                    ...this.state, 
+                    question: true 
+                })
+            }
         })
 
         gameIO.on('askRes', (data: any) => {
@@ -102,7 +106,7 @@ export class Game extends React.Component<IGameProps, IGameState> {
                 console.log(data.interaction.question.to.email, vars.player.email)
                 
                 if(data.interaction.question.to.email === vars.player.email) {
-                    this.setState({ 
+                    if(!this.state.timeout && !this.state.vote) this.setState({ 
                         ...this.state, 
                         answer: true, 
                         from: {
@@ -168,7 +172,7 @@ export class Game extends React.Component<IGameProps, IGameState> {
         })
         
         gameIO.on('voteRes', (data: any) => {
-            console.log('Voting_voteRes', data)
+            console.log('Game_voteRes', data)
 
             if(!data.error) {
                 if(data.completed) gameIO.emit('leaderboard', {
@@ -200,6 +204,19 @@ export class Game extends React.Component<IGameProps, IGameState> {
                 })
             }
         })
+    
+        gameIO.on('timeout', (data: any) => {
+            console.log('Game_timeout', data)
+
+            if(!data.error) {
+                this.setState({ ...this.state, timeout: true })
+
+                gameIO.emit('leaderboard', {
+                    short_id: vars.game.short_id,
+                    round_id: vars.round._id
+                })
+            }
+        })
     }
 
     componentWillUnmount = () => {
@@ -213,6 +230,8 @@ export class Game extends React.Component<IGameProps, IGameState> {
         gameIO.off('callMeetingResAll')
         gameIO.off('voteRes')
         gameIO.off('voteResAll')
+        gameIO.off('leaderboardRes')
+        gameIO.off('timeout')
         this.setState = () => {}
     }
 

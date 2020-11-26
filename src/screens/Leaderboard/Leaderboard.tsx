@@ -145,10 +145,18 @@ export class Leaderboard extends React.Component<ILeaderboardProps, ILeaderboard
                     }}
                 >
                 <Typography style={{ fontSize: 25 }}>
-                    { vars.round.name } Completed! Time Until Next Round: { this.state.counter.toString().padStart(2, '0') }s
+                    { vars.round.name } Completed! 
+                    {
+                        this.state.roundsRemaining > 0 
+                        ? ` Time Until Next Round: ${ this.state.counter.toString().padStart(2, '0') }s`
+                        : ' Game Over'
+                    }
                 </Typography>
                 <Typography style={{ fontSize: 16 }}>
-                    Rounds Remaining: { this.state.roundsRemaining }
+                    {
+                        this.state.roundsRemaining > 0 &&
+                        `Rounds Remaining: ${ this.state.roundsRemaining }`
+                    }
                 </Typography>
                 </div>
                 <Row className={ moduleStyles['lobby-row'] }>
