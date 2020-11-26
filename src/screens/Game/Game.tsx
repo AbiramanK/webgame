@@ -56,10 +56,11 @@ export class Game extends React.Component<IGameProps, IGameState> {
         }
         
         if(this.state.countdown) clearInterval(this.state.countdown)
+
         this.setState({ 
             ...this.state,
             isFinalGuessTime: false,
-            counter: vars.ROUND_TIMEOUT, 
+            counter: new Date(vars.round.endingAt).valueOf() - Date.now().valueOf(), 
             countdown: setInterval(() => {
                 if(this.state.counter !== undefined) {
                     if(this.state.counter >= 0) {
@@ -207,6 +208,7 @@ export class Game extends React.Component<IGameProps, IGameState> {
 
             if(!data.error) {
                 vars.game.players = data.players 
+                vars.round.endedAt = data.endedAt
                 this.props.history.replace({
                     pathname: `/game-rooms/${vars.game.short_id}/leaderboard`,
                     state: { roundsLeft: data.roundsLeft }

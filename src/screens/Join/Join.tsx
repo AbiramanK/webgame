@@ -34,6 +34,8 @@ export class Login extends React.Component<IHostProps, IHostState> {
                 if(vars.game.state === 'LOBBY') {
                     this.props.history.push(`/game-rooms/${data.game.short_id}/lobby`)
                 } else {
+                   
+
                     chatIO.on('joinRes', (data: any) => {
                         console.log('Chat_joinRes', data)
         

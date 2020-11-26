@@ -54,29 +54,21 @@ export class Leaderboard extends React.Component<ILeaderboardProps, ILeaderboard
         gameIO.on('newRoundRes', (data: any) => {
             console.log('Lobby_newRoundRes', data)
 
-            if(!data.error) {
-                vars.ROUND_TIMEOUT = data.ROUND_TIMEOUT 
-
-                gameIO.emit('info', { 
-                    short_id: vars.game.short_id, 
-                    email: vars.player.email, 
-                    round_id: data.round_id 
-                })
-            }
+            if(!data.error) gameIO.emit('info', { 
+                short_id: vars.game.short_id, 
+                email: vars.player.email, 
+                round_id: data.round_id 
+            })
         })
 
         gameIO.on('newRoundResAll', (data: any) => {
             console.log('Lobby_newRoundResAll', data)
 
-            if(!data.error) {
-                vars.ROUND_TIMEOUT = data.ROUND_TIMEOUT 
-                
-                gameIO.emit('info', { 
-                    short_id: vars.game.short_id, 
-                    email: vars.player.email, 
-                    round_id: data.round_id 
-                })
-            }
+            if(!data.error) gameIO.emit('info', { 
+                short_id: vars.game.short_id, 
+                email: vars.player.email, 
+                round_id: data.round_id 
+            })
         })
 
         gameIO.on('infoRes', (data: any) => {
@@ -94,8 +86,6 @@ export class Leaderboard extends React.Component<ILeaderboardProps, ILeaderboard
                 this.props.history.replace(`/game-rooms/${vars.game.short_id}/game`)
             }
         })
-
-        console.log(this.props.location.state.roundsLeft, this.state)
 
         this.prepareNextRound()
     }
@@ -127,7 +117,7 @@ export class Leaderboard extends React.Component<ILeaderboardProps, ILeaderboard
     suffix = () => (<AudioOutlined style={{ fontSize: 16, color: '#1890ff' }}/>)
 
     prepareNextRound = () => {
-        let counter = 30
+        let counter = 30 - Math.trunc((Date.now().valueOf() - new Date(vars.round.endedAt).valueOf()) / 1000)
         this.setState({ ...this.state, counter })
         
         const timeout = setInterval(() => {

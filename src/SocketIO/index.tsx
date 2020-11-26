@@ -71,6 +71,8 @@ export const vars = {
                 answer: undefined
             }
         ],
+        endingAt: '',
+        endedAt: ''
     },
     location: {
         name: undefined,
@@ -93,5 +95,4 @@ export const vars = {
         ]
     ],
     interaction_id: undefined,
-    ROUND_TIMEOUT: undefined
 }
