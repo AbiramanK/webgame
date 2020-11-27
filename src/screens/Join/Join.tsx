@@ -33,6 +33,10 @@ export class Login extends React.Component<IHostProps, IHostState> {
 
                 if(vars.game.state === 'LOBBY') {
                     this.props.history.push(`/game-rooms/${data.game.short_id}/lobby`)
+                } else if(vars.game.state === 'OVER') {
+                    
+
+
                 } else {
                    
 

@@ -20,7 +20,6 @@ export interface MatchParams {
 export interface ILobbyProps extends RouteComponentProps<MatchParams> {}
 
 export interface ILobbyState {
-    chats: IChat[]
     player: any,
     players: object[]
 } 
@@ -30,7 +29,6 @@ export class Lobby extends React.Component<ILobbyProps, ILobbyState> {
         super(props);
 
         this.state = { 
-            chats: [],
             player: vars.player,
             players: vars.game.players
         }
@@ -237,7 +235,7 @@ export class Lobby extends React.Component<ILobbyProps, ILobbyState> {
                         </div>
                     </Col>
                     <Col>
-                        <Chat join={ true } showInput={ true } chats={ [] }/>
+                        <Chat join={ true } showInput={ true } chats={ vars.game.lobby.chats }/>
                     </Col>
                 </Row>
             </div>

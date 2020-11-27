@@ -7,9 +7,9 @@ import { chatIO, vars } from '../../SocketIO'
 import send from '../../assets/send.svg'
 
 export interface IChat {
-    name: string,
-    email: string,
-    message: string
+    name: string | undefined,
+    email: string | undefined,
+    message: string | undefined
 }
 
 export interface IChatProps {

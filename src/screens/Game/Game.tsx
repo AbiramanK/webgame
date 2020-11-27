@@ -10,6 +10,12 @@ export interface MatchParams {
     short_id: string
 }
 
+export interface IChat {
+    name: string | undefined,
+    email: string | undefined,
+    message: string | undefined
+}
+
 export interface IGameProps extends RouteComponentProps<MatchParams> {}
 
 export interface IGameState {
@@ -290,6 +296,24 @@ export class Game extends React.Component<IGameProps, IGameState> {
     })
 
     public render() {
+        const interactions = vars.round.interactions
+        let chats: IChat[] = []
+        interactions.forEach(interaction => {
+            chats.push({
+                name: interaction.question.from.name,
+                email: interaction.question.from.email,
+                message: interaction.question.question
+            })
+
+            if(interaction.answer) {
+                chats.push({
+                    name: interaction.question.to.name,
+                    email: interaction.question.to.email,
+                    message: interaction.answer
+                })
+            }
+        })
+
         return (
             <>
                 <div>
@@ -360,7 +384,7 @@ export class Game extends React.Component<IGameProps, IGameState> {
                             <Matrix isFinalGuessTime={ this.state.isFinalGuessTime }/>
                         </div>
                         <div className={ styles['chat'] }>
-                            <Chat join={ false } showInput={ false } chats={ [] }/>
+                            <Chat join={ false } showInput={ false } chats={ chats }/>
                         </div>
                     </div>
                 </div>

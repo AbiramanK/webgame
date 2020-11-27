@@ -23,6 +23,9 @@ export const vars = {
                 score: undefined
             }
         ],
+        lobby: {
+            chats: []
+        },
     },
     player: {
         _id: undefined,
@@ -71,6 +74,7 @@ export const vars = {
                 answer: undefined
             }
         ],
+        leaderboardChats: [],
         endingAt: '',
         endedAt: ''
     },

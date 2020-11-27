@@ -192,7 +192,7 @@ export class Leaderboard extends React.Component<ILeaderboardProps, ILeaderboard
                         </div>
                     </Col>
                     <Col>
-                        <Chat join={ false } showInput={ true } chats={ [] }/>
+                        <Chat join={ false } showInput={ true } chats={ vars.round.leaderboardChats }/>
                     </Col>
                 </Row>
             </div>
