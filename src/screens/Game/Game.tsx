@@ -32,6 +32,7 @@ export interface IGameState {
     vote: boolean,
     caller: string
     timeout: boolean
+    meeting: boolean
 }
 
 export class Game extends React.Component<IGameProps, IGameState> {
@@ -51,7 +52,8 @@ export class Game extends React.Component<IGameProps, IGameState> {
             isFinalGuessTime: false,
             vote: false,
             caller: '',
-            timeout: false
+            timeout: false,
+            meeting: false
         }
     }
 
@@ -90,7 +92,7 @@ export class Game extends React.Component<IGameProps, IGameState> {
             console.log('Game_question', data)
 
             if(!data.error) {
-                if(!this.state.timeout && !this.state.vote) this.setState({ 
+                if(!this.state.timeout && !this.state.meeting) this.setState({ 
                     ...this.state, 
                     question: true 
                 })
@@ -118,11 +120,9 @@ export class Game extends React.Component<IGameProps, IGameState> {
             if(!data.error) {
                 vars.interaction_id = data.interaction._id
                 vars.round.interactions.push(data.interaction)
-
-                console.log(data.interaction.question.to.email, vars.player.email)
                 
                 if(data.interaction.question.to.email === vars.player.email) {
-                    if(!this.state.timeout && !this.state.vote) this.setState({ 
+                    if(!this.state.timeout && !this.state.meeting) this.setState({ 
                         ...this.state, 
                         answer: true, 
                         from: {
@@ -180,7 +180,8 @@ export class Game extends React.Component<IGameProps, IGameState> {
                     question: undefined
                 },
                 vote: true,
-                caller: data.name
+                caller: data.name,
+                meeting: true
             })
         })
 
@@ -197,7 +198,8 @@ export class Game extends React.Component<IGameProps, IGameState> {
                     question: undefined
                 },
                 vote: true,
-                caller: data.name
+                caller: data.name,
+                meeting: true
             })
         })
         
@@ -233,6 +235,7 @@ export class Game extends React.Component<IGameProps, IGameState> {
                     pathname: `/game-rooms/${vars.game.short_id}/leaderboard`,
                     state: { roundsLeft: data.roundsLeft }
                 })
+                document.body.style.overflow = 'auto'
             }
         })
     
@@ -279,6 +282,7 @@ export class Game extends React.Component<IGameProps, IGameState> {
         } else {
             this.handleCancel()
         }
+        document.body.style.overflow = 'auto'
     }
 
     handleAnswer = (data: any) => { 
@@ -293,6 +297,7 @@ export class Game extends React.Component<IGameProps, IGameState> {
         } else {
             this.handleCancel()
         }
+        document.body.style.overflow = 'auto'
     }
 
     handleCancel = () => {
@@ -309,6 +314,7 @@ export class Game extends React.Component<IGameProps, IGameState> {
             vote: false,
             caller: ''
         })
+        document.body.style.overflow = 'auto'
     }
 
     handleMeetingCall = () => gameIO.emit('callMeeting', {

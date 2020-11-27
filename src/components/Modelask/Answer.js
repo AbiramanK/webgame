@@ -10,6 +10,12 @@ class Answer extends React.Component {
     this.state = { answer: '' };
   }
 
+  showModal = () => {
+    this.setState({
+      visible: true,
+    });
+  };
+
   render() {
     const modelStyle = {
       buttonStyle: {
@@ -21,6 +27,9 @@ class Answer extends React.Component {
     };
 
     return (
+      <>
+      {
+        this.showModal && (
           <Modal
             className="Model-Ans"
             title={ `${this.props.from.name} asked you a question` }
@@ -64,6 +73,9 @@ class Answer extends React.Component {
               </Button>
             </div>
           </Modal>
+          )
+        }
+      </>
     );
   }
 }

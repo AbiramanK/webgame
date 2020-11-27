@@ -14,6 +14,12 @@ class Question extends React.Component {
     }
   }
 
+  showModal = () => {
+    this.setState({
+      visible: true,
+    });
+  };
+
   render() {
     const { Option } = Select;
     const modelStyle = {
@@ -27,6 +33,9 @@ class Question extends React.Component {
     };
 
     return (
+      <>
+      {
+        this.showModal && (
           <Modal
             className="Model-Que"
             title="Your turn to ask a question!"
@@ -57,6 +66,9 @@ class Question extends React.Component {
                 <Select defaultValue={ this.state.player_id } 
                   style={{ width: "90%" }}
                   onChange={ e => this.setState({ ...this.state, player_id: e.target.value }) }
+                  suffixIcon={ 
+                    <div style={{ transform: 'rotate(180deg)', fontSize: '20px', lineHeight: '7px' }}> ^ </div>
+                   }
                 >
                   {
                     vars.game.players.map(player => {
@@ -96,6 +108,9 @@ class Question extends React.Component {
               </Button>
             </div>
           </Modal>
+        )
+        }
+      </>
     )
   }
 }

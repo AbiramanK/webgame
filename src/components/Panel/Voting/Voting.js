@@ -59,6 +59,7 @@ class Voting extends React.Component {
     this.setState({
       visible: false,
     });
+    document.body.style.overflow = 'auto'
   };
 
   handleCancel = (e) => {
@@ -76,6 +77,7 @@ class Voting extends React.Component {
       }
     })
     this.props.handleCancel()
+    document.body.style.overflow = 'auto'
   };
 
   render() {
