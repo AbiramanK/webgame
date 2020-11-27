@@ -56,20 +56,18 @@ class Voting extends React.Component {
   };
 
   handleOk = (e) => {
-    console.log(e);
     this.setState({
       visible: false,
     });
   };
 
   handleCancel = (e) => {
-    console.log(e);
     this.setState({
       visible: false,
     });
     gameIO.emit('vote', {
       short_id: vars.game.short_id,
-      round_id: vars.game._id,
+      round_id: vars.round._id,
       by: {
         player_id: vars.player._id
       },

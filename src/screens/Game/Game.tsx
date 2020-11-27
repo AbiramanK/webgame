@@ -172,6 +172,13 @@ export class Game extends React.Component<IGameProps, IGameState> {
 
             if(!data.error) this.setState({ 
                 ...this.state, 
+                question:false,
+                answer: false,
+                from: {
+                    name: undefined,
+                    email: undefined,
+                    question: undefined
+                },
                 vote: true,
                 caller: data.name
             })
@@ -182,6 +189,13 @@ export class Game extends React.Component<IGameProps, IGameState> {
 
             if(!data.error) this.setState({ 
                 ...this.state, 
+                question:false,
+                answer: false,
+                from: {
+                    name: undefined,
+                    email: undefined,
+                    question: undefined
+                },
                 vote: true,
                 caller: data.name
             })
@@ -253,24 +267,32 @@ export class Game extends React.Component<IGameProps, IGameState> {
     }
 
     handleAsk = (data: any) => {
-        gameIO.emit('ask', { 
-            short_id: vars.game.short_id, 
-            round_id: vars.round._id, 
-            from: vars.player, 
-            to: vars.game.players.find(player => player._id === data.player_id),
-            question: data.question 
-        })
-        this.setState({ ...this.state, question: false })
+        if(data.question) {
+            gameIO.emit('ask', { 
+                short_id: vars.game.short_id, 
+                round_id: vars.round._id, 
+                from: vars.player, 
+                to: vars.game.players.find(player => player._id === data.player_id),
+                question: data.question 
+            })
+            this.setState({ ...this.state, question: false })
+        } else {
+            this.handleCancel()
+        }
     }
 
     handleAnswer = (data: any) => { 
-        gameIO.emit('answer', {  
-            short_id: vars.game.short_id, 
-            round_id: vars.round._id, 
-            interaction_id: vars.interaction_id,
-            answer: data.answer 
-        })
-        this.setState({ ...this.state, answer: false })
+        if(data.answer) {
+            gameIO.emit('answer', {  
+                short_id: vars.game.short_id, 
+                round_id: vars.round._id, 
+                interaction_id: vars.interaction_id,
+                answer: data.answer 
+            })
+            this.setState({ ...this.state, answer: false })
+        } else {
+            this.handleCancel()
+        }
     }
 
     handleCancel = () => {
