@@ -1,5 +1,5 @@
 import io from 'socket.io-client';
-
+ 
 import { API_BASE } from '../Configs'  
 
 export const playerIO = io(`${API_BASE}/player`, { path: '/webgame/socket.io/'})
@@ -24,8 +24,14 @@ export const vars = {
             }
         ],
         lobby: {
-            chats: []
-        },
+            chats: [
+                {
+                    name: undefined,
+                    email: undefined,
+                    message: undefined
+                }
+            ]
+        }
     },
     player: {
         _id: undefined,
@@ -39,11 +45,10 @@ export const vars = {
     },
     round: {
         _id: undefined,
+        count: undefined,
         name: undefined,
         state: undefined,
         tiles: {
-            rows: undefined,
-            columns: undefined,
             locations: [
                 [
                     {
@@ -57,46 +62,38 @@ export const vars = {
                 ]
             ]
         },
-        interactions: [
-            {
-                _id: undefined,
-                question: {
-                    from: {
-                        name: undefined,
-                        email: undefined
-                    },
-                    to: {
-                        name: undefined,
-                        email: undefined
-                    },
-                    question: undefined
-                },
-                answer: undefined
-            }
-        ],
         leaderboardChats: [],
-        endingAt: '',
-        endedAt: ''
+        imposterWon: undefined,
+        endingAt: undefined,
+        endedAt: undefined
     },
+    interactions: [
+        {
+            _id: undefined,
+            question: {
+                from: {
+                    name: undefined,
+                    email: undefined
+                },
+                to: {
+                    name: undefined,
+                    email: undefined
+                },
+                question: undefined
+            },
+            answer: undefined
+        }
+    ],
     location: {
         name: undefined,
         image: undefined,
-        position: {
-            i: undefined,
-            j: undefined,
-        }
     },
     tempGuesses: [
         [
             {
                 _id: undefined,
                 type: undefined,
-                position: {
-                    i: undefined,
-                    j: undefined
-                }
             }
         ]
     ],
-    interaction_id: undefined,
 }

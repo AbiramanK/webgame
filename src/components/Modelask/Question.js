@@ -40,8 +40,14 @@ class Question extends React.Component {
             className="Model-Que"
             title="Your turn to ask a question!"
             visible={this.props.show}
-            onOk={() => this.props.handleAsk(this.state)}
-            onCancel={this.props.handleCancel}
+            onOk={() => { 
+              document.body.style.overflow = 'auto'
+              this.props.handleAsk(this.state)
+            }}
+            onCancel={() => {
+              document.body.style.overflow = 'auto'
+              this.props.handleCancel()
+            }}
             footer={[
               <Button
                 style={{
@@ -49,7 +55,10 @@ class Question extends React.Component {
                   color: Colors.WHITE,
                   borderRadius: "5px",
                 }}
-                onClick={this.props.handleCancel}
+                onClick={() => { 
+                  document.body.style.overflow = 'auto'
+                  this.props.handleCancel()
+                }}
                 key="button"
               >
                 Skip
@@ -102,7 +111,10 @@ class Question extends React.Component {
                   padding: "0 30px",
                   borderRadius: "5px",
                 }}
-                onClick={ () => this.props.handleAsk(this.state) }
+                onClick={() => { 
+                  document.body.style.overflow = 'auto'
+                  this.props.handleAsk(this.state)
+                }}
               >
                 Ask
               </Button>

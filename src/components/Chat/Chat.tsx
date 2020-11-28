@@ -15,7 +15,6 @@ export interface IChat {
 export interface IChatProps {
     chats: IChat[]
     showInput: boolean,
-    join: boolean
 }
 
 export interface IChatState {
@@ -46,16 +45,6 @@ export class Chat extends React.Component<IChatProps, IChatState> {
 
             if(!data.error) this.setState({ chats: [ ...this.state.chats, data ] })
         })
-
-        if(this.props.join) {
-            chatIO.on('joinRes', (data: any) => {
-                console.log('Chat_joinRes', data)
-
-                if(!data.error) this.setState({ chats: data.chats })
-            })
-            
-            chatIO.emit('join', { short_id: vars.game.short_id })
-        }
     }
 
     componentWillUnmount = () => {

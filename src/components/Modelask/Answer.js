@@ -35,13 +35,22 @@ class Answer extends React.Component {
             title={ `${this.props.from.name} asked you a question` }
             visible={ this.props.show }
             style={{ borderRadius: "10px" }}
-            onOk={ () => this.props.handleAnswer(this.state) }
-            onCancel={this.props.handleCancel}
+            onOk={ () => { 
+              document.body.style.overflow = 'auto'
+               this.props.handleAnswer(this.state)
+            }}
+            onCancel={() => { 
+              document.body.style.overflow = 'auto'
+              this.props.handleCancel() 
+            }}
             footer={[
               <Button
                 size="middle"
                 style={{ backgroundColor: Colors.PRIMARY, color: Colors.WHITE }}
-                onClick={this.props.handleCancel}
+                onClick={() => { 
+                  document.body.style.overflow = 'auto'
+                  this.props.handleCancel()
+                }}
                 key="key"
               >
                 Skip
@@ -67,7 +76,10 @@ class Answer extends React.Component {
                   marginTop: "30px",
                   padding: "0 30px",
                 }}
-                onClick={ () => this.props.handleAnswer(this.state) }
+                onClick={ () => { 
+                  this.props.handleAnswer(this.state)
+                  document.body.style.overflow = 'auto'
+                }}
               >
                 Answer
               </Button>

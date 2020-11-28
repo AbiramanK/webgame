@@ -55,14 +55,14 @@ class Voting extends React.Component {
     })
   };
 
-  handleOk = (e) => {
+  handleOk = () => {
     this.setState({
       visible: false,
     });
     document.body.style.overflow = 'auto'
   };
 
-  handleCancel = (e) => {
+  handleCancel = () => {
     this.setState({
       visible: false,
     });
@@ -113,8 +113,8 @@ class Voting extends React.Component {
     }
     return (
       <>
-        {this.showModal && (
-         
+        {
+          this.showModal && (
             <Modal
               bodyStyle={{ padding: "0px", margin: "0px"}}
               className={"Vote-pannel-model-wraper"}

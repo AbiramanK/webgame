@@ -1,36 +1,15 @@
 import React from 'react';
 import { Card, Row, Col, Typography } from 'antd';
 import { AudioOutlined } from '@ant-design/icons';
-import { RouteComponentProps, withRouter} from 'react-router-dom';
+import { withRouter} from 'react-router-dom';
 
 import { Colors} from '../../Colors';
 import { Header, Chat } from '../../components';
 import moduleStyles from './Leaderboard.module.css'
 import { gameIO, vars } from '../../SocketIO';
 
-export interface IScore {
-    name: string | undefined 
-    points: number | undefined
-}
-
-export interface LocationState {
-    roundsLeft: number
-}
-
-export interface MatchParams {
-    short_id: string
-}
-
-export interface ILeaderboardProps extends RouteComponentProps<MatchParams, {}, LocationState> {}
-
-export interface ILeaderboardState {
-    roundsRemaining: number
-    leaderBoard: IScore[]
-    counter: number
-}
-
-export class Leaderboard extends React.Component<ILeaderboardProps, ILeaderboardState> {
-    constructor(props: ILeaderboardProps) {
+export class Leaderboard extends React.Component {
+    constructor(props) {
         super(props);
 
         this.state = {
@@ -51,37 +30,40 @@ export class Leaderboard extends React.Component<ILeaderboardProps, ILeaderboard
             return 
         }
 
-        gameIO.on('newRoundRes', (data: any) => {
-            console.log('Lobby_newRoundRes', data)
+        gameIO.on('newRoundRes', data => {
+            console.log('Leaderboard_gameIO_newRoundRes', data)
 
             if(!data.error) gameIO.emit('info', { 
                 short_id: vars.game.short_id, 
-                email: vars.player.email, 
-                round_id: data.round_id 
+                player_id: vars.player._id
             })
         })
 
-        gameIO.on('newRoundResAll', (data: any) => {
-            console.log('Lobby_newRoundResAll', data)
+        gameIO.on('newRoundResAll', data => {
+            console.log('Leaderboard_gameIO_newRoundResAll', data)
 
             if(!data.error) gameIO.emit('info', { 
                 short_id: vars.game.short_id, 
-                email: vars.player.email, 
-                round_id: data.round_id 
+                player_id: vars.player._id
             })
         })
 
-        gameIO.on('infoRes', (data: any) => {
-            console.log('Lobby_infoRes', data)
+        gameIO.on('infoRes', data => {
+            console.log('Leaderboard_gameIO_infoRes', data)
 
+            this.setState({ ...this.state, startGameClicked: false })
             if(!data.error) {
-                data.round.tiles.locations = this.parseLocations(data.round.tiles)
-                data.tempGuesses = this.parseTempGuesses(data.round.tiles, data.tempGuesses)
-
                 vars.player.isImposter = data.isImposter
+
+                if(data.isImposter) {
+                    vars.tempGuesses = data.round.imposter.tempGuesses
+                    delete data.round.imposter
+                } else {
+                    vars.location = data.round.location
+                    delete data.round.location
+                }
                 vars.round = data.round
-                vars.location = data.location
-                vars.tempGuesses = data.tempGuesses
+                vars.interactions = data.round.interactions
 
                 this.props.history.replace(`/game-rooms/${vars.game.short_id}/game`)
             }
@@ -97,27 +79,10 @@ export class Leaderboard extends React.Component<ILeaderboardProps, ILeaderboard
         this.setState = () => {}
     }
 
-    parseLocations = (tiles: any) => {
-        const parsedLocations = new Array(tiles.rows).fill(undefined).map(() => new Array(tiles.columns).fill(undefined))
-        tiles.locations.forEach((location: any) => {
-            parsedLocations[location.position.i][location.position.j] = {
-                name: location.name,
-                image: location.image
-            }
-        })
-        return parsedLocations
-    }
-
-    parseTempGuesses = (tiles: any, tempGuesses: any) => {
-        const parsedGuesses = new Array(tiles.rows).fill(undefined).map(() => new Array(tiles.columns).fill(undefined))
-        tempGuesses.forEach((guess: any) => { parsedGuesses[guess.position.i][guess.position.j] = guess })
-        return parsedGuesses
-    }
-
     suffix = () => (<AudioOutlined style={{ fontSize: 16, color: '#1890ff' }}/>)
 
     prepareNextRound = () => {
-        let counter = 30 - Math.trunc((Date.now().valueOf() - new Date(vars.round.endedAt).valueOf()) / 1000)
+        let counter = Math.max(30 - Math.trunc((Date.now().valueOf() - new Date(vars.round.endedAt).valueOf()) / 1000), 1)
         this.setState({ ...this.state, counter })
         
         const timeout = setInterval(() => {
@@ -130,7 +95,7 @@ export class Leaderboard extends React.Component<ILeaderboardProps, ILeaderboard
         }, 1000)
     }
 
-    public render() {
+    render() {
         return (
             <div className={ moduleStyles['lobby-container'] }>
                 <Header/>
@@ -140,23 +105,24 @@ export class Leaderboard extends React.Component<ILeaderboardProps, ILeaderboard
                         flexDirection: 'column',
                         justifyContent: 'center',
                         alignItems: 'center',
-                        margin: 10
+                        margin: 10,
+                        textAlign: 'center'
                     }}
                 >
-                <Typography style={{ fontSize: 25 }}>
-                    { vars.round.name } Completed! 
-                    {
-                        this.state.roundsRemaining > 0 
-                        ? ` Time Until Next Round: ${ this.state.counter.toString().padStart(2, '0') }s`
-                        : ' Game Over'
-                    }
-                </Typography>
-                <Typography style={{ fontSize: 16 }}>
-                    {
-                        this.state.roundsRemaining > 0 &&
-                        `Rounds Remaining: ${ this.state.roundsRemaining }`
-                    }
-                </Typography>
+                    <Typography style={{ fontSize: 25 }}>
+                        { vars.round.name } Completed! 
+                        {
+                            this.state.roundsRemaining > 0 
+                            ? ` Time Until Next Round: ${ this.state.counter.toString().padStart(2, '0') }s`
+                            : ' Game Over'
+                        }
+                    </Typography>
+                    <Typography style={{ fontSize: 16 }}>
+                        {
+                            this.state.roundsRemaining > 0 &&
+                            `Rounds Remaining: ${ this.state.roundsRemaining }`
+                        }
+                    </Typography>
                 </div>
                 <Row className={ moduleStyles['lobby-row'] }>
                     <Col>
@@ -170,7 +136,7 @@ export class Leaderboard extends React.Component<ILeaderboardProps, ILeaderboard
                             >
                                 <div style={{ height: 400, overflow: 'auto' }}>
                                     {
-                                        this.state.leaderBoard.map((player: any, index: number) => {
+                                        this.state.leaderBoard.map((player, index) => {
                                             return (
                                                 <div 
                                                     className={ moduleStyles['player-status-card'] }

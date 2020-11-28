@@ -1,39 +1,57 @@
 import React from 'react';
-import { withRouter, RouteComponentProps } from 'react-router-dom';
+import { withRouter } from 'react-router-dom';
 import { Card, Input, Button, Form } from 'antd';
 
 import styles from './Host.module.css'
 import { Colors } from '../../Colors';
 import { Header } from '../../components';
-import { playerIO, vars, chatIO } from '../../SocketIO'
+import { playerIO, vars, chatIO, gameIO } from '../../SocketIO'
 
-export interface IHostProps extends RouteComponentProps {}
-
-export interface IHostState {}
-
-export class Login extends React.Component<IHostProps, IHostState> {
-    constructor(props: IHostProps) {
+export class Login extends React.Component {
+    constructor(props) {
         super(props);
 
-        this.state = {} 
+        this.state = {
+            hostClicked: false
+        } 
     }
 
     componentDidMount() {
-        playerIO.on("hostRes", (data: any) => {
-            console.log("Host_hostRes", data)
+        playerIO.on("hostRes", data => {
+            console.log("Host_playerIO_hostRes", data)
 
             if(!data.error) playerIO.emit("join", data)
+            else this.setState({ ...this.state, hostClicked: false })
         });
 
-        playerIO.on("joinRes", (data: any) => {
-            console.log("Host_joinRes", data)
+        playerIO.on("joinRes", data => {
+            console.log("Host_playerIO_joinRes", data)
 
             if(!data.error) {
                 vars.init = true
                 vars.game = data.game
                 vars.player = data.player
         
-                this.props.history.push(`/game-rooms/${data.game.short_id}/lobby`)
+                chatIO.emit('join', { short_id: data.game.short_id })
+            } else this.setState({ ...this.state, hostClicked: false })
+        })
+
+        chatIO.on('joinRes', data => {
+            console.log('Host_chatIO_joinRes', data)
+
+            if(!data.error) gameIO.emit('start', {
+                short_id: vars.game.short_id,
+                player_id: vars.player._id
+            }) 
+            else this.setState({ ...this.state, hostClicked: false })
+        })
+
+        gameIO.on('startRes', data => {
+            console.log('Host_gameIO_startRes', data)
+
+            this.setState({ ...this.state, hostClicked: false })
+            if(!data.error) {
+                this.props.history.push(`/game-rooms/${vars.game.short_id}/lobby`)
             }
         })
     }
@@ -42,13 +60,18 @@ export class Login extends React.Component<IHostProps, IHostState> {
         playerIO.off("hostRes")
         playerIO.off("joinRes")
         chatIO.off('joinRes')
-        chatIO.off('join')
+        gameIO.off('startRes')
         this.setState = () => {}
     }
 
-    host = (values: any) => playerIO.emit("host", values)
+    host = values => {
+        if(!this.state.hostClicked) {
+            playerIO.emit("host", values)
+            this.setState({ ...this.state, hostClicked: true})
+        }
+    }
 
-    public render() {
+    render() {
         return (
             <div className={ styles['container'] }>
                 <Header/>

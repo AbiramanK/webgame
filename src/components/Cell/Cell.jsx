@@ -1,27 +1,11 @@
 import React from 'react';
-import { RouteComponentProps, withRouter } from 'react-router-dom';
+import {  withRouter } from 'react-router-dom';
 
 import styles from './Cell.module.css'
 import { Colors } from '../../Colors'
 
-export interface ICellProps extends RouteComponentProps {
-    isImposter: boolean
-    isJackpot?: boolean
-    name?: string
-    image?: string
-    tempGuess?: 'NOTHING' | 'Q-MARK' | 'X-MARK'
-    markChanged?: (mark: 'NOTHING' | 'Q-MARK' | 'X-MARK') => void
-    isFinalGuessTime?: boolean
-    finalGuessed?: () => void
-}
-
-export interface ICellState {
-    mark: 'NOTHING' | 'Q-MARK' | 'X-MARK',
-    mouseOver: boolean,
-}
-
-export class Cell extends React.Component<ICellProps, ICellState> {
-    constructor(props: ICellProps) {
+export class Cell extends React.Component {
+    constructor(props) {
         super(props);
 
         this.state = {
@@ -30,14 +14,14 @@ export class Cell extends React.Component<ICellProps, ICellState> {
         }
     }
 
-    handleChange = (mark: 'NOTHING' | 'Q-MARK' | 'X-MARK') => {
+    handleChange = mark => {
         this.setState({ ...this.state, mark })
         if(this.props.markChanged) this.props.markChanged(mark)
     }
  
-    public render() {
+    render() {
         return (
-            <>
+            <div className={ styles['container'] }>
                 {
                     this.props.isFinalGuessTime
                     ? this.ifFinalGuessTime()
@@ -45,7 +29,7 @@ export class Cell extends React.Component<ICellProps, ICellState> {
                         ? this.ifImposter()
                         : this.ifNotImposter()
                 }
-            </>
+            </div>
         )
     }
 
@@ -59,7 +43,11 @@ export class Cell extends React.Component<ICellProps, ICellState> {
                             this.props.finalGuessed()
                         }
                     }
-                }/>
+                }
+            >
+                <img alt="" src={ this.props.image } className={ styles['image'] }/>
+                <div>{ this.props.name }</div>
+            </div>
         )
     }
 
@@ -80,7 +68,8 @@ export class Cell extends React.Component<ICellProps, ICellState> {
                             : { opacity: 0.0, backgroundColor: Colors.SECONDARY_LIGHT }
                     }
                     onClick={ () => this.handleChange('NOTHING') }
-                ></div>
+                >{ this.props.name }</div>
+                <img alt="" src={ this.props.image } className={ styles['imposter-image'] }/>
                 <div className={ styles['q-mark'] } 
                     style={ 
                         this.state.mark === 'Q-MARK'

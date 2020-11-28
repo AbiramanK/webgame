@@ -1,36 +1,28 @@
 import React from 'react';
-import { RouteComponentProps, withRouter } from 'react-router-dom';
+import { withRouter } from 'react-router-dom';
 import { Card, Button, Row, Col } from 'antd';
 
 import styles from './Lobby.module.css'
 import { Colors } from '../../Colors';
 import { Header, Chat } from '../../components';
-import { playerIO, vars, chatIO, gameIO } from '../../SocketIO'
+import { playerIO, vars, gameIO, chatIO } from '../../SocketIO'
 
-export interface IChat {
-    name: string,
-    email: string,
-    message: string
-}
-
-export interface MatchParams {
-    short_id: string
-}
- 
-export interface ILobbyProps extends RouteComponentProps<MatchParams> {}
-
-export interface ILobbyState {
-    player: any,
-    players: object[]
-} 
-
-export class Lobby extends React.Component<ILobbyProps, ILobbyState> {
-    constructor(props: ILobbyProps) {
+export class Lobby extends React.Component {
+    constructor(props) {
         super(props);
 
         this.state = { 
-            player: vars.player,
-            players: vars.game.players
+            startGameClicked: false,
+            ownState: vars.player.state,
+            players: vars.game.players.map(player => {
+                return {
+                    _id: player._id,
+                    name: player.name,
+                    email: player.email,
+                    state: player.state,
+                    isHost: player.isHost
+                }
+            })
         }
     }
 
@@ -40,85 +32,89 @@ export class Lobby extends React.Component<ILobbyProps, ILobbyState> {
             return 
         } 
 
-        playerIO.on('joinResAll', (data: any) => {
-            console.log('Lobby_joinResAll', data)
+        playerIO.on('joinResAll', data => {
+            console.log('Lobby_playerIO_joinResAll', data)
 
             if(!data.error) {
-                vars.game.players = data.players 
-                this.setState({ ...this.state, players: data.players })
+                vars.game.players.push(data.player) 
+
+                this.state.players.push({
+                    _id: data.player._id,
+                    name: data.player.name,
+                    email: data.player.email,
+                    state: data.player.state,
+                    isHost: data.player.isHost
+                }) 
+                this.setState({ ...this.state })
             }
         })
 
-        playerIO.on('setStateRes', (data: any) => {
-            console.log('Lobby_setStateRes', data)
+        playerIO.on('setStateRes', data => {
+            console.log('Lobby_playerIO_setStateRes', data)
             
             if(!data.error) {
-                vars.game.players = data.players 
-                this.setState({ 
-                    players: data.players, 
-                    player: data.players.find((player: any) => player.email === this.state.player.email) 
-                })
+                vars.game
+                    .players    
+                    .find(player => player._id === data.player_id)
+                    .state = data.state 
+                vars.player.state = data.state
             }
         })
 
-        playerIO.on('setStateResAll', (data: any) => {
-            console.log('Lobby_setStateResAll', data)
+        playerIO.on('setStateResAll', data => {
+            console.log('Lobby_playerIO_setStateResAll', data)
 
             if(!data.error) {
-                vars.game.players = data.players 
-                this.setState({ ...this.state, players: data.players })
+                vars.game
+                    .players
+                    .find(player => player._id === data.player_id)
+                    .state = data.state 
+
+                this.state
+                    .players
+                    .find(player => player._id === data.player_id)
+                    .state = data.state
+                this.setState({ ...this.state })
             }
         })
 
-        chatIO.on('startGameRes', (data: any) => {
-            console.log('Lobby_startGameRes', data)
+        chatIO.on('startGameRes', data => {
+            console.log('Lobby_chatIO_startGameRes', data)
 
-            if(!data.error) gameIO.emit('start', { short_id: vars.game.short_id, player_id: vars.player._id })
+            if(!data.error) gameIO.emit('newRound', { short_id: vars.game.short_id })
+            else this.setState({ ...this.state, startGameClicked: false })
         })
 
-        chatIO.on('startGameResAll', (data: any) => {
-            console.log('Lobby_startGameResAll', data)
-
-            if(!data.error) gameIO.emit('start', { short_id: vars.game.short_id, player_id: vars.player._id })
-        })
-
-        gameIO.on('startRes', (data: any) => {
-            console.log('Lobby_startRes', data)
-
-            if(!data.error && vars.player.isHost) gameIO.emit('newRound', { short_id: vars.game.short_id })
-        })
-
-        gameIO.on('newRoundRes', (data: any) => {
-            console.log('Lobby_newRoundRes', data)
+        gameIO.on('newRoundRes', data => {
+            console.log('Lobby_gameIO_newRoundRes', data)
 
             if(!data.error) gameIO.emit('info', { 
                 short_id: vars.game.short_id, 
-                email: vars.player.email, 
-                round_id: data.round_id 
+                player_id: vars.player._id 
             })
+            else this.setState({ ...this.state, startGameClicked: false })
         })
 
-        gameIO.on('newRoundResAll', (data: any) => {
-            console.log('Lobby_newRoundResAll', data)
+        gameIO.on('newRoundResAll', data => {
+            console.log('Lobby_gameIO_newRoundResAll', data)
 
             if(!data.error) gameIO.emit('info', { 
                 short_id: vars.game.short_id, 
-                email: vars.player.email, 
-                round_id: data.round_id 
+                player_id: vars.player._id
             })
         })
      
-        gameIO.on('infoRes', (data: any) => {
-            console.log('Lobby_infoRes', data)
+        gameIO.on('infoRes', data => {
+            console.log('Lobby_gameIO_infoRes', data)
 
+            this.setState({ ...this.state, startGameClicked: false })
             if(!data.error) {
-                data.round.tiles.locations = this.parseLocations(data.round.tiles)
-                data.tempGuesses = this.parseTempGuesses(data.round.tiles, data.tempGuesses)
-
                 vars.player.isImposter = data.isImposter
+
+                if(data.isImposter) vars.tempGuesses = data.round.imposter.tempGuesses
+                else vars.location = data.round.location
                 vars.round = data.round
-                vars.location = data.location
-                vars.tempGuesses = data.tempGuesses
+                vars.interactions = data.round.interactions
 
                 this.props.history.replace(`/game-rooms/${vars.game.short_id}/game`)
             }
@@ -130,41 +126,37 @@ export class Lobby extends React.Component<ILobbyProps, ILobbyState> {
         playerIO.off('joinResAll')
         playerIO.off('setStateRes')
         playerIO.off('setStateResAll')
-        chatIO.off('startGameRes')
-        chatIO.off('startGameResAll')
-        gameIO.off('startRes')
         gameIO.off('newRoundRes')
         gameIO.off('newRoundResAll')
         gameIO.off('infoRes')
         this.setState = () => {}
     }
-
-    parseLocations = (tiles: any) => {
-        const parsedLocations = new Array(tiles.rows).fill(undefined).map(() => new Array(tiles.columns).fill(undefined))
-        tiles.locations.forEach((location: any) => {
-            parsedLocations[location.position.i][location.position.j] = {
-                name: location.name,
-                image: location.image
-            }
-        })
-        return parsedLocations
-    }
-
-    parseTempGuesses = (tiles: any, tempGuesses: any) => {
-        const parsedGuesses = new Array(tiles.rows).fill(undefined).map(() => new Array(tiles.columns).fill(undefined))
-        tempGuesses.forEach((guess: any) => { parsedGuesses[guess.position.i][guess.position.j] = guess })
-        return parsedGuesses
-    }
     
-    handleReadyState = (state: any) => { 
-        const game = vars.game
-        const player = this.state.player
-        playerIO.emit('setState', { short_id: game.short_id, player_id: player._id, state })
+    handleReadyState = state => { 
+        playerIO.emit('setState', { 
+            short_id: vars.game.short_id, 
+            player_id: vars.player._id, 
+            state 
+        })
+
+        this.state
+            .players
+            .find(player => player._id === vars.player._id)
+            .state = state
+        this.setState({ 
+            ...this.state,
+            ownState: state
+        })
     }
 
-    handleStart = () => chatIO.emit('startGame', { short_id: vars.game.short_id })
+    handleStart = () => {
+        if(!this.state.startGameClicked) {
+            chatIO.emit('startGame', { short_id: vars.game.short_id })
+            this.setState({ ...this.state, startGameClicked: true })
+        }
+    }
 
-    public render() {
+    render() {
         const href = window.location.href
         const split = href.split('/')
         split.pop()
@@ -173,9 +165,17 @@ export class Lobby extends React.Component<ILobbyProps, ILobbyState> {
         return (
             <div className={ styles['container'] }>
                 <Header/>
-                <Row className={ styles['row'] } style={{ marginLeft: 20, justifyContent: 'left', color: Colors.PRIMARY }}>
+                <Row 
+                    className={ styles['row'] } 
+                    style={{ marginLeft: 20, justifyContent: 'left', color: Colors.PRIMARY }}
+                >
                     <Col>
-                        <span style={{ color: Colors.DARKGREY, MozUserSelect: 'none', WebkitUserSelect: 'none', msUserSelect: 'none' }}>
+                        <span style={{ 
+                            color: Colors.DARKGREY, 
+                            MozUserSelect: 'none', 
+                            WebkitUserSelect: 'none', 
+                            msUserSelect: 'none' 
+                        }}>
                             Invitation Link:
                         </span> { link }
                     </Col>
@@ -191,10 +191,16 @@ export class Lobby extends React.Component<ILobbyProps, ILobbyState> {
                             >
                                 <div style={{ height: 400, overflow: 'auto' }}>
                                     {
-                                        this.state.players.map((player: any, index: any) => {
+                                        this.state.players.map((player, index) => {
                                             return (
-                                                <div className={ styles['player-status-card'] } key={ index }>
-                                                    <span className={ styles['player-name'] } style={{ marginRight: 10 }}>
+                                                <div 
+                                                    className={ styles['player-status-card'] } 
+                                                    key={ index }
+                                                >
+                                                    <span 
+                                                        className={ styles['player-name'] } 
+                                                        style={{ marginRight: 10 }}
+                                                    >
                                                         { player.name }
                                                     </span>
                                                     <span 
@@ -226,16 +232,16 @@ export class Lobby extends React.Component<ILobbyProps, ILobbyState> {
                                     :   <Button
                                             type="primary"
                                             className={ styles['ready-button'] }
-                                            onClick={ () => this.handleReadyState(this.state.player.state === 'READY' ? 'NOT-READY' : 'READY') }
+                                            onClick={ () => this.handleReadyState(this.state.ownState === 'READY' ? 'NOT-READY' : 'READY') }
                                         >
-                                            { this.state.player.state === 'READY' ? 'NOT-READY' : 'READY' }
+                                            { this.state.ownState === 'READY' ? 'NOT-READY' : 'READY' }
                                         </Button>
                                 }
                             </Card>
                         </div>
                     </Col>
                     <Col>
-                        <Chat join={ true } showInput={ true } chats={ vars.game.lobby.chats }/>
+                        <Chat showInput={ true } chats={ vars.game.lobby.chats }/>
                     </Col>
                 </Row>
             </div>

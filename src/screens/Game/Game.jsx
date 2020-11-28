@@ -1,47 +1,16 @@
 import React from 'react';
-import { withRouter, RouteComponentProps } from 'react-router-dom'
+import { withRouter } from 'react-router-dom'
 
 import styles from './Game.module.css';
 import { Chat, Header, Matrix, Question, Answer, Voting } from '../../components';
 import { gameIO, vars, chatIO } from '../../SocketIO'
 import { clearInterval } from 'timers';
 
-export interface MatchParams {
-    short_id: string
-}
-
-export interface IChat {
-    name: string | undefined,
-    email: string | undefined,
-    message: string | undefined
-}
-
-export interface IGameProps extends RouteComponentProps<MatchParams> {}
-
-export interface IGameState {
-    counter: number | undefined,
-    countdown: NodeJS.Timeout | undefined
-    question: boolean,
-    answer: boolean,
-    from: {
-        name: string | undefined,
-        email: string | undefined,
-        question: string | undefined
-    },
-    isFinalGuessTime: boolean,
-    vote: boolean,
-    caller: string
-    timeout: boolean
-    meeting: boolean
-}
-
-export class Game extends React.Component<IGameProps, IGameState> {
-    constructor(props: IGameProps) {
+export class Game extends React.Component {
+    constructor(props) {
         super(props)
 
         this.state = {
-            counter: 0,
-            countdown: undefined,
             question: false,
             answer: false,
             from: {
@@ -49,12 +18,32 @@ export class Game extends React.Component<IGameProps, IGameState> {
                 email: undefined,
                 question: undefined
             },
-            isFinalGuessTime: false,
             vote: false,
             caller: '',
             timeout: false,
-            meeting: false
+            meeting: false,
+            isFinalGuessTime: false,
+            counter: new Date(vars.round.endingAt).valueOf() - Date.now().valueOf(), 
+            countdown: undefined
         }
+
+        const countdown = setInterval(() => {
+            if(this.state.counter >= 0) {
+                this.setState({ 
+                    ...this.state, 
+                    counter: this.state.counter - 1000 
+                })
+            } else {
+                if(this.countdown) clearInterval(this.state.countdown)
+                this.setState({
+                    ...this.state,
+                    counter: 0,
+                    countdown: undefined
+                })
+            }
+        }, 1000)
+
+        this.state.countdown = countdown
     }
 
     componentDidMount = () => {
@@ -62,34 +51,9 @@ export class Game extends React.Component<IGameProps, IGameState> {
             this.props.history.replace(`/game-rooms/${this.props.match.params.short_id}`)
             return 
         }
-        
-        if(this.state.countdown) clearInterval(this.state.countdown)
 
-        this.setState({ 
-            ...this.state,
-            isFinalGuessTime: false,
-            counter: new Date(vars.round.endingAt).valueOf() - Date.now().valueOf(), 
-            countdown: setInterval(() => {
-                if(this.state.counter !== undefined) {
-                    if(this.state.counter >= 0) {
-                        this.setState({
-                            ...this.state,
-                            counter: this.state.counter ? this.state.counter - 1000 : 0
-                        })
-                    } else {
-                        if(this.state.countdown) clearInterval(this.state.countdown)
-                        this.setState({
-                            ...this.state,
-                            counter: 0,
-                            countdown: undefined
-                        })
-                    }
-                }
-            }, 1000) 
-        })
-
-        gameIO.on('question', (data: any) => {
-            console.log('Game_question', data)
+        gameIO.on('question', data => {
+            console.log('Game_gameIO_question', data)
 
             if(!data.error) {
                 if(!this.state.timeout && !this.state.meeting) this.setState({ 
@@ -99,8 +63,8 @@ export class Game extends React.Component<IGameProps, IGameState> {
             }
         })
 
-        gameIO.on('askRes', (data: any) => {
-            console.log('Game_askRes', data)
+        gameIO.on('askRes', data => {
+            console.log('Game_gameIO_askRes', data)
 
             if(!data.error) {
                 vars.interaction_id = data.interaction._id
@@ -114,8 +78,8 @@ export class Game extends React.Component<IGameProps, IGameState> {
             }
         })
 
-        gameIO.on('askResAll', (data: any) => {
-            console.log('Game_askResAll', data)
+        gameIO.on('askResAll', data => {
+            console.log('Game_gameIO_askResAll', data)
 
             if(!data.error) {
                 vars.interaction_id = data.interaction._id
@@ -135,8 +99,8 @@ export class Game extends React.Component<IGameProps, IGameState> {
             }
         })
 
-        gameIO.on('answerRes', (data: any) => {
-            console.log('Game_answerRes', data)
+        gameIO.on('answerRes', data => {
+            console.log('Game_gameIO_answerRes', data)
 
             if(!data.error) {
                 vars.interaction_id = data.interaction._id
@@ -153,8 +117,8 @@ export class Game extends React.Component<IGameProps, IGameState> {
             }
         })
 
-        gameIO.on('answerResAll', (data: any) => {
-            console.log('Game_answerResAll', data)
+        gameIO.on('answerResAll', data => {
+            console.log('Game_gameIO_answerResAll', data)
 
             if(!data.error) {
                 vars.interaction_id = data.interaction._id
@@ -165,10 +129,10 @@ export class Game extends React.Component<IGameProps, IGameState> {
             }
         })
 
-        gameIO.on('skipRes', (data: any) => console.log('Game_skipRes', data))
+        gameIO.on('skipRes', data => console.log('Game_gameIO_skipRes', data))
 
-        gameIO.on('callMeetingRes', (data: any) => {
-            console.log('Game_callMeeting', data)
+        gameIO.on('callMeetingRes', data => {
+            console.log('Game_gameIO_callMeeting', data)
 
             if(!data.error) this.setState({ 
                 ...this.state, 
@@ -185,8 +149,8 @@ export class Game extends React.Component<IGameProps, IGameState> {
             })
         })
 
-        gameIO.on('callMeetingResAll', (data: any) => {
-            console.log('Game_callMeetingAll', data)
+        gameIO.on('callMeetingResAll', data => {
+            console.log('Game_gameIO_callMeetingAll', data)
 
             if(!data.error) this.setState({ 
                 ...this.state, 
@@ -203,8 +167,8 @@ export class Game extends React.Component<IGameProps, IGameState> {
             })
         })
         
-        gameIO.on('voteRes', (data: any) => {
-            console.log('Game_voteRes', data)
+        gameIO.on('voteRes', data => {
+            console.log('Game_gameIO_voteRes', data)
 
             if(!data.error) {
                 if(data.completed) gameIO.emit('leaderboard', {
@@ -214,8 +178,8 @@ export class Game extends React.Component<IGameProps, IGameState> {
             }
         })
         
-        gameIO.on('voteResAll', (data: any) => {
-            console.log('Game_voteResAll', data)
+        gameIO.on('voteResAll', data => {
+            console.log('Game_gameIO_voteResAll', data)
 
             if(!data.error) {
                 if(data.completed) gameIO.emit('leaderboard', {
@@ -225,8 +189,8 @@ export class Game extends React.Component<IGameProps, IGameState> {
             }
         })
 
-        gameIO.on('leaderboardRes', (data: any) => {
-            console.log('Game_leaderboardRes', data)
+        gameIO.on('leaderboardRes', data => {
+            console.log('Game_gameIO_leaderboardRes', data)
 
             if(!data.error) {
                 vars.game.players = data.players 
@@ -239,8 +203,8 @@ export class Game extends React.Component<IGameProps, IGameState> {
             }
         })
     
-        gameIO.on('timeout', (data: any) => {
-            console.log('Game_timeout', data)
+        gameIO.on('timeout', data => {
+            console.log('Game_gameIO_timeout', data)
 
             if(!data.error) {
                 this.setState({ ...this.state, timeout: true })
@@ -269,7 +233,7 @@ export class Game extends React.Component<IGameProps, IGameState> {
         this.setState = () => {}
     }
 
-    handleAsk = (data: any) => {
+    handleAsk = data => {
         if(data.question) {
             gameIO.emit('ask', { 
                 short_id: vars.game.short_id, 
@@ -285,7 +249,7 @@ export class Game extends React.Component<IGameProps, IGameState> {
         document.body.style.overflow = 'auto'
     }
 
-    handleAnswer = (data: any) => { 
+    handleAnswer = data => { 
         if(data.answer) {
             gameIO.emit('answer', {  
                 short_id: vars.game.short_id, 
@@ -297,7 +261,6 @@ export class Game extends React.Component<IGameProps, IGameState> {
         } else {
             this.handleCancel()
         }
-        document.body.style.overflow = 'auto'
     }
 
     handleCancel = () => {
@@ -314,18 +277,19 @@ export class Game extends React.Component<IGameProps, IGameState> {
             vote: false,
             caller: ''
         })
-        document.body.style.overflow = 'auto'
     }
 
-    handleMeetingCall = () => gameIO.emit('callMeeting', {
-        short_id: vars.game.short_id,
-        round_id: vars.round._id,
-        player_id: vars.player._id
-    })
+    handleMeetingCall = () => {
+        gameIO.emit('callMeeting', {
+            short_id: vars.game.short_id,
+            round_id: vars.round._id,
+            player_id: vars.player._id
+        })
+    }
 
-    public render() {
+    render() {
         const interactions = vars.round.interactions
-        let chats: IChat[] = []
+        let chats = []
         interactions.forEach(interaction => {
             chats.push({
                 name: interaction.question.from.name,
