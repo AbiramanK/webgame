@@ -33,6 +33,10 @@ export class Login extends React.Component {
                 vars.player = data.player
         
                 chatIO.emit('join', { short_id: data.game.short_id })
+
+                sessionStorage.setItem('name', data.player.name)
+                sessionStorage.setItem('email', data.player.email)
+                sessionStorage.getItem('short_id', data.game.short_id)
             } else this.setState({ ...this.state, hostClicked: false })
         })
 

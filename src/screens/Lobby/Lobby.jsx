@@ -36,16 +36,23 @@ export class Lobby extends React.Component {
             console.log('Lobby_playerIO_joinResAll', data)
 
             if(!data.error) {
+                const player = vars.game.players.find(player => player._id === data.player._id)
+                if(player) { 
+                    vars.game.players = vars.game.players.filter(p => p._id !== player._id)
+                } 
                 vars.game.players.push(data.player) 
-
-                this.state.players.push({
-                    _id: data.player._id,
-                    name: data.player.name,
-                    email: data.player.email,
-                    state: data.player.state,
-                    isHost: data.player.isHost
-                }) 
-                this.setState({ ...this.state })
+                this.setState({ 
+                    ...this.state,
+                    players: vars.game.players.map(player => {
+                        return {
+                            _id: player._id,
+                            name: player.name,
+                            email: player.email,
+                            state: player.state,
+                            isHost: player.isHost
+                        }
+                    }) 
+                })
             }
         })
 

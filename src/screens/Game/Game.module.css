@@ -48,7 +48,7 @@
     background-color: #8c44d3;
 }
 
-@media screen and (max-width: 948px) {
+@media screen and (max-width: 970px) {
 
     .userActionBtn + .userActionBtn {
         margin-top: 10px;

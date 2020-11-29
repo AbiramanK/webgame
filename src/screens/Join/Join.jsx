@@ -11,8 +11,13 @@ export class Login extends React.Component {
     constructor(props) {
         super(props);
 
+        const name = sessionStorage.getItem('name')
+        const email = sessionStorage.getItem('email')
+
         this.state = {
-            joinClicked: false
+            joinClicked: false,
+            name: name ? name : '',
+            email: email ? email : ''
         } 
     }
 
@@ -26,6 +31,10 @@ export class Login extends React.Component {
                 vars.player = data.player
             
                 chatIO.emit('join', { short_id: data.game.short_id })
+
+                sessionStorage.setItem('name', data.player.name)
+                sessionStorage.setItem('email', data.player.email)
+                sessionStorage.setItem('short_id', data.game.short_id)
             } else this.setState({ ...this.state, joinClicked: false })
         })
     
@@ -42,21 +51,71 @@ export class Login extends React.Component {
         gameIO.on('startRes', data => {
             console.log('Join_gameIO_startRes', data)
 
-            this.setState({ ...this.state, joinClicked: false })
             if(!data.error) {
                 if(vars.game.state === 'LOBBY') {
+                    this.setState({ ...this.state, joinClicked: false })
+
                     this.props.history.push(`/game-rooms/${vars.game.short_id}/lobby`)
                 } else {
-                    
+                    gameIO.emit('info', { 
+                        short_id: vars.game.short_id, 
+                        player_id: vars.player._id
+                    })
                 }
             }
         })
+
+        gameIO.on('infoRes', data => {
+            console.log('Join_gameIO_infoRes', data)
+
+            if(!data.error) {
+                vars.player.isImposter = data.isImposter
+
+                if(data.isImposter) vars.tempGuesses = data.round.imposter.tempGuesses
+                else vars.location = data.round.location
+                vars.round = data.round
+                vars.interactions = data.round.interactions
+
+                if(vars.round.state === 'LEADERBOARD') {
+                    gameIO.emit('leaderboard', {
+                        short_id: vars.game.short_id,
+                        round_id: vars.round._id
+                    })
+                } else {
+                    this.setState({ ...this.state, joinClicked: false })
+                    this.props.history.replace(`/game-rooms/${vars.game.short_id}/game`)
+                }
+            } else this.setState({ ...this.state, joinClicked: false })
+        })
+
+        gameIO.on('leaderboardRes', data => {
+            console.log('Join_gameIO_leaderboardRes', data)
+
+            this.setState({ ...this.state, joinClicked: false })
+            if(!data.error) {
+                vars.game.players = data.players 
+                vars.round.endedAt = data.endedAt
+                this.props.history.push({
+                    pathname: `/game-rooms/${vars.game.short_id}/leaderboard`,
+                    state: { roundsLeft: data.roundsLeft }
+                })
+                document.body.style.overflow = 'auto'
+            }
+        })
+
+        if(
+            this.state.name 
+            && this.state.email
+            && sessionStorage.getItem('short_id') === this.props.match.params.short_id 
+        ) this.join({ name: this.state.name, email: this.state.email })
     }
 
     componentWillUnmount = () => {
         playerIO.off("joinRes")
         chatIO.off('joinRes')
         gameIO.off('startRes')
+        gameIO.off('infoRes')
+        gameIO.on('leaderboardRes')
         this.setState = () => {}
     }
 
@@ -77,7 +136,7 @@ export class Login extends React.Component {
         return parsedGuesses
     }
 
-    join = values => {
+    join = values => { console.log(values)
         if(!this.state.joinClicked) {
             playerIO.emit('join', { 
                 ...values, 
@@ -100,8 +159,22 @@ export class Login extends React.Component {
                         headStyle={{ ...jsxStyles.cardHeader }}
                     >
                         <Form layout="vertical" onFinish={ this.join }>
-                            <Form.Item label="Name" name="name" className={ styles['input-label'] }><Input/></Form.Item>
-                            <Form.Item label="Email" name="email" className={ styles['input-label'] }><Input/></Form.Item>
+                            <Form.Item 
+                                label="Name" 
+                                name="name"
+                                className={ styles['input-label'] }
+                                initialValue={ this.state.name }
+                            >
+                                <Input/>
+                            </Form.Item>
+                            <Form.Item 
+                                label="Email" 
+                                name="email" 
+                                className={ styles['input-label'] }
+                                initialValue={ this.state.email }
+                            >
+                                <Input/>
+                            </Form.Item>
                             <Button 
                                 type="primary" 
                                 htmlType="submit" 
@@ -111,7 +184,7 @@ export class Login extends React.Component {
                             </Button>
                         </Form>
                     </Card>
-               </div> 
+                </div> 
             </div>
         )
     }

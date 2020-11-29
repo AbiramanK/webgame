@@ -63,6 +63,11 @@ export const vars = {
             ]
         },
         leaderboardChats: [],
+        meeting: {
+            by: undefined,
+            voted: undefined,
+            for: undefined
+        },
         imposterWon: undefined,
         endingAt: undefined,
         endedAt: undefined

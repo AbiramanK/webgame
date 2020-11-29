@@ -8,7 +8,13 @@ import { clearInterval } from 'timers';
 
 export class Game extends React.Component {
     constructor(props) {
-        super(props)
+        super(props)  
+        
+        const vote = vars.round.meeting 
+            && !vars.round.meeting.voted
+            && vars.round.meeting.for !== -1
+            ? true 
+            : false
 
         this.state = {
             question: false,
@@ -18,8 +24,8 @@ export class Game extends React.Component {
                 email: undefined,
                 question: undefined
             },
-            vote: false,
-            caller: '',
+            vote,
+            caller: vote ? vars.round.meeting.by : '',
             timeout: false,
             meeting: false,
             isFinalGuessTime: false,
@@ -27,30 +33,33 @@ export class Game extends React.Component {
             countdown: undefined
         }
 
-        const countdown = setInterval(() => {
-            if(this.state.counter >= 0) {
-                this.setState({ 
-                    ...this.state, 
-                    counter: this.state.counter - 1000 
-                })
-            } else {
-                if(this.countdown) clearInterval(this.state.countdown)
-                this.setState({
-                    ...this.state,
-                    counter: 0,
-                    countdown: undefined
-                })
-            }
-        }, 1000)
-
-        this.state.countdown = countdown
+        setTimeout(() => {
+            this.setState({
+                ...this.state,
+                countdown: setInterval(() => {
+                    if(this.state.counter > 0) {
+                        this.setState({ 
+                            ...this.state, 
+                            counter: this.state.counter - 1000 
+                        })
+                    } else {
+                        if(this.countdown) clearInterval(this.state.countdown)
+                        this.setState({
+                            ...this.state,
+                            counter: 0,
+                            countdown: undefined
+                        })
+                    }
+                }, 1000)
+            })
+        }, 50)
     }
 
     componentDidMount = () => {
         if(!vars.init) {
             this.props.history.replace(`/game-rooms/${this.props.match.params.short_id}`)
             return 
-        }
+        } 
 
         gameIO.on('question', data => {
             console.log('Game_gameIO_question', data)
@@ -288,8 +297,8 @@ export class Game extends React.Component {
     }
 
     render() {
-        const interactions = vars.round.interactions
-        let chats = []
+        const interactions = vars.round.interactions ? vars.round.interactions : []
+        let chats = []        
         interactions.forEach(interaction => {
             chats.push({
                 name: interaction.question.from.name,
