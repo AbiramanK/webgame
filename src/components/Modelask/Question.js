@@ -74,7 +74,7 @@ class Question extends React.Component {
               <Input.Group compact>
                 <Select defaultValue={ this.state.player_id } 
                   style={{ width: "90%" }}
-                  onChange={ e => this.setState({ ...this.state, player_id: e.target.value }) }
+                  onChange={ e => this.setState({ ...this.state, player_id: e }) }
                   suffixIcon={ 
                     <div style={{ transform: 'rotate(180deg)', fontSize: '20px', lineHeight: '7px' }}> ^ </div>
                    }
@@ -126,10 +126,5 @@ class Question extends React.Component {
     )
   }
 }
-
-// .antModalHeader {
-//   background-color: aqua;
-//   padding: 10px 18px 10px 10px;
-// }
 
 export default Question;

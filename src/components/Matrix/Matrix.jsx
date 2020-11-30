@@ -81,13 +81,13 @@ export class Matrix extends React.Component {
                     markChanged={ mark => this.updateGuess(index, mark) }
                     isFinalGuessTime={ this.props.isFinalGuessTime }
                     finalGuessed={ () => this.handleFinalGuess(index) }
-                    key={ location.name }
+                    key={ index }
                 />
             :   <Cell isImposter={ false }
                     name={ location.name }
                     image={ location.image }
                     isJackpot={ location.name === vars.location.name }
-                    key={ location.name }
+                    key={ index }
                 />
             matrix.push(cell)
         })
