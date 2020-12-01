@@ -73,6 +73,7 @@ export class Game extends React.Component {
                 if(!this.state.timeout && !this.state.meeting) this.setState({ 
                     ...this.state, 
                     question: true,
+                    showModal: false,
                 })
             }
         })
@@ -108,6 +109,7 @@ export class Game extends React.Component {
                             email: data.interaction.question.from.email,
                             question: data.interaction.question.question
                         },
+                        showModal: false
                     })
                 }
             }
@@ -159,7 +161,8 @@ export class Game extends React.Component {
                 },
                 vote: true,
                 caller: data.name,
-                meeting: true
+                meeting: true,
+                showModal: false
             })
         })
 
@@ -177,7 +180,8 @@ export class Game extends React.Component {
                 },
                 vote: true,
                 caller: data.name,
-                meeting: true
+                meeting: true,
+                showModal: false
             })
         })
         
