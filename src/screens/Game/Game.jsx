@@ -1,5 +1,6 @@
 import React from 'react';
 import { withRouter } from 'react-router-dom'
+import { Modal } from 'antd'
 
 import styles from './Game.module.css';
 import { Chat, Header, Matrix, Question, Answer, Voting } from '../../components';
@@ -30,8 +31,19 @@ export class Game extends React.Component {
             meeting: false,
             isFinalGuessTime: false,
             counter: new Date(vars.round.endingAt).valueOf() - Date.now().valueOf(), 
-            countdown: undefined
+            countdown: undefined,
+            showModal: true,
+            counts: []
         }
+
+        
+    }
+
+    componentDidMount = () => {
+        if(!vars.init) {
+            this.props.history.replace(`/game-rooms/${this.props.match.params.short_id}`)
+            return 
+        } 
 
         setTimeout(() => {
             this.setState({
@@ -53,13 +65,6 @@ export class Game extends React.Component {
                 }, 1000)
             })
         }, 50)
-    }
-
-    componentDidMount = () => {
-        if(!vars.init) {
-            this.props.history.replace(`/game-rooms/${this.props.match.params.short_id}`)
-            return 
-        } 
 
         gameIO.on('question', data => {
             console.log('Game_gameIO_question', data)
@@ -67,7 +72,7 @@ export class Game extends React.Component {
             if(!data.error) {
                 if(!this.state.timeout && !this.state.meeting) this.setState({ 
                     ...this.state, 
-                    question: true 
+                    question: true,
                 })
             }
         })
@@ -102,7 +107,7 @@ export class Game extends React.Component {
                             name: data.interaction.question.from.name,
                             email: data.interaction.question.from.email,
                             question: data.interaction.question.question
-                        } 
+                        },
                     })
                 }
             }
@@ -180,6 +185,8 @@ export class Game extends React.Component {
             console.log('Game_gameIO_voteRes', data)
 
             if(!data.error) {
+                this.setState({ ...this.state, counts: data.counts })
+
                 if(data.completed) gameIO.emit('leaderboard', {
                     short_id: vars.game.short_id,
                     round_id: vars.round._id
@@ -191,6 +198,8 @@ export class Game extends React.Component {
             console.log('Game_gameIO_voteResAll', data)
 
             if(!data.error) {
+                this.setState({ ...this.state, counts: data.counts })
+
                 if(data.completed) gameIO.emit('leaderboard', {
                     short_id: vars.game.short_id,
                     round_id: vars.round._id
@@ -204,6 +213,7 @@ export class Game extends React.Component {
             if(!data.error) {
                 vars.game.players = data.players 
                 vars.round.endedAt = data.endedAt
+                vars.round.imposterWon = data.imposterWon
                 this.props.history.replace({
                     pathname: `/game-rooms/${vars.game.short_id}/leaderboard`,
                     state: { roundsLeft: data.roundsLeft }
@@ -389,6 +399,20 @@ export class Game extends React.Component {
                         </div>
                     </div>
                 </div>
+                <Modal 
+                    title={ vars.round.name } 
+                    visible={ this.state.showModal }
+                    onCancel={ () => this.setState({ ...this.state, showModal: false }) }
+                    footer={ null }
+                >
+                    <h3 className={ styles['modal'] }>
+                        { 
+                            vars.player.isImposter
+                            ? 'You are the imposter'
+                            : 'You are not the imposter' 
+                        }
+                    </h3>
+                </Modal>
                 {
                     this.state.question &&
                     <Question 
@@ -408,7 +432,11 @@ export class Game extends React.Component {
                 }
                 {
                     this.state.vote &&
-                    <Voting caller={ this.state.caller } handleCancel={ this.handleCancel }/>
+                    <Voting 
+                        caller={ this.state.caller } 
+                        counts={ this.state.counts }
+                        handleCancel={ this.handleCancel }
+                    />
                 }
             </>
         )

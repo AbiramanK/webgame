@@ -4,7 +4,6 @@ import "./voting.css";
 import { Colors } from "../../../Colors";
 import { gameIO, vars } from '../../../SocketIO'
 
-
 class Voting extends React.Component {
   constructor(props) {
     super(props);
@@ -12,23 +11,44 @@ class Voting extends React.Component {
       visible: true,
       voted: false,
       data: vars.game.players.map(player => {
+        const count = props.counts.find(c => {
+          return c.player_id === player._id
+        })
         return {
           player_id: player._id,
           name: player.name,
-          isVoted: false
+          isVoted: false,
+          score: count ? count.votes : 0
         }
-      }).filter(el => el.player_id !== vars.player._id)
+      })
     };
   }
 
   componentDidMount=()=>{
-    this.state.data.forEach((e,el)=>{
+    this.state.data.forEach((e)=>{
       if(e.isVoted){
         this.setState({
           voted: true
         })
       }
     })
+  }
+
+  componentDidUpdate = (prevProps) => {
+    if(prevProps.counts !== this.props.counts) {
+      const data = this.state.data 
+      const newData = data.map(elem => {
+        const player = this.props.counts.find(k => {
+          return k.player_id === elem.player_id
+        })
+
+        if(player) elem.score = player.votes 
+
+        return elem
+      })
+
+      this.setState({ ...this.state, newData })
+    }
   }
 
   showModal = () => {
@@ -121,7 +141,7 @@ class Voting extends React.Component {
               title=""
               visible={this.state.visible}
               onOk={this.handleOk}
-              closable={false}
+              closable={this.state.voted}
               footer={null}
               head={null}
               width={300}
@@ -134,35 +154,47 @@ class Voting extends React.Component {
                   return (
                     <li key={el} style={playerLi}>
                       <span>{e.name}</span>
-                      {
-                        !this.state.voted ? (
-                          <span
-                            style={{ cursor: "pointer", color: Colors.RED }}
-                            onClick={()=>this.changeVote(el)}
-                          >
-                            Vote
-                          </span>
-                        ) : (
-                          <span
-                            style={
-                              e.isVoted 
-                              ? { userSelect: 'none', color: Colors.LAWNGREEN } 
-                              : { userSelect: 'none', color: Colors.GREY }
-                            }
-                          >
-                            Vote
-                          </span>
-                        )
-                      }
+                      <div>
+                        <span style={{ fontWeight: 400, marginRight: '20px'}}>
+                          { e.score }
+                        </span>
+                        {
+                          e.player_id === vars.player._id
+                          ? <span style={{ userSelect: 'none', color: Colors.GREY }}>
+                              Vote
+                            </span>
+                          : !this.state.voted 
+                            ? 
+                              <span
+                                style={{ cursor: "pointer", color: Colors.RED }}
+                                onClick={()=>this.changeVote(el)}
+                              >
+                                Vote
+                              </span>
+                            : 
+                              <span
+                                style={
+                                  e.isVoted 
+                                  ? { userSelect: 'none', color: Colors.LAWNGREEN } 
+                                  : { userSelect: 'none', color: Colors.GREY }
+                                }
+                              >
+                                Vote
+                              </span>
+                        }
+                      </div>
                     </li>
                   );
                 })}
-                <div
-                  style={skipButton}
-                  onClick={this.handleCancel}
-                >
-                  Vote to Skip
-                </div>
+                {
+                  !this.state.voted &&
+                  <div
+                    style={skipButton}
+                    onClick={this.handleCancel}
+                  >
+                    Vote to Skip
+                  </div>
+                } 
               </ul>
             </Modal>
         

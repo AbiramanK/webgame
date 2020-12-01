@@ -1,6 +1,6 @@
 import React from 'react'
 import { withRouter } from 'react-router-dom'
-import { Card, Input, Button, Form } from 'antd'
+import { Card, Input, Button, Form, Modal } from 'antd'
 
 import styles from './Join.module.css'
 import { Colors } from '../../Colors'
@@ -17,7 +17,9 @@ export class Login extends React.Component {
         this.state = {
             joinClicked: false,
             name: name ? name : '',
-            email: email ? email : ''
+            email: email ? email : '',
+            showModal: false,
+            modalMessage: ''
         } 
     }
 
@@ -35,7 +37,14 @@ export class Login extends React.Component {
                 sessionStorage.setItem('name', data.player.name)
                 sessionStorage.setItem('email', data.player.email)
                 sessionStorage.setItem('short_id', data.game.short_id)
-            } else this.setState({ ...this.state, joinClicked: false })
+            } else {
+                this.setState({ 
+                    ...this.state, 
+                    joinClicked: false,
+                    showModal: true,
+                    modalMessage: data.error
+                })
+            }
         })
     
         chatIO.on('joinRes', data => {
@@ -95,6 +104,7 @@ export class Login extends React.Component {
             if(!data.error) {
                 vars.game.players = data.players 
                 vars.round.endedAt = data.endedAt
+                vars.round.imposterWon = data.imposterWon
                 this.props.history.push({
                     pathname: `/game-rooms/${vars.game.short_id}/leaderboard`,
                     state: { roundsLeft: data.roundsLeft }
@@ -146,6 +156,8 @@ export class Login extends React.Component {
         }
     }
 
+    handleModalCancel = () => this.setState({ showModal: false, modalMessage: '' })
+
     render() {
         return (
             <div className={ styles['container'] }>
@@ -185,6 +197,16 @@ export class Login extends React.Component {
                         </Form>
                     </Card>
                 </div> 
+                <Modal 
+                    title="Oops!" 
+                    visible={ this.state.showModal }
+                    onCancel={ this.handleModalCancel }
+                    footer={ null }
+                >
+                    <h3 className={ styles['modal'] }>
+                        { this.state.modalMessage }
+                    </h3>
+                </Modal>
             </div>
         )
     }

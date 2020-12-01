@@ -95,6 +95,7 @@
     text-align: center;
     padding: 20px;
     line-height: 20px;
+    user-select: none;
 }
 .image {
     height: 45px;

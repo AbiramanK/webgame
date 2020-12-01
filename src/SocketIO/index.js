@@ -66,7 +66,7 @@ export const vars = {
         meeting: {
             by: undefined,
             voted: undefined,
-            for: undefined
+            for: undefined,
         },
         imposterWon: undefined,
         endingAt: undefined,

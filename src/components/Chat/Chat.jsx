@@ -6,45 +6,37 @@ import { Colors } from '../../Colors';
 import { chatIO, vars } from '../../SocketIO'
 import send from '../../assets/send.svg'
 
-export interface IChat {
-    name: string | undefined,
-    email: string | undefined,
-    message: string | undefined
-}
-
-export interface IChatProps {
-    chats: IChat[]
-    showInput: boolean,
-}
-
-export interface IChatState {
-    chats: IChat[],
-    input: string
-}
-
-export class Chat extends React.Component<IChatProps, IChatState> {
-    constructor(props: IChatProps) {
+export class Chat extends React.Component {
+    constructor(props) {
         super(props);
 
         this.state = {
-            chats: [],
+            chats: this.props.chats instanceof Array ? this.props.chats : [],
             input: ''
         }
+        this.containerRef = React.createRef()
     }
 
     componentDidMount = () => {
-        this.setState({ chats: this.props.chats })
-        chatIO.on('messageRes', (data: any) => {
+        chatIO.on('messageRes', data => {
             console.log('Chat_messageRes', data)
 
-            if(!data.error) this.setState({ chats: [ ...this.state.chats, data ] })
+            if(!data.error) {
+                this.setState({ chats: [ ...this.state.chats, data ] })
+                this.scrollToBottom()
+            }
         })
 
-        chatIO.on('messageResAll', (data: any) => {
+        chatIO.on('messageResAll', data => {
             console.log('Chat_messageResAll', data)
 
-            if(!data.error) this.setState({ chats: [ ...this.state.chats, data ] })
+            if(!data.error) {
+                this.setState({ chats: [ ...this.state.chats, data ] })
+                this.scrollToBottom()
+            }
         })
+        
+        this.scrollToBottom()
     }
 
     componentWillUnmount = () => {
@@ -55,7 +47,12 @@ export class Chat extends React.Component<IChatProps, IChatState> {
         this.setState = () => {}
     }
 
-    sendMessage = (e: any) => {
+    scrollToBottom = () => {
+        const ref = this.containerRef.current
+        ref.scrollTop = ref.scrollHeight
+    }
+
+    sendMessage = e => {
         e.preventDefault()
         this.setState({ ...this.state, input: '' })
         const message = Object.fromEntries(new FormData(e.target)).message
@@ -67,7 +64,7 @@ export class Chat extends React.Component<IChatProps, IChatState> {
         })
     }
 
-    public render() {
+    render() {
         return (
             <div className={ styles['card-wrapper'] }>
                 <Card
@@ -77,9 +74,9 @@ export class Chat extends React.Component<IChatProps, IChatState> {
                     style={{ width: 350, height: 550, paddingTop: 0, paddingBottom: 0 }}
                     headStyle={{ ...jsxStyles.cardHeader, fontSize: 21, padding: 0 }}
                 >
-                    <div style={{ height: 400, overflow: 'auto' }}>
+                    <div style={{ height: 400, overflow: 'auto' }} ref={ this.containerRef }>
                         {
-                            this.state.chats.map((chat: any, index: number) => {
+                            this.state.chats.map((chat, index) => {
                                 return (
                                     <div className={ styles['message-card-container'] } 
                                         style={{ alignItems: chat.email === vars.player.email ? 'flex-start' : 'flex-end' }}

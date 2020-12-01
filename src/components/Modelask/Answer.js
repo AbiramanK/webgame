@@ -35,27 +35,8 @@ class Answer extends React.Component {
             title={ `${this.props.from.name} asked you a question` }
             visible={ this.props.show }
             style={{ borderRadius: "10px" }}
-            onOk={ () => { 
-              document.body.style.overflow = 'auto'
-               this.props.handleAnswer(this.state)
-            }}
-            onCancel={() => { 
-              document.body.style.overflow = 'auto'
-              this.props.handleCancel() 
-            }}
-            footer={[
-              <Button
-                size="middle"
-                style={{ backgroundColor: Colors.PRIMARY, color: Colors.WHITE }}
-                onClick={() => { 
-                  document.body.style.overflow = 'auto'
-                  this.props.handleCancel()
-                }}
-                key="key"
-              >
-                Skip
-              </Button>,
-            ]}
+            closable={ false }
+            footer={ null }
             width={700}
           >
             <h3 style={{ color: "#000000" }}>

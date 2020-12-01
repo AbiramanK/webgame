@@ -83,3 +83,7 @@
     height: 50px;
     border-radius: 5px;
 }
+
+.modal {
+    text-align: center;
+}

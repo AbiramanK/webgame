@@ -1,6 +1,6 @@
 import React from 'react';
 import { withRouter } from 'react-router-dom';
-import { Card, Button, Row, Col } from 'antd';
+import { Card, Button, Row, Col, Modal } from 'antd';
 
 import styles from './Lobby.module.css'
 import { Colors } from '../../Colors';
@@ -22,7 +22,9 @@ export class Lobby extends React.Component {
                     state: player.state,
                     isHost: player.isHost
                 }
-            })
+            }),
+            showModal: false,
+            modalMessage: ''
         }
     }
 
@@ -89,7 +91,33 @@ export class Lobby extends React.Component {
             console.log('Lobby_chatIO_startGameRes', data)
 
             if(!data.error) gameIO.emit('newRound', { short_id: vars.game.short_id })
-            else this.setState({ ...this.state, startGameClicked: false })
+            else this.setState({ 
+                ...this.state, 
+                startGameClicked: false,
+                showModal: true,
+                modalMessage: data.error 
+            })
+        })
+
+        playerIO.on('disconnected', data => {
+            console.log('Lobby_playerIO_disconnected', data)
+
+            if(!data.error) {
+                const player = vars.game.players.find(p => p._id === data.player_id)
+                player.state = 'DISCONNECTED'
+                this.setState({ 
+                    ...this.state,
+                    players: vars.game.players.map(player => {
+                        return {
+                            _id: player._id,
+                            name: player.name,
+                            email: player.email,
+                            state: player.state,
+                            isHost: player.isHost
+                        }
+                    }) 
+                })
+            }
         })
 
         gameIO.on('newRoundRes', data => {
@@ -251,6 +279,14 @@ export class Lobby extends React.Component {
                         <Chat showInput={ true } chats={ vars.game.lobby.chats }/>
                     </Col>
                 </Row>
+                <Modal 
+                    title="Oops!" 
+                    visible={ this.state.showModal }
+                    onCancel={ () => this.setState({ ...this.state, showModal: false, modalMessage: '' }) }
+                    footer={ null }
+                >
+                    <h3 className={ styles['modal'] }>{ this.state.modalMessage }</h3>
+                </Modal>
             </div>
         );
     }

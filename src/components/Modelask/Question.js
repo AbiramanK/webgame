@@ -48,6 +48,7 @@ class Question extends React.Component {
               document.body.style.overflow = 'auto'
               this.props.handleCancel()
             }}
+            closable={ null }
             footer={[
               <Button
                 style={{
@@ -66,6 +67,19 @@ class Question extends React.Component {
             ]}
             width={700}
           >
+            {
+              !vars.player.isImposter &&
+              <h3 style={{ color: Colors.PRIMARY }}>
+                <span 
+                  style={{
+                    fontWeight: 400, 
+                    color: 'black' 
+                  }}
+                >
+                  The location is:
+                </span> { vars.location.name }
+              </h3>
+            }
             <h3>Who would you like to ask?</h3>
             <div
               className="name-inputs"
@@ -87,15 +101,6 @@ class Question extends React.Component {
                   }
                 </Select>
               </Input.Group>
-              <h3
-                style={{
-                  width: "300px",
-                  color: Colors.PRIMARY,
-                  cursor: "pointer",
-                }}
-              >
-                Click here for suggestion!
-              </h3>
             </div>
             <h3>What would you like to ask?</h3>
             <Input placeholder="Type your Question here..." 
@@ -119,6 +124,14 @@ class Question extends React.Component {
                 Ask
               </Button>
             </div>
+            <h3 style={{
+                display: "inline",
+                color: Colors.PRIMARY,
+                cursor: "pointer",
+              }}
+            >
+              Click here for suggestion!
+            </h3>
           </Modal>
         )
         }

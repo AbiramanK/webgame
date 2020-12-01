@@ -124,6 +124,17 @@ export class Leaderboard extends React.Component {
                         }
                     </Typography>
                 </div>
+                <h2 style={{ textAlign: 'center', color: Colors.PRIMARY }}>
+                    {
+                        vars.round.imposterWon
+                        ? vars.player.isImposter
+                            ? 'You Won!'  
+                            : 'Imposter Won!'
+                        : vars.player.isImposter
+                            ? 'You lost the round'
+                            : 'Imposter lost the round'
+                    }
+                </h2>
                 <Row className={ moduleStyles['lobby-row'] }>
                     <Col>
                         <div className={ moduleStyles['lobby-site-card-border-less-wrapper'] }>
