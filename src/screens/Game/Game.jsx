@@ -88,7 +88,8 @@ export class Game extends React.Component {
                     short_id: vars.game.short_id,
                     name: data.interaction.question.from.name,
                     email: data.interaction.question.from.email,
-                    message: data.interaction.question.question
+                    message: data.interaction.question.question,
+                    to: data.interaction.question.to.name
                 })
             }
         })
@@ -317,7 +318,8 @@ export class Game extends React.Component {
             chats.push({
                 name: interaction.question.from.name,
                 email: interaction.question.from.email,
-                message: interaction.question.question
+                message: interaction.question.question,
+                to: interaction.question.to.name
             })
 
             if(interaction.answer) {

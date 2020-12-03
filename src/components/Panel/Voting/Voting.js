@@ -144,10 +144,10 @@ class Voting extends React.Component {
               closable={this.state.voted}
               footer={null}
               head={null}
-              width={300}
+              width={450}
             >
               <div style={header}>
-                  { this.props.caller }
+                  { `${this.props.caller} has called a meeting` }
               </div>
               <ul style={{padding: "0px"}}>
                 {this.state.data.map((e, el) => {

@@ -82,7 +82,9 @@ export class Chat extends React.Component {
                                         style={{ alignItems: chat.email === vars.player.email ? 'flex-start' : 'flex-end' }}
                                         key={ index }
                                     >
-                                        <Typography className={ styles['chat-player-name'] }>{ chat.name }</Typography>
+                                        <Typography className={ styles['chat-player-name'] }>
+                                            { chat.name + chat.to ? ` [To: ${chat.to}]` : '' }
+                                        </Typography>
                                         <Card 
                                             className={ styles['chat-message-card'] }
                                             bodyStyle={{ paddingTop: 10, paddingBottom: 10, paddingLeft: 16, paddingRight: 16 }}
