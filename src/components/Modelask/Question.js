@@ -3,6 +3,7 @@ import { Modal, Button, Input, Select } from "antd";
 import "./Question.css";
 import { Colors } from "../../Colors";
 import { vars } from '../../SocketIO'
+import popup from '../../assets/popup.mp3'
 
 class Question extends React.Component {
   constructor(props) {
@@ -79,6 +80,7 @@ class Question extends React.Component {
             ]}
             width={700}
           >
+            <audio style={{ display: 'none' }} preload="auto" autoPlay src={ popup }/> 
             {
               !vars.player.isImposter &&
               <h3 style={{ color: Colors.PRIMARY }}>

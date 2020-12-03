@@ -83,7 +83,7 @@ export class Chat extends React.Component {
                                         key={ index }
                                     >
                                         <Typography className={ styles['chat-player-name'] }>
-                                            { chat.name + chat.to ? ` [To: ${chat.to}]` : '' }
+                                            { chat.name + (chat.to ? ` [to: ${chat.to}]` : '') }
                                         </Typography>
                                         <Card 
                                             className={ styles['chat-message-card'] }

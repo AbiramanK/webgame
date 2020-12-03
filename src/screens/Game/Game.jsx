@@ -5,7 +5,8 @@ import { Modal } from 'antd'
 import styles from './Game.module.css';
 import { Chat, Header, Matrix, Question, Answer, Voting } from '../../components';
 import { gameIO, vars, chatIO } from '../../SocketIO'
-import { clearInterval } from 'timers';
+import { clearInterval } from 'timers'
+import popup from '../../assets/popup.mp3'
 
 export class Game extends React.Component {
     constructor(props) {
@@ -33,13 +34,11 @@ export class Game extends React.Component {
             counter: new Date(vars.round.endingAt).valueOf() - Date.now().valueOf(), 
             countdown: undefined,
             showModal: true,
-            counts: []
+            counts: [],
         }
-
-        
     }
 
-    componentDidMount = () => {
+    componentDidMount = () => {        
         if(!vars.init) {
             this.props.history.replace(`/game-rooms/${this.props.match.params.short_id}`)
             return 
@@ -411,6 +410,7 @@ export class Game extends React.Component {
                     onCancel={ () => this.setState({ ...this.state, showModal: false }) }
                     footer={ null }
                 >
+                    <audio style={{ display: 'none' }} preload="auto" autoPlay src={ popup }/> 
                     <h3 className={ styles['modal'] }>
                         { 
                             vars.player.isImposter

@@ -2,6 +2,7 @@ import React from "react";
 import { Modal, Button, Input } from "antd";
 import "./Answer.css";
 import { Colors } from "../../Colors";
+import popup from '../../assets/popup.mp3'
 
 class Answer extends React.Component {
   constructor(props) {
@@ -39,6 +40,7 @@ class Answer extends React.Component {
             footer={ null }
             width={700}
           >
+            <audio style={{ display: 'none' }} preload="auto" autoPlay src={ popup }/> 
             <h3 style={{ color: "#000000" }}>
               {
                 this.props.from.question
