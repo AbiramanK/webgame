@@ -19,7 +19,9 @@ export class Login extends React.Component {
             name: name ? name : '',
             email: email ? email : '',
             showModal: false,
-            modalMessage: ''
+            modalMessage: '',
+            nameError: false,
+            emailError: false
         } 
     }
 
@@ -146,7 +148,14 @@ export class Login extends React.Component {
         return parsedGuesses
     }
 
-    join = values => { console.log(values)
+    join = values => { 
+        this.setState({
+            ...this.state,
+            nameError: false,
+            emailError: false
+        })
+        if(!values.name) this.setState({ ...this.state, nameError: true }) 
+        if(!/.+@.+\..+/.test(values.email)) this.setState({ ...this.state, emailError: true })
         if(!this.state.joinClicked) {
             playerIO.emit('join', { 
                 ...values, 
@@ -177,7 +186,10 @@ export class Login extends React.Component {
                                 className={ styles['input-label'] }
                                 initialValue={ this.state.name }
                             >
-                                <Input/>
+                                <Input 
+                                    style={ this.state.nameError ? { border: `2px solid ${Colors.RED}` } : {}}
+                                    onFocus={ () => this.setState({ ...this.state, nameError: false })}
+                                />
                             </Form.Item>
                             <Form.Item 
                                 label="Email" 
@@ -185,7 +197,10 @@ export class Login extends React.Component {
                                 className={ styles['input-label'] }
                                 initialValue={ this.state.email }
                             >
-                                <Input/>
+                                <Input 
+                                    style={ this.state.emailError ? { border: `2px solid ${Colors.RED}` } : {}}
+                                    onFocus={ () => this.setState({ ...this.state, emailError: false })}
+                                />
                             </Form.Item>
                             <Button 
                                 type="primary" 

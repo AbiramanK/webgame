@@ -7,12 +7,14 @@ import { Colors } from '../../Colors';
 import { Header } from '../../components';
 import { playerIO, vars, chatIO, gameIO } from '../../SocketIO'
 
-export class Login extends React.Component {
+export class Host extends React.Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            hostClicked: false
+            hostClicked: false,
+            nameError: false,
+            emailError: false
         } 
     }
 
@@ -69,6 +71,13 @@ export class Login extends React.Component {
     }
 
     host = values => {
+        this.setState({
+            ...this.state,
+            nameError: false,
+            emailError: false
+        })
+        if(!values.name) this.setState({ ...this.state, nameError: true }) 
+        if(!/.+@.+\..+/.test(values.email)) this.setState({ ...this.state, emailError: true })
         if(!this.state.hostClicked) {
             playerIO.emit("host", values)
             this.setState({ ...this.state, hostClicked: true})
@@ -88,8 +97,26 @@ export class Login extends React.Component {
                         headStyle={{ ...jsxStyles.cardHeader }}
                     >
                         <Form layout="vertical" onFinish={ this.host }>
-                            <Form.Item label="Name" name="name" className={ styles['input-label'] }><Input/></Form.Item>
-                            <Form.Item label="Email" name="email" className={ styles['input-label'] }><Input/></Form.Item>
+                            <Form.Item 
+                                label="Name" 
+                                name="name" 
+                                className={ styles['input-label'] }
+                            >
+                                <Input 
+                                    style={ this.state.nameError ? { border: `2px solid ${Colors.RED}` } : {}}
+                                    onFocus={ () => this.setState({ ...this.state, nameError: false })}
+                                />
+                            </Form.Item>
+                            <Form.Item 
+                                label="Email" 
+                                name="email" 
+                                className={ styles['input-label'] }
+                            >
+                                <Input 
+                                    style={ this.state.emailError ? { border: `2px solid ${Colors.RED}` } : {}}
+                                    onFocus={ () => this.setState({ ...this.state, emailError: false })}
+                                />
+                            </Form.Item>
                             <Button 
                                 type="primary" 
                                 htmlType="submit" 
@@ -117,4 +144,4 @@ const jsxStyles = {
     }
 }
 
-export default withRouter(Login);
+export default withRouter(Host);

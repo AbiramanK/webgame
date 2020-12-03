@@ -8,5 +8,5 @@ export const Colors = {
     RED: '#F33333',
     GREY: '#D3D3D3',
     DARKGREY: '#737373',
-    BACKGROUND: '#f5f5f5'
+    BACKGROUND: '#f5f5f5',
 }

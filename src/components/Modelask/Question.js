@@ -14,6 +14,18 @@ class Question extends React.Component {
     }
   }
 
+  componentDidMount = () => {
+    window.addEventListener('keypress', this.handleEnterPress)
+  }
+
+  componentWillUnmount = () => {
+    window.removeEventListener('keypress', this.handleEnterPress)
+  }
+
+  handleEnterPress = e => {
+    console.log(e)
+  }
+
   showModal = () => {
     this.setState({
       visible: true,
