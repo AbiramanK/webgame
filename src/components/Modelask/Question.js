@@ -1,5 +1,5 @@
 import React from "react";
-import { Modal, Button, Input, Select } from "antd";
+import { Modal, Button, Input, Select, Tooltip } from "antd";
 import "./Question.css";
 import { Colors } from "../../Colors";
 import { vars } from '../../SocketIO'
@@ -24,7 +24,7 @@ class Question extends React.Component {
   }
 
   handleEnterPress = e => {
-    console.log(e)
+    if(e.code === 'Enter') this.props.handleAsk(this.state)
   }
 
   showModal = () => {
@@ -138,14 +138,31 @@ class Question extends React.Component {
                 Ask
               </Button>
             </div>
-            <h3 style={{
-                display: "inline",
-                color: Colors.PRIMARY,
-                cursor: "pointer",
-              }}
+            <Tooltip
+              title={
+                <ul style={{ padding: 0, margin: 0, color: Colors.WHITE }}>
+                  <li style={{ fontSize: '16px', margin: 0, textAlign: 'center' }}>
+                    Is this place safe for kids ?
+                  </li>
+                  <div style={{ height: '0.5px', background: Colors.WHITE, margin: '10px 0' }}/>
+                  <li style={{ fontSize: '16px', margin: 0, textAlign: 'center' }}>
+                    Would you go on a vacation here ?
+                  </li>
+                </ul>
+              }
+              placement="right"
+              color={ Colors.SECONDARY }
+              trigger="click"
             >
-              Click here for suggestion!
-            </h3>
+              <h3 style={{
+                  display: "inline",
+                  color: Colors.PRIMARY,
+                  cursor: "pointer",
+                }}
+              >
+                Click here for suggestion!
+              </h3>
+            </Tooltip>
           </Modal>
         )
         }

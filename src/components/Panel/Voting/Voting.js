@@ -3,7 +3,7 @@ import { Modal} from "antd";
 import "./voting.css";
 import { Colors } from "../../../Colors";
 import { gameIO, vars } from '../../../SocketIO'
-import popup from '../../assets/popup.mp3'
+import popup from '../../../assets/popup.mp3'
 
 class Voting extends React.Component {
   constructor(props) {
