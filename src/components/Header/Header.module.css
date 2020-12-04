@@ -11,3 +11,18 @@
     color: #5D22A1;
     font-size: 16px;
 }
+.submit-button {
+    background-color:#5D22A1;
+    border-radius: 5px;
+    color: #FFFFFF;
+    border-style: none;
+    margin: 0 auto;
+    display: block;
+    padding: 0 30px;
+}
+.submit-button:hover {
+    background-color: #8c44d3;
+}
+.submit-button:focus {
+    background-color: #5D22A1;
+}

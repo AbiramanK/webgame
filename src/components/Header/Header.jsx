@@ -1,22 +1,30 @@
 import React from 'react';
-import { withRouter, RouteComponentProps } from 'react-router-dom'
-import { PageHeader, Button } from 'antd';
+import { withRouter } from 'react-router-dom'
+import { PageHeader, Button, Modal } from 'antd';
 
 import styles from './Header.module.css'
 import logo from '../../assets/afino_name.svg'
 
-export interface IHeaderProps extends RouteComponentProps {}
 
-export interface IHeaderState {}
-
-export class Header extends React.Component<IHeaderProps, IHeaderState> {
-  constructor(props: IHeaderProps) {
+export class Header extends React.Component {
+  constructor(props) {
     super(props);
 
     this.state = {}
   }
 
-  public render() {
+  instruction = () => {
+    Modal.info({
+      content: 'dkfvdfkvnkjfnvkjdfnvdfvkldfmvlkdfmvlkdfmvlkdfmvlkfdmvklfdv',
+      title: 'Instruction',
+      okButtonProps: {
+        type: "primary", 
+        className: styles['submit-button']
+      }
+    })
+  }
+  
+  render() {
     return (
       <div className={ styles['header-wrapper'] }>
         <PageHeader
@@ -29,6 +37,7 @@ export class Header extends React.Component<IHeaderProps, IHeaderState> {
               className={ styles['instruction-button'] } 
               type="text" 
               key="instruction"
+              onClick={ this.instruction }
             >
               Instructions
             </Button>

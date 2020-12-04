@@ -35,6 +35,9 @@ export class Game extends React.Component {
             countdown: undefined,
             showModal: true,
             counts: [],
+            questionAskedTimeout: undefined,
+            questionAnsweredTimeout: undefined,
+            meetingTimeout: undefined
         }
     }
 
@@ -90,6 +93,22 @@ export class Game extends React.Component {
                     message: data.interaction.question.question,
                     to: data.interaction.question.to.name
                 })
+
+                clearTimeout(this.state.questionAskedTimeout)
+                this.setState({ 
+                    ...this.state, 
+                    questionAskedTimeout: undefined,
+                    questionAnsweredTimeout: setTimeout(() => {
+                        gameIO.on('enquireAnswer', {
+                            short_id: vars.game.short_id,
+                            answerCounter: data.answerCounter
+                        })
+                        this.setState({
+                            ...this.state,
+                            answer: false
+                        })
+                    }, data.ANSWER_TIMEOUT)
+                })
             }
         })
 
@@ -109,9 +128,25 @@ export class Game extends React.Component {
                             email: data.interaction.question.from.email,
                             question: data.interaction.question.question
                         },
-                        showModal: false
+                        showModal: false,
                     })
                 }
+
+                clearTimeout(this.state.questionAskedTimeout)
+                this.setState({ 
+                    ...this.state, 
+                    questionAskedTimeout: undefined,
+                    questionAnsweredTimeout: setTimeout(() => {
+                        gameIO.on('enquireAnswer', {
+                            short_id: vars.game.short_id,
+                            answerCounter: data.answerCounter
+                        })
+                        this.setState({
+                            ...this.state,
+                            answer: false
+                        })
+                    }, data.ANSWER_TIMEOUT)
+                })
             }
         })
 
@@ -130,6 +165,12 @@ export class Game extends React.Component {
                     email: data.interaction.question.to.email,
                     message: data.interaction.answer
                 })
+
+                clearTimeout(this.state.questionAnsweredTimeout)
+                this.setState({ 
+                    ...this.state, 
+                    questionAnsweredTimeout: undefined
+                })
             }
         })
 
@@ -142,10 +183,28 @@ export class Game extends React.Component {
                     .interactions
                     .find(interaction => interaction._id === data.interaction._id)
                 if(interaction !== undefined) interaction.answer = data.interaction.answer
+
+                clearTimeout(this.state.questionAnsweredTimeout)
+                this.setState({ 
+                    ...this.state, 
+                    questionAnsweredTimeout: undefined
+                })
             }
         })
 
-        gameIO.on('skipRes', data => console.log('Game_gameIO_skipRes', data))
+        gameIO.on('skipRes', data => {
+            console.log('Game_gameIO_skipRes', data)
+            
+            if(!data.error) {
+                clearTimeout(this.state.questionAskedTimeout)
+                clearTimeout(this.state.questionAnsweredTimeout)
+                this.setState({ 
+                    ...this.state, 
+                    questionAskedTimeout: undefined,
+                    questionAnsweredTimeout: undefined
+                })
+            }
+        })
 
         gameIO.on('callMeetingRes', data => {
             console.log('Game_gameIO_callMeeting', data)
@@ -162,7 +221,17 @@ export class Game extends React.Component {
                 vote: true,
                 caller: data.name,
                 meeting: true,
-                showModal: false
+                showModal: false,
+                meetingTimeout: setTimeout(() => {
+                    gameIO.emit('enquireMeeting', {
+                        short_id: vars.game.short_id,
+                        meetingCounter: data.meetingCounter
+                    })
+                    this.setState({
+                        ...this.state,
+                        meeting: false
+                    })
+                }, data.MEETING_TIMEOUT)
             })
         })
 
@@ -181,7 +250,17 @@ export class Game extends React.Component {
                 vote: true,
                 caller: data.name,
                 meeting: true,
-                showModal: false
+                showModal: false,
+                meetingTimeout: setTimeout(() => {
+                    gameIO.emit('enquireMeeting', {
+                        short_id: vars.game.short_id,
+                        meetingCounter: data.meetingCounter
+                    })
+                    this.setState({
+                        ...this.state,
+                        meeting: false
+                    })
+                }, data.MEETING_TIMEOUT)
             })
         })
         
@@ -189,7 +268,12 @@ export class Game extends React.Component {
             console.log('Game_gameIO_voteRes', data)
 
             if(!data.error) {
-                this.setState({ ...this.state, counts: data.counts })
+                clearTimeout(this.state.meetingTimeout)
+                this.setState({ 
+                    ...this.state, 
+                    counts: data.counts,
+                    meetingTimeout: undefined
+                })
 
                 if(data.completed) gameIO.emit('leaderboard', {
                     short_id: vars.game.short_id,
@@ -202,7 +286,12 @@ export class Game extends React.Component {
             console.log('Game_gameIO_voteResAll', data)
 
             if(!data.error) {
-                this.setState({ ...this.state, counts: data.counts })
+                clearTimeout(this.state.meetingTimeout)
+                this.setState({ 
+                    ...this.state, 
+                    counts: data.counts,
+                    meetingTimeout: undefined
+                })
 
                 if(data.completed) gameIO.emit('leaderboard', {
                     short_id: vars.game.short_id,
@@ -235,6 +324,26 @@ export class Game extends React.Component {
                 gameIO.emit('leaderboard', {
                     short_id: vars.game.short_id,
                     round_id: vars.round._id
+                })
+            }
+        })
+
+        gameIO.on('questionAll', data => {
+            console.log('Game_gameIO_questionAll', data)
+
+            if(!data.error) {
+                this.setState({ 
+                    ...this.state, 
+                    questionAskedTimeout: setTimeout(() => {
+                        gameIO.emit('enquireQuestion', { 
+                            short_id: vars.game.short_id,
+                            questionCounter: data.questionCounter 
+                        })
+                        this.setState({
+                            ...this.state,
+                            question: false
+                        })
+                    }, data.ASK_TIMEOUT)
                 })
             }
         })
