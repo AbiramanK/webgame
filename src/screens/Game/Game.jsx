@@ -19,25 +19,27 @@ export class Game extends React.Component {
             : false
 
         this.state = {
-            question: false,
-            answer: false,
+            showModalQuestion: false,
+            showModalAnswer: false,
+            showModalVoting: false,
+            showModal: true,
             from: {
                 name: undefined,
                 email: undefined,
                 question: undefined
             },
-            vote,
-            caller: vote ? vars.round.meeting.by : '',
+            meetingCalled: false,
+            meetingCaller: vote ? vars.round.meeting.by : '',
             timeout: false,
-            meeting: false,
             isFinalGuessTime: false,
             counter: new Date(vars.round.endingAt).valueOf() - Date.now().valueOf(), 
             countdown: undefined,
-            showModal: true,
             counts: [],
             questionAskedTimeout: undefined,
             questionAnsweredTimeout: undefined,
-            meetingTimeout: undefined
+            meetingTimeout: undefined,
+            askTimeout: undefined,
+            answerTimeout: undefined
         }
     }
 
@@ -72,11 +74,19 @@ export class Game extends React.Component {
             console.log('Game_gameIO_question', data)
 
             if(!data.error) {
-                if(!this.state.timeout && !this.state.meeting) this.setState({ 
-                    ...this.state, 
-                    question: true,
-                    showModal: false,
-                })
+                if(
+                    !this.state.timeout 
+                    && !this.state.meetingCalled
+                    && !this.state.showModalQuestion
+                    && !this.state.showModalAnswer
+                ) {
+                    this.setState({ 
+                        ...this.state, 
+                        showModalQuestion: true,
+                        showModal: false,
+                        askTimeout: data.askTimeout
+                    })
+                }
             }
         })
 
@@ -105,9 +115,9 @@ export class Game extends React.Component {
                         })
                         this.setState({
                             ...this.state,
-                            answer: false
+                            questionAnsweredTimeout: undefined
                         })
-                    }, data.ANSWER_TIMEOUT)
+                    }, data.answerTimeout - Date.now().valueOf())
                 })
             }
         })
@@ -120,16 +130,24 @@ export class Game extends React.Component {
                 vars.round.interactions.push(data.interaction)
                 
                 if(data.interaction.question.to.email === vars.player.email) {
-                    if(!this.state.timeout && !this.state.meeting) this.setState({ 
-                        ...this.state, 
-                        answer: true, 
-                        from: {
-                            name: data.interaction.question.from.name,
-                            email: data.interaction.question.from.email,
-                            question: data.interaction.question.question
-                        },
-                        showModal: false,
-                    })
+                    if(
+                        !this.state.timeout 
+                        && !this.state.meetingCalled
+                        && !this.state.showModalQuestion
+                        && !this.state.showModalAnswer
+                    ) { 
+                        this.setState({ 
+                            ...this.state, 
+                            showModalAnswer: true, 
+                            from: {
+                                name: data.interaction.question.from.name,
+                                email: data.interaction.question.from.email,
+                                question: data.interaction.question.question
+                            },
+                            showModal: false,
+                            answerTimeout: data.answerTimeout
+                        })
+                    }
                 }
 
                 clearTimeout(this.state.questionAskedTimeout)
@@ -143,9 +161,9 @@ export class Game extends React.Component {
                         })
                         this.setState({
                             ...this.state,
-                            answer: false
+                            questionAnsweredTimeout: undefined
                         })
-                    }, data.ANSWER_TIMEOUT)
+                    }, data.answerTimeout - Date.now().valueOf())
                 })
             }
         })
@@ -211,17 +229,12 @@ export class Game extends React.Component {
 
             if(!data.error) this.setState({ 
                 ...this.state, 
-                question:false,
-                answer: false,
-                from: {
-                    name: undefined,
-                    email: undefined,
-                    question: undefined
-                },
-                vote: true,
-                caller: data.name,
-                meeting: true,
+                showModalQuestion: false,
+                showModalAnswer: false,
+                showModalVoting: true,
                 showModal: false,
+                meetingCalled: true,
+                meetingCaller: data.name,
                 meetingTimeout: setTimeout(() => {
                     gameIO.emit('enquireMeeting', {
                         short_id: vars.game.short_id,
@@ -229,9 +242,10 @@ export class Game extends React.Component {
                     })
                     this.setState({
                         ...this.state,
-                        meeting: false
+                        showModalVoting: false,
+                        meetingCalled: false
                     })
-                }, data.MEETING_TIMEOUT)
+                }, data.MEETING_TIMEOUT),
             })
         })
 
@@ -240,17 +254,12 @@ export class Game extends React.Component {
 
             if(!data.error) this.setState({ 
                 ...this.state, 
-                question:false,
-                answer: false,
-                from: {
-                    name: undefined,
-                    email: undefined,
-                    question: undefined
-                },
-                vote: true,
-                caller: data.name,
-                meeting: true,
+                showModalQuestion: false,
+                showModalAnswer: false,
+                showModalVoting: true,
                 showModal: false,
+                meetingCalled: true,
+                meetingCaller: data.name,
                 meetingTimeout: setTimeout(() => {
                     gameIO.emit('enquireMeeting', {
                         short_id: vars.game.short_id,
@@ -258,9 +267,10 @@ export class Game extends React.Component {
                     })
                     this.setState({
                         ...this.state,
-                        meeting: false
+                        showModalVoting: false,
+                        meetingCalled: false
                     })
-                }, data.MEETING_TIMEOUT)
+                }, data.MEETING_TIMEOUT),
             })
         })
         
@@ -335,15 +345,16 @@ export class Game extends React.Component {
                 this.setState({ 
                     ...this.state, 
                     questionAskedTimeout: setTimeout(() => {
+                        this.setState({
+                            ...this.state,
+                            showModalQuestion: false,
+                            questionAskedTimeout: undefined
+                        })
                         gameIO.emit('enquireQuestion', { 
                             short_id: vars.game.short_id,
                             questionCounter: data.questionCounter 
                         })
-                        this.setState({
-                            ...this.state,
-                            question: false
-                        })
-                    }, data.ASK_TIMEOUT)
+                    }, data.askTimeout - Date.now().valueOf())
                 })
             }
         })
@@ -374,11 +385,10 @@ export class Game extends React.Component {
                 to: vars.game.players.find(player => player._id === data.player_id),
                 question: data.question 
             })
-            this.setState({ ...this.state, question: false })
+            this.setState({ ...this.state, showModalQuestion: false })
         } else {
             this.handleCancel()
         }
-        document.body.style.overflow = 'auto'
     }
 
     handleAnswer = data => { 
@@ -389,25 +399,23 @@ export class Game extends React.Component {
                 interaction_id: vars.interaction_id,
                 answer: data.answer 
             })
-            this.setState({ ...this.state, answer: false })
+            this.setState({ ...this.state, showModalAnswer: false })
         } else {
             this.handleCancel()
         }
     }
 
     handleCancel = () => {
-        gameIO.emit('skip', { short_id: vars.game.short_id, round_id: vars.round._id, })
+        gameIO.emit('skip', { 
+            short_id: vars.game.short_id, 
+            round_id: vars.round._id 
+        })
         this.setState({ 
             ...this.state, 
-            question: false, 
-            answer: false,
-            from: {
-                name: undefined,
-                email: undefined,
-                question: undefined
-            },
-            vote: false,
-            caller: ''
+            showModalQuestion: false, 
+            showModalAnswer: false,
+            showModalVoting: false,
+            showModal: false
         })
     }
 
@@ -419,7 +427,7 @@ export class Game extends React.Component {
         })
     }
 
-    render() {
+    parseChats = () => {
         const interactions = vars.round.interactions ? vars.round.interactions : []
         let chats = []        
         interactions.forEach(interaction => {
@@ -439,121 +447,183 @@ export class Game extends React.Component {
             }
         })
 
+        return chats
+    } 
+
+    render() {
         return (
             <>
                 <div>
                     <Header />
                     <div className={styles['container']}>
-                        <div className={ styles['HUD'] }>
-                            <div className={ styles['userInfo'] }>
-                                <h1>
-                                    {
-                                        vars.player.isImposter
-                                        ? 'You are the Imposter!'
-                                        : `The game location is: ${
-                                            vars.location.name 
-                                            ? vars.location.name
-                                            : '' 
-                                        }`
-                                    }
-                                </h1>
-                                <p>
-                                    {
-                                        vars.player.isImposter
-                                        ? 'Try your best to blend in with the others and guess the location.' 
-                                        : 'Ask strategic questions and pay close attention to what others say to catch the imposter'
-                                    }
-                                </p>
-                            </div>
-                            <div>
-                                <button 
-                                    className={ styles['userActionBtn'] }
-                                    onClick={ this.handleMeetingCall }
-                                >
-                                    Call a meeting!
-                                </button>
-                                {
-                                    vars.player.isImposter &&
-                                    <button 
-                                        className={ styles['userActionBtn'] }
-                                        onClick={ () => this.setState({ ...this.state, isFinalGuessTime: true }) }
-                                    >
-                                        Guess the location!
-                                    </button>
-                                }
-                            </div>
-                        </div>
-                        <div className={ styles['timer'] }>
-                            <div className={ styles['timeDisplay'] }>
-                                <h1>
-                                    { 
-                                        this.state.counter
-                                        ? Math.trunc(this.state.counter / 60000).toString().padStart(2, '0')
-                                        : '00'
-                                    }
-                                </h1>
-                                <p>Minutes</p>
-                            </div>
-                            <div className={ styles['timeDisplay'] }>
-                                <h1>
-                                    { 
-                                        this.state.counter
-                                        ? Math.trunc(this.state.counter / 1000 % 60).toString().padStart(2, '0')
-                                        : '00'
-                                    }
-                                </h1>
-                                <p>Seconds</p>
-                            </div>
-                        </div>
+                        {
+                            this.returnHUD()
+                        }
+                        {
+                            this.returnTimer()
+                        }
                         <div className={ styles['gameMatrix'] }>
                             <Matrix isFinalGuessTime={ this.state.isFinalGuessTime }/>
                         </div>
                         <div className={ styles['chat'] }>
-                            <Chat join={ false } showInput={ false } chats={ chats }/>
+                            <Chat showInput={ false } chats={ this.parseChats() }/>
                         </div>
                     </div>
                 </div>
-                <Modal 
-                    title={ vars.round.name } 
-                    visible={ this.state.showModal }
-                    onCancel={ () => this.setState({ ...this.state, showModal: false }) }
-                    footer={ null }
-                >
-                    <audio style={{ display: 'none' }} preload="auto" autoPlay src={ popup }/> 
-                    <h3 className={ styles['modal'] }>
-                        { 
-                            vars.player.isImposter
-                            ? 'You are the imposter'
-                            : 'You are not the imposter' 
-                        }
-                    </h3>
-                </Modal>
                 {
-                    this.state.question &&
-                    <Question 
-                        show={ this.state.question } 
-                        handleAsk={ this.handleAsk } 
-                        handleCancel={ this.handleCancel }
-                    />
+                    this.returnModal()
                 }
                 {
-                    this.state.answer &&
-                    <Answer 
-                        show={ this.state.answer } 
-                        from={ this.state.from }
-                        handleAnswer={ this.handleAnswer } 
-                        handleCancel={ this.handleCancel }
-                    />
+                    this.state.showModalQuestion &&
+                    this.returnQuestion()
                 }
                 {
-                    this.state.vote &&
-                    <Voting 
-                        caller={ this.state.caller } 
-                        counts={ this.state.counts }
-                        handleCancel={ this.handleCancel }
-                    />
+                    this.state.showModalAnswer &&
+                    this.returnAnswer()
+                }
+                {
+                    this.state.showModalVoting &&
+                    this.returnVoting()
                 }
             </>
+        )
+    }
+
+    returnHUD = () => {
+        return (
+            <div className={ styles['HUD'] }>
+                {
+                    this.returnHUDInfo()
+                }
+                {
+                    this.returnHUDButton()
+                }
+            </div>
+        )
+    }
+
+    returnHUDInfo = () => {
+        return (
+            <div className={ styles['userInfo'] }>
+                <h1>
+                    {
+                        vars.player.isImposter
+                        ? 'You are the Imposter!'
+                        : `The game location is: ${
+                            vars.location.name 
+                            ? vars.location.name
+                            : '' 
+                        }`
+                    }
+                </h1>
+                <p>
+                    {
+                        vars.player.isImposter
+                        ? 'Try your best to blend in with the others and guess the location.' 
+                        : 'Ask strategic questions and pay close attention to what others say to catch the imposter'
+                    }
+                </p>
+            </div>
+        )
+    }
+
+    returnHUDButton = () => {
+        return (
+            <div>
+                <button 
+                    className={ styles['userActionBtn'] }
+                    onClick={ this.handleMeetingCall }
+                >
+                    Call a meeting!
+                </button>
+                {
+                    vars.player.isImposter &&
+                    <button 
+                        className={ styles['userActionBtn'] }
+                        onClick={ () => this.setState({ ...this.state, isFinalGuessTime: true }) }
+                    >
+                        Guess the location!
+                    </button>
+                }
+            </div>
+        )
+    }
+
+    returnTimer = () => {
+        return (
+            <div className={ styles['timer'] }>
+                <div className={ styles['timeDisplay'] }>
+                    <h1>
+                        { 
+                            this.state.counter
+                            ? Math.trunc(this.state.counter / 60000).toString().padStart(2, '0')
+                            : '00'
+                        }
+                    </h1>
+                    <p>Minutes</p>
+                </div>
+                <div className={ styles['timeDisplay'] }>
+                    <h1>
+                        { 
+                            this.state.counter
+                            ? Math.trunc(this.state.counter / 1000 % 60).toString().padStart(2, '0')
+                            : '00'
+                        }
+                    </h1>
+                    <p>Seconds</p>
+                </div>
+            </div>
+        )
+    }
+
+    returnModal = () => {
+        return (
+            <Modal 
+                title={ vars.round.name } 
+                visible={ this.state.showModal }
+                onCancel={ () => this.setState({ ...this.state, showModal: false }) }
+                footer={ null }
+            >
+                <audio style={{ display: 'none' }} preload="auto" autoPlay src={ popup }/> 
+                <h3 className={ styles['modal'] }>
+                    { 
+                        vars.player.isImposter
+                        ? 'You are the imposter'
+                        : 'You are not the imposter' 
+                    }
+                </h3>
+            </Modal>
+        )
+    }
+
+    returnQuestion = () => {
+        return (
+            <Question 
+                handleAsk={ this.handleAsk } 
+                handleCancel={ this.handleCancel }
+                askTimeout={ this.state.askTimeout }
+            />
+        )
+    }
+
+    returnAnswer = () => {
+        return (
+            <Answer 
+                from={ this.state.from }
+                handleAnswer={ this.handleAnswer } 
+                handleCancel={ this.handleCancel }
+                answerTimeout={ this.state.answerTimeout }
+            />
+        )
+    }
+
+    returnVoting = () => {
+        return (
+            <Voting 
+                caller={ this.state.caller } 
+                counts={ this.state.counts }
+                handleCancel={ () => this.setState({ ...this.state, showModalVoting: false }) }
+            />
         )
     }
 }
