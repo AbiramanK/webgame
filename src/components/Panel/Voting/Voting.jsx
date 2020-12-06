@@ -20,7 +20,7 @@ class Voting extends React.Component {
           isVoted: false,
           score: count ? count.votes : 0
         }
-      })
+      }),
     };
   }
 
@@ -28,6 +28,7 @@ class Voting extends React.Component {
     this.state.data.forEach((e)=>{
       if(e.isVoted){
         this.setState({
+          ...this.state,
           voted: true
         })
       }
@@ -129,7 +130,7 @@ class Voting extends React.Component {
         title=""
         visible={ true }
         onOk={ this.handleOk }
-        closable={ this.state.voted }
+        closable={ this.state.voted && !this.props.votingCompleted }
         footer={ null }
         head={ null }
         width={ 450 }
@@ -145,7 +146,7 @@ class Voting extends React.Component {
                 <span>{e.name}</span>
                 <div>
                   <span style={{ fontWeight: 400, marginRight: '20px'}}>
-                    { e.score }
+                    { this.props.votingCompleted && e.score }
                   </span>
                   {
                     e.player_id === vars.player._id

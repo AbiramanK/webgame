@@ -12,13 +12,14 @@ class Question extends React.Component {
     this.state = {
       player_id: vars.game.players.find(player => player._id !== vars.player._id)._id,
       question: '',
-      count: Math.trunc((props.askTimeout - Date.now().valueOf()) / 1000),
+      count: undefined, //Math.trunc((props.askTimeout - Date.now().valueOf()) / 1000),
       counter: undefined,
       show: true
     }
   }
 
   componentDidMount = () => {
+    /*
     const counter = setInterval(() => {
       if(this.state.count > 0) {
         const count = this.state.count - 1
@@ -29,12 +30,13 @@ class Question extends React.Component {
       }
     }, 1000)
     this.setState({ ...this.state, counter })
+    */
 
     window.addEventListener('keypress', this.handleEnterPress)
   }
 
   componentWillUnmount = () => {
-    clearInterval(this.state.counter)
+    //clearInterval(this.state.counter)
     this.setState = () => {}
 
     window.removeEventListener('keypress', this.handleEnterPress)
@@ -174,7 +176,7 @@ class Question extends React.Component {
       <div style={ titleStyle }>
         Your turn to ask a question!
         <div style={ counterStyle }>
-          { `${this.state.count.toString().padStart(2, '0')}s` }
+          { /** `${this.state.count.toString().padStart(2, '0')}s` */ }
         </div>
       </div>
     )

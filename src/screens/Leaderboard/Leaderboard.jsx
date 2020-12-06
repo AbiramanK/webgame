@@ -82,7 +82,10 @@ export class Leaderboard extends React.Component {
     suffix = () => (<AudioOutlined style={{ fontSize: 16, color: '#1890ff' }}/>)
 
     prepareNextRound = () => {
-        let counter = Math.max(30 - Math.trunc((Date.now().valueOf() - new Date(vars.round.endedAt).valueOf()) / 1000), 1)
+        const now = Date.now().valueOf()
+        const endedAt = new Date(vars.round.endedAt).valueOf()
+        const diff = now - endedAt
+        let counter = Math.max(40 - Math.trunc(diff / 1000), 1)
         this.setState({ ...this.state, counter })
         
         const timeout = setInterval(() => {

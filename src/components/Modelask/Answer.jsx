@@ -10,13 +10,14 @@ class Answer extends React.Component {
 
     this.state = { 
       answer: '',
-      count: Math.trunc((props.answerTimeout - Date.now().valueOf()) / 1000),
+      count: undefined, //Math.trunc((props.answerTimeout - Date.now().valueOf()) / 1000),
       counter: undefined,
       show: true
     };
   }
 
   componentDidMount = () => {
+    /**
     const counter = setInterval(() => {
       if(this.state.count > 0) {
         const count = this.state.count - 1
@@ -27,10 +28,11 @@ class Answer extends React.Component {
       }
     }, 1000)
     this.setState({ ...this.state, counter })
+    */
   }
 
   componentWillUnmount = () => {
-    clearInterval(this.state.counter)
+    //clearInterval(this.state.counter)
     this.setState = () => {}
 
     document.body.style.overflow = 'auto'
@@ -89,7 +91,7 @@ class Answer extends React.Component {
       <div style={ titleStyle }>
         { `${this.props.from.name} asked you a question` }
         <div style={ counterStyle }>
-          { `${this.state.count.toString().padStart(2, '0')}s` }
+          { /** `${this.state.count.toString().padStart(2, '0')}s` */ }
         </div>
       </div>
     )
