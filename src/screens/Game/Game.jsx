@@ -72,6 +72,34 @@ export class Game extends React.Component {
             })
         }, 50)
 
+        if(vars.round.interactionCurrentBy) {
+            if(vars.round.interactionCurrentBy.player_id) this.setState({ 
+                ...this.state, 
+                showModalQuestion: true,
+                showModal: false,
+            })
+        }
+
+        if(vars.interactions && vars.interactions.length > 0) {
+            if(vars.interactions[0]._id) {
+                const last = vars.interactions[vars.interactions.length - 1]
+                if(!last.answer) {
+                    if(last.question.to.email === vars.player.email) {
+                        this.setState({ 
+                            ...this.state, 
+                            showModalAnswer: true, 
+                            from: {
+                                name: last.question.from.name,
+                                email: last.question.from.email,
+                                question: last.question.question
+                            },
+                            showModal: false,
+                        })
+                    }
+                }
+            }
+        }
+
         gameIO.on('question', data => {
             console.log('Game_gameIO_question', data)
 

@@ -38,7 +38,7 @@ export class Host extends React.Component {
 
                 sessionStorage.setItem('name', data.player.name)
                 sessionStorage.setItem('email', data.player.email)
-                sessionStorage.getItem('short_id', data.game.short_id)
+                sessionStorage.setItem('short_id', data.game.short_id)
             } else this.setState({ ...this.state, hostClicked: false })
         })
 

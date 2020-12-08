@@ -56,6 +56,7 @@ export class Matrix extends React.Component {
     }
 
     handleFinalGuess = (k) => {
+        console.log('handleFinalGuess')
         gameIO.emit('finalGuess', {
             short_id: vars.game.short_id, 
             player_id: vars.player._id,

@@ -70,7 +70,10 @@ export const vars = {
         },
         imposterWon: undefined,
         endingAt: undefined,
-        endedAt: undefined
+        endedAt: undefined,
+        interactionCurrentBy: {
+            player_id: undefined
+        }
     },
     interactions: [
         {
@@ -101,4 +104,102 @@ export const vars = {
             }
         ]
     ],
+    initialize() {
+        this.game = {
+            _id: undefined,
+            short_id: undefined,
+            state: undefined,
+            players: [
+                {
+                    _id: undefined,
+                    socket_id: undefined,
+                    name: undefined,
+                    email: undefined,
+                    state: undefined,
+                    isHost: undefined,
+                    score: undefined
+                }
+            ],
+            lobby: {
+                chats: [
+                    {
+                        name: undefined,
+                        email: undefined,
+                        message: undefined
+                    }
+                ]
+            }
+        }
+        this.player = {
+            _id: undefined,
+            socket_id: undefined,
+            name: undefined,
+            email: undefined,
+            state: undefined,
+            isHost: undefined,
+            score: undefined,
+            isImposter: undefined
+        }
+        this.round = {
+            _id: undefined,
+            count: undefined,
+            name: undefined,
+            state: undefined,
+            tiles: {
+                locations: [
+                    [
+                        {
+                            name: undefined,
+                            image: undefined,
+                            position: {
+                                i: undefined,
+                                j: undefined
+                            }
+                        }
+                    ]
+                ]
+            },
+            leaderboardChats: [],
+            meeting: {
+                by: undefined,
+                voted: undefined,
+                for: undefined,
+            },
+            imposterWon: undefined,
+            endingAt: undefined,
+            endedAt: undefined,
+            interactionCurrentBy: {
+                player_id: undefined
+            }
+        }
+        this.interactions = [
+            {
+                _id: undefined,
+                question: {
+                    from: {
+                        name: undefined,
+                        email: undefined
+                    },
+                    to: {
+                        name: undefined,
+                        email: undefined
+                    },
+                    question: undefined
+                },
+                answer: undefined
+            }
+        ]
+        this.location = {
+            name: undefined,
+            image: undefined,
+        }
+        this.tempGuesses = [
+            [
+                {
+                    _id: undefined,
+                    type: undefined,
+                }
+            ]
+        ]
+    }
 }
