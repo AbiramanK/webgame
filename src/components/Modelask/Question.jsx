@@ -31,6 +31,7 @@ class Question extends React.Component {
     }, 1000)
     this.setState({ ...this.state, counter })
     */
+    this.playAudio()
 
     window.addEventListener('keypress', this.handleEnterPress)
   }
@@ -42,6 +43,12 @@ class Question extends React.Component {
     window.removeEventListener('keypress', this.handleEnterPress)
 
     document.body.style.overflow = 'auto'
+  }
+
+  playAudio = () => {
+    const audio = document.getElementById('popup-audio')
+    audio.currentTime = 0
+    audio.play()
   }
 
   handleEnterPress = e => {

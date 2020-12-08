@@ -3,7 +3,6 @@ import { Modal} from "antd";
 import "./voting.css";
 import { Colors } from "../../../Colors";
 import { gameIO, vars } from '../../../SocketIO'
-import popup from '../../../assets/popup.mp3'
 
 class Voting extends React.Component {
   constructor(props) {
@@ -25,6 +24,10 @@ class Voting extends React.Component {
   }
 
   componentDidMount=()=>{
+    this.playAudio()
+    
+    document.getElementById('popup-audio').play()
+    
     this.state.data.forEach((e)=>{
       if(e.isVoted){
         this.setState({
@@ -54,6 +57,12 @@ class Voting extends React.Component {
 
   componentWillUnmount = () => {
     document.body.style.overflow = 'auto'
+  }
+
+  playAudio = () => {
+    const audio = document.getElementById('popup-audio')
+    audio.currentTime = 0
+    audio.play()
   }
 
   changeVote = (el) => {
@@ -135,7 +144,6 @@ class Voting extends React.Component {
         head={ null }
         width={ 450 }
       >
-        <audio style={{ display: 'none' }} preload="auto" autoPlay src={ popup }/> 
         <div style={header}>
             { `${this.props.caller} has called a meeting` }
         </div>

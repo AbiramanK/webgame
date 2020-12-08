@@ -4,10 +4,17 @@ import 'antd/dist/antd.css';
 
 import { Host, Join, Lobby, Game, Leaderboard } from './screens';
 import './SocketIO'
+import popup from './assets/popup.mp3'
 
 const App = () => {
   return (
     <Router>
+      <audio 
+        id="popup-audio"
+        style={{ display: 'none' }} 
+        preload="auto" 
+        src={ popup }
+      /> 
       <Switch>
           <Route path="/game-rooms/:short_id/leaderboard" exact>
             <Leaderboard/>

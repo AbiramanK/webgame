@@ -47,10 +47,6 @@ export class Matrix extends React.Component {
         this.setState = () => {}
     }
 
-    handleResize = e => {
-
-    }
-
     updateGuess = (k, mark) => {
         gameIO.emit('updateGuess', { 
             short_id: vars.game.short_id, 

@@ -29,6 +29,9 @@ class Answer extends React.Component {
     }, 1000)
     this.setState({ ...this.state, counter })
     */
+    this.playAudio()
+
+    document.getElementById('popup-audio').play()
   }
 
   componentWillUnmount = () => {
@@ -36,6 +39,12 @@ class Answer extends React.Component {
     this.setState = () => {}
 
     document.body.style.overflow = 'auto'
+  }
+
+  playAudio = () => {
+    const audio = document.getElementById('popup-audio')
+    audio.currentTime = 0
+    audio.play()
   }
 
   handleOk = () => {

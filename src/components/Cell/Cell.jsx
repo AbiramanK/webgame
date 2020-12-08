@@ -37,13 +37,7 @@ export class Cell extends React.Component {
         return (
             <div 
                 className={ styles['final-guess'] } 
-                onClick={ 
-                    () => {
-                        if(this.props.finalGuessed) {
-                            this.props.finalGuessed()
-                        }
-                    }
-                }
+                onClick={ this.props.finalGuessed }
             >
                 <img alt="" src={ this.props.image } className={ styles['image'] }/>
                 <div>{ this.props.name }</div>

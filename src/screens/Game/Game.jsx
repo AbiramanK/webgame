@@ -6,7 +6,6 @@ import styles from './Game.module.css';
 import { Chat, Header, Matrix, Question, Answer, Voting } from '../../components';
 import { gameIO, vars, chatIO } from '../../SocketIO'
 import { clearInterval } from 'timers'
-import popup from '../../assets/popup.mp3'
 
 export class Game extends React.Component {
     constructor(props) {
@@ -49,6 +48,8 @@ export class Game extends React.Component {
             this.props.history.replace(`/game-rooms/${this.props.match.params.short_id}`)
             return 
         } 
+
+        document.getElementById('popup-audio').play()
 
         setTimeout(() => {
             this.setState({
@@ -482,8 +483,11 @@ export class Game extends React.Component {
     render() {
         return (
             <>
+                
+                {
+                    this.returnModal()
+                }
                 <div>
-                    <audio style={{ display: 'none' }} preload="auto" autoPlay src={ popup }/> 
                     <Header />
                     <div className={styles['container']}>
                         {
@@ -500,9 +504,6 @@ export class Game extends React.Component {
                         </div>
                     </div>
                 </div>
-                {
-                    this.returnModal()
-                }
                 {
                     this.state.showModalQuestion &&
                     this.returnQuestion()
