@@ -85,7 +85,7 @@ export class Leaderboard extends React.Component {
         const now = Date.now().valueOf()
         const endedAt = new Date(vars.round.endedAt).valueOf()
         const diff = now - endedAt
-        let counter = Math.max(40 - Math.trunc(diff / 1000), 1)
+        let counter = Math.max(30 - Math.trunc(diff / 1000), 1)
         this.setState({ ...this.state, counter })
         
         const timeout = setInterval(() => {
