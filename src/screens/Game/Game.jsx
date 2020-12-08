@@ -333,10 +333,12 @@ export class Game extends React.Component {
 
                 if(data.completed) {
                     this.setState({ ...this.state, votingCompleted: true })
-                    gameIO.emit('leaderboard', {
-                        short_id: vars.game.short_id,
-                        round_id: vars.round._id
-                    })
+                    setTimeout(() => {
+                        gameIO.emit('leaderboard', {
+                            short_id: vars.game.short_id,
+                            round_id: vars.round._id
+                        })
+                    }, 10000)
                 }
             }
         })
@@ -354,10 +356,12 @@ export class Game extends React.Component {
 
                 if(data.completed) {
                     this.setState({ ...this.state, votingCompleted: true })
-                    gameIO.emit('leaderboard', {
-                        short_id: vars.game.short_id,
-                        round_id: vars.round._id
-                    })
+                    setTimeout(() => {
+                        gameIO.emit('leaderboard', {
+                            short_id: vars.game.short_id,
+                            round_id: vars.round._id
+                        })
+                    }, 10000)
                 }
             }
         })

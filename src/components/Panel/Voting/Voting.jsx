@@ -20,6 +20,8 @@ class Voting extends React.Component {
           score: count ? count.votes : 0
         }
       }),
+      timer: undefined,
+      counter: 1
     };
   }
 
@@ -51,11 +53,23 @@ class Voting extends React.Component {
         return elem
       })
 
-      this.setState({ ...this.state, newData })
+      this.setState({ ...this.state, data: newData })
+    }
+
+    if(!this.state.timer && this.props.votingCompleted) {
+      this.setState({
+        ...this.state,
+        timer: setInterval(() => {
+          this.setState({ ...this.state, counter: this.state.counter + 1 })
+        }, 1000)
+      })
     }
   }
 
   componentWillUnmount = () => {
+    clearInterval(this.state.timer)
+    this.setState = () => {}
+
     document.body.style.overflow = 'auto'
   }
 
@@ -102,13 +116,20 @@ class Voting extends React.Component {
   };
 
   render() {
-    const header ={
+    const header = {
       "color": "aliceblue",
       "backgroundColor": "#440088",
       "textAlign": "center",
-      "padding": "15px",
+      "padding": "15px 30px",
       "fontWeight": "600",
       "fontSize": "1.2rem",
+      "position": "relative",
+    }
+    const timer = {
+      "position": "absolute",
+      "top": "50%",
+      "transform": "translateY(-50%)",
+      "right": "20px"
     }
     const playerLi = {
      "fontWeight": "600",
@@ -146,6 +167,12 @@ class Voting extends React.Component {
       >
         <div style={header}>
             { `${this.props.caller} has called a meeting` }
+            {
+              this.props.votingCompleted &&
+              <span style={timer}>
+                { `${this.state.counter}s` }
+              </span>
+            }
         </div>
         <ul style={{padding: "0px"}}>
           {this.state.data.map((e, el) => {
