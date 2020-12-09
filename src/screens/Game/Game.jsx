@@ -334,12 +334,23 @@ export class Game extends React.Component {
                 if(data.completed) {
                     this.setState({ ...this.state, votingCompleted: true })
                     setTimeout(() => {
-                        gameIO.emit('leaderboard', {
-                            short_id: vars.game.short_id,
-                            round_id: vars.round._id
-                        })
-                    }, 10000)
-                }
+                        if(data.skip) {
+                            this.setState({
+                                ...this.state,
+                                showModalVoting: false,
+                                meetingCaller: undefined,
+                                counts: [],
+                                votingCompleted: false
+                            })
+                        } else { 
+                            gameIO.emit('leaderboard', {
+                                short_id: vars.game.short_id,
+                                round_id: vars.round._id
+                            })
+                        }
+                    }, 5000)
+                } 
+        
             }
         })
         
@@ -357,11 +368,21 @@ export class Game extends React.Component {
                 if(data.completed) {
                     this.setState({ ...this.state, votingCompleted: true })
                     setTimeout(() => {
-                        gameIO.emit('leaderboard', {
-                            short_id: vars.game.short_id,
-                            round_id: vars.round._id
-                        })
-                    }, 10000)
+                        if(data.skip) {
+                            this.setState({
+                                ...this.state,
+                                showModalVoting: false,
+                                meetingCaller: undefined,
+                                counts: [],
+                                votingCompleted: false
+                            })
+                        } else { 
+                            gameIO.emit('leaderboard', {
+                                short_id: vars.game.short_id,
+                                round_id: vars.round._id
+                            })
+                        }
+                    }, 5000)
                 }
             }
         })
