@@ -113,7 +113,7 @@ export class Leaderboard extends React.Component {
                         name,
                         email
                     })
-                }, 200)
+                }, 200 * vars.game.players.findIndex(player => player.email === vars.player.email))
 
                 vars.initialize()
             } else this.setState({ ...this.state, restartClicked: false })
@@ -222,7 +222,7 @@ export class Leaderboard extends React.Component {
                     {
                         this.state.roundsRemaining > 0 &&
                         <Typography style={{ fontSize: 16 }}>
-                            `Rounds Remaining: ${ this.state.roundsRemaining }`
+                            { `Rounds Remaining: ${ this.state.roundsRemaining }` }
                         </Typography>
                     }
                 </div>

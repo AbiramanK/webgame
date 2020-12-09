@@ -70,7 +70,7 @@ class Voting extends React.Component {
     clearInterval(this.state.timer)
     this.setState = () => {}
 
-    document.body.style.overflow = 'auto'
+    setTimeout(() => document.body.style.overflow = 'auto', 0)
   }
 
   playAudio = () => {
@@ -164,6 +164,7 @@ class Voting extends React.Component {
         footer={ null }
         head={ null }
         width={ 450 }
+        maskClosable={ false }
       >
         <div style={header}>
             { `${this.props.caller} has called a meeting` }

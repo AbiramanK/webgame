@@ -156,7 +156,11 @@ export class Login extends React.Component {
         })
         if(!values.name) this.setState({ ...this.state, nameError: true }) 
         if(!/.+@.+\..+/.test(values.email)) this.setState({ ...this.state, emailError: true })
-        if(!this.state.joinClicked) {
+        if(
+            !this.state.nameError
+            && !this.state.emailError
+            && !this.state.joinClicked
+        ) {
             playerIO.emit('join', { 
                 ...values, 
                 short_id: this.props.match.params.short_id 

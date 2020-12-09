@@ -78,7 +78,11 @@ export class Host extends React.Component {
         })
         if(!values.name) this.setState({ ...this.state, nameError: true }) 
         if(!/.+@.+\..+/.test(values.email)) this.setState({ ...this.state, emailError: true })
-        if(!this.state.hostClicked) {
+        if(
+            !this.state.nameError
+            && !this.state.emailError
+            && !this.state.hostClicked
+        ) {
             playerIO.emit("host", values)
             this.setState({ ...this.state, hostClicked: true})
         }

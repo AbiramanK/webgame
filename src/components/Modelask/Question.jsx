@@ -42,7 +42,7 @@ class Question extends React.Component {
 
     window.removeEventListener('keypress', this.handleEnterPress)
 
-    document.body.style.overflow = 'auto'
+    setTimeout(() => document.body.style.overflow = 'auto', 0)
   }
 
   playAudio = () => {
@@ -78,6 +78,7 @@ class Question extends React.Component {
         title={ this.returnTitle() }
         footer={ this.returnFooter() }
         width={ 700 }
+        maskClosable={ false }
       >
         <audio style={{ display: 'none' }} preload="auto" autoPlay src={ popup }/> 
         { !vars.player.isImposter && this.returnHeader() }

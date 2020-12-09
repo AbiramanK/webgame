@@ -38,7 +38,7 @@ class Answer extends React.Component {
     //clearInterval(this.state.counter)
     this.setState = () => {}
 
-    document.body.style.overflow = 'auto'
+    setTimeout(() => document.body.style.overflow = 'auto', 0)
   }
 
   playAudio = () => {
@@ -71,6 +71,7 @@ class Answer extends React.Component {
         closable={ false }
         footer={ null }
         width={700}
+        maskClosable={ false }
       >
         <audio style={{ display: 'none' }} preload="auto" autoPlay src={ popup }/> 
         <h3 style={{ color: "#000000" }}>

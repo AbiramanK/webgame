@@ -377,7 +377,6 @@ export class Game extends React.Component {
                     pathname: `/game-rooms/${vars.game.short_id}/leaderboard`,
                     state: { roundsLeft: data.roundsLeft }
                 })
-                document.body.style.overflow = 'auto'
             }
         })
     
@@ -511,7 +510,6 @@ export class Game extends React.Component {
     render() {
         return (
             <>
-                
                 {
                     this.returnModal()
                 }
