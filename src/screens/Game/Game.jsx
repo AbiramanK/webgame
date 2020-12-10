@@ -340,7 +340,10 @@ export class Game extends React.Component {
                                 showModalVoting: false,
                                 meetingCaller: undefined,
                                 counts: [],
-                                votingCompleted: false
+                                votingCompleted: false,
+                                meetingCalled: false,
+                                showModalQuestion: false,
+                                showModalAnswer: false
                             })
                         } else { 
                             gameIO.emit('leaderboard', {
@@ -374,7 +377,10 @@ export class Game extends React.Component {
                                 showModalVoting: false,
                                 meetingCaller: undefined,
                                 counts: [],
-                                votingCompleted: false
+                                votingCompleted: false,
+                                meetingCalled: false,
+                                showModalQuestion: false,
+                                showModalAnswer: false
                             })
                         } else { 
                             gameIO.emit('leaderboard', {

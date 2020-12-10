@@ -31,12 +31,14 @@ class Answer extends React.Component {
     */
     this.playAudio()
 
-    document.getElementById('popup-audio').play()
+    window.addEventListener('keypress', this.handleEnterPress)
   }
 
   componentWillUnmount = () => {
     //clearInterval(this.state.counter)
     this.setState = () => {}
+
+    window.removeEventListener('keypress', this.handleEnterPress)
 
     setTimeout(() => document.body.style.overflow = 'auto', 0)
   }
@@ -45,6 +47,10 @@ class Answer extends React.Component {
     const audio = document.getElementById('popup-audio')
     audio.currentTime = 0
     audio.play()
+  }
+
+  handleEnterPress = e => {
+    if(e.code === 'Enter') this.handleOk()
   }
 
   handleOk = () => {
