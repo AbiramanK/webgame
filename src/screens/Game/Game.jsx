@@ -73,7 +73,7 @@ export class Game extends React.Component {
         }, 50)
 
         if(vars.round.interactionCurrentBy) {
-            if(vars.round.interactionCurrentBy.player_id) this.setState({ 
+            if(vars.round.interactionCurrentBy.player_id === vars.player._id) this.setState({ 
                 ...this.state, 
                 showModalQuestion: true,
                 showModal: false,
