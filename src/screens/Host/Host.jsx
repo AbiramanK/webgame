@@ -95,7 +95,7 @@ export class Host extends React.Component {
                 <div className={ styles['card-wrapper'] }>
                     <Card
                         className={ styles['birthmap-card'] }
-                        title="Birthmap"
+                        title="Login"
                         bordered={true}
                         style={{ width: 350, paddingTop: 0, paddingBottom: 0 }}
                         headStyle={{ ...jsxStyles.cardHeader }}
