@@ -10,46 +10,49 @@ import { playerIO, gameIO, chatIO, vars } from '../../SocketIO';
 
 export class Leaderboard extends React.Component {
     constructor(props) {
-        super(props);
+        super(props)
+
+        const now = Date.now().valueOf()
+        const endedAt = new Date(vars.round.endedAt).valueOf()
+        const diff = now - endedAt
+        const counter = Math.max(30 - Math.trunc(diff / 1000), 1)
 
         this.state = {
             roundsRemaining: this.props.location.state.roundsLeft,
-            leaderBoard: vars.game.players.map(player => {
-                return { 
-                    name: player.name, 
-                    points: player.score 
-                }
-            }),
-            counter: 30,
+            leaderBoard: vars.game.players.map(player => ({ 
+                name: player.name, 
+                points: player.score 
+            })),
+            counter,
             restartClicked: false
         }
     }
 
     componentDidMount = () => {
         if(!vars.init) {
-            this.props.history.replace(`/game-rooms/${this.props.match.params.short_id}`)
+            this.props.history.replace(`/game-rooms/${this.props.match.params.shortId}`)
             return 
         }
 
         gameIO.on('newRoundRes', data => {
             console.log('Leaderboard_gameIO_newRoundRes', data)
 
-            if(!data.error) gameIO.emit('info', { 
-                short_id: vars.game.short_id, 
-                player_id: vars.player._id
+            if(!data.error) gameIO.emit('roundInfo', { 
+                shortId: vars.game.shortId, 
+                playerId: vars.player._id 
             })
         })
 
         gameIO.on('newRoundResAll', data => {
             console.log('Leaderboard_gameIO_newRoundResAll', data)
 
-            if(!data.error) gameIO.emit('info', { 
-                short_id: vars.game.short_id, 
-                player_id: vars.player._id
+            if(!data.error) gameIO.emit('roundInfo', { 
+                shortId: vars.game.shortId, 
+                playerId: vars.player._id 
             })
         })
 
-        gameIO.on('infoRes', data => {
+        gameIO.on('roundInfoRes', data => {
             console.log('Leaderboard_gameIO_infoRes', data)
 
             this.setState({ ...this.state, startGameClicked: false })
@@ -59,41 +62,38 @@ export class Leaderboard extends React.Component {
                 if(data.isImposter) {
                     vars.tempGuesses = data.round.imposter.tempGuesses
                     delete data.round.imposter
-                } else {
-                    vars.location = data.round.location
-                    delete data.round.location
+                    delete data.round.tiles.current
                 }
-                vars.round = data.round
-                vars.interactions = data.round.interactions
 
-                this.props.history.replace(`/game-rooms/${vars.game.short_id}/game`)
+                vars.interactions = data.round.interactions
+                delete data.round.interactions 
+
+                vars.round = data.round
+
+                this.props.history.replace(`/game-rooms/${vars.game.shortId}/game`)
             }
         })
-
-        playerIO.on("hostRes", data => {
-            console.log("Leaderboard_playerIO_hostRes", data)
-
-            if(!data.error) gameIO.emit("restart", { prev_short_id: vars.game.short_id, short_id: data.short_id })
-            else this.setState({ ...this.state, restartClicked: false })
-        });
 
         gameIO.on('restartRes', data => {
             console.log("Leaderboard_gameIO_restartRes", data)
 
             if(!data.error) {
-                gameIO.emit('leave', { prev_short_id: vars.game.short_id })
-                chatIO.emit('leave', { prev_short_id: vars.game.short_id })
-                playerIO.emit('leave', { prev_short_id: vars.game.short_id })
+                gameIO.emit('leave', { prevShortId: vars.game.shortId })
+                chatIO.emit('leave', { prevShortId: vars.game.shortId })
+                playerIO.emit('leave', { prevShortId: vars.game.shortId })
 
-                const name = vars.player.name 
-                const email = vars.player.email
-                playerIO.emit('join', {
-                    short_id: data.short_id,
-                    name,
-                    email
-                })
-
+                const playerId = vars.player._id
                 vars.initialize()
+                vars.game = data.game 
+                vars.player = data.game.players.find(p => p._id === playerId)
+
+                playerIO.emit('joinSocket', { shortId: vars.game.shortId })
+                chatIO.emit('join', { shortId: vars.game.shortId })
+                gameIO.emit('start', { 
+                    shortId: vars.game.shortId,
+                    playerId: vars.player._id
+                })
+                this.props.history.push(`/game-rooms/${vars.game.shortId}/lobby`)
             } else this.setState({ ...this.state, restartClicked: false })
         })
 
@@ -101,82 +101,47 @@ export class Leaderboard extends React.Component {
             console.log("Leaderboard_gameIO_restartResAll", data)
 
             if(!data.error) {
-                gameIO.emit('leave', { prev_short_id: vars.game.short_id })
-                chatIO.emit('leave', { prev_short_id: vars.game.short_id })
-                playerIO.emit('leave', { prev_short_id: vars.game.short_id })
+                gameIO.emit('leave', { prevShortId: vars.game.shortId })
+                chatIO.emit('leave', { prevShortId: vars.game.shortId })
+                playerIO.emit('leave', { prevShortId: vars.game.shortId })
 
-                const name = vars.player.name 
-                const email = vars.player.email
-                setTimeout(() => {
-                    playerIO.emit('join', {
-                        short_id: data.short_id,
-                        name,
-                        email
-                    })
-                }, 200 * vars.game.players.findIndex(player => player.email === vars.player.email))
-
+                const playerId = vars.player._id
                 vars.initialize()
+                vars.game = data.game 
+                vars.player = data.game.players.find(p => p._id === playerId)
+
+                playerIO.emit('joinSocket', { shortId: vars.game.shortId })
+                chatIO.emit('join', { shortId: vars.game.shortId })
+                gameIO.emit('start', { 
+                    shortId: vars.game.shortId,
+                    playerId: vars.player._id
+                })
+                this.props.history.push(`/game-rooms/${vars.game.shortId}/lobby`)
             } else this.setState({ ...this.state, restartClicked: false })
         })
 
-        playerIO.on("joinRes", data => {
-            console.log("Leaderboard_playerIO_joinRes", data)
-
-            if(!data.error) {
-                vars.game = data.game
-                vars.player = data.player
+        document.body.style.overflow = 'auto'
         
-                chatIO.emit('join', { short_id: data.game.short_id })
-
-                sessionStorage.setItem('name', data.player.name)
-                sessionStorage.setItem('email', data.player.email)
-                sessionStorage.setItem('short_id', data.game.short_id)
-            } else this.setState({ ...this.state, restartClicked: false })
-        })
-
-        chatIO.on('joinRes', data => {
-            console.log('Leadership_chatIO_joinRes', data)
-
-            if(!data.error) gameIO.emit('start', {
-                short_id: vars.game.short_id,
-                player_id: vars.player._id
-            }) 
-            else this.setState({ ...this.state, hostClicked: false })
-        })
-
-        gameIO.on('startRes', data => {
-            console.log('Leadership_gameIO_startRes', data)
-
-            this.setState({ ...this.state, restartClicked: false })
-            if(!data.error) {
-                this.props.history.push(`/game-rooms/${vars.game.short_id}/lobby`)
-            }
-        })
-
         this.prepareNextRound()
     }
 
     componentWillUnmount = () => {
         gameIO.off('newRoundRes')
         gameIO.off('newRoundResAll')
-        gameIO.off('infoRes')
+        gameIO.off('roundInfoRes')
+        gameIO.off('restartRes')
+        gameIO.off('restartResAll')
         this.setState = () => {}
     }
 
     suffix = () => (<AudioOutlined style={{ fontSize: 16, color: '#1890ff' }}/>)
 
-    prepareNextRound = () => {
-        const now = Date.now().valueOf()
-        const endedAt = new Date(vars.round.endedAt).valueOf()
-        const diff = now - endedAt
-        let counter = Math.max(30 - Math.trunc(diff / 1000), 1)
-        this.setState({ ...this.state, counter })
-        
+    prepareNextRound = () => {        
         const timeout = setInterval(() => {
-            counter -= 1
+            const counter = this.state.counter - 1
             this.setState({ ...this.state, counter })
             if(counter === 1 && vars.player.isHost && this.state.roundsRemaining > 0) {
-                gameIO.emit('newRound', { short_id: vars.game.short_id })
+                gameIO.emit('newRound', { shortId: vars.game.shortId })
             }
             if(counter === 0) clearInterval(timeout)
         }, 1000)
@@ -185,10 +150,7 @@ export class Leaderboard extends React.Component {
     handleRestart = () => {
         if(!this.state.restartClicked) {
             this.setState({ ...this.state, restartClicked: true })
-            playerIO.emit("host", { 
-                name: vars.player.name,
-                email: vars.player.email
-            })
+            gameIO.emit('restart', { shortId: vars.game.shortId })
         }
     }
 
@@ -293,6 +255,7 @@ export class Leaderboard extends React.Component {
               size="large"
               style={ buttonStyle }
               onClick={ this.handleRestart }
+              loading={ this.state.restartClicked }
             >
               Restart
             </Button>

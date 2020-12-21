@@ -1,40 +1,48 @@
-import React from 'react';
-import { BrowserRouter as Router, Switch, Route, Redirect } from "react-router-dom";
-import 'antd/dist/antd.css';
+import React from 'react'
+import { BrowserRouter, Switch, Route, Redirect } from "react-router-dom"
+import 'antd/dist/antd.css'
 
-import { Host, Join, Lobby, Game, Leaderboard } from './screens';
+import { Host, Join, Lobby, Game, Leaderboard } from './screens'
 import './SocketIO'
 import popup from './assets/popup.mp3'
 
 const App = () => {
   return (
-    <Router>
-      <audio 
-        id="popup-audio"
-        style={{ display: 'none' }} 
-        preload="auto" 
-        src={ popup }
-      /> 
+    <BrowserRouter>
+        <audio 
+          id="popup-audio"
+          style={{ display: 'none' }} 
+          preload="auto" 
+          src={ popup }
+          muted={ true }
+        /> 
       <Switch>
-          <Route path="/game-rooms/:short_id/leaderboard" exact>
+
+          <Route path="/game-rooms/:shortId/leaderboard" exact>
             <Leaderboard/>
           </Route>
-          <Route path="/game-rooms/:short_id/game" exact>
+
+          <Route path="/game-rooms/:shortId/game" exact>
             <Game/>
           </Route>
-          <Route path="/game-rooms/:short_id/lobby" exact>
+
+          <Route path="/game-rooms/:shortId/lobby" exact>
             <Lobby/>
           </Route>
-          <Route path="/game-rooms/:short_id" exact>
+
+          <Route path="/game-rooms/:shortId" exact>
             <Join/>
           </Route>
+
           <Route path="/game-rooms" exact>
             <Host/>
           </Route>
+
           <Redirect to="/game-rooms"/>
+
       </Switch>
-    </Router>
-  );
+    </BrowserRouter>
+  )
 }
 
-export default App;
+export default App

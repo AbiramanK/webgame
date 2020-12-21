@@ -3,46 +3,29 @@ import { Modal, Button, Input, Select, Tooltip } from "antd";
 import "./Question.css";
 import { Colors } from "../../Colors";
 import { vars } from '../../SocketIO'
-import popup from '../../assets/popup.mp3'
 
 class Question extends React.Component {
   constructor(props) {
     super(props)
     
     this.state = {
-      player_id: vars.game.players.find(player => player._id !== vars.player._id)._id,
+      playerId: vars.game.players.find(p => p._id !== vars.player._id)._id,
       question: '',
-      count: undefined, //Math.trunc((props.askTimeout - Date.now().valueOf()) / 1000),
+      count: undefined, 
       counter: undefined,
       show: true
     }
   }
 
   componentDidMount = () => {
-    /*
-    const counter = setInterval(() => {
-      if(this.state.count > 0) {
-        const count = this.state.count - 1
-        this.setState({ ...this.state, count })
-      } else {
-        clearInterval(this.state.counter)
-        this.setState({ ...this.state, show: false })
-      }
-    }, 1000)
-    this.setState({ ...this.state, counter })
-    */
     this.playAudio()
-
     window.addEventListener('keypress', this.handleEnterPress)
   }
 
   componentWillUnmount = () => {
-    //clearInterval(this.state.counter)
-    this.setState = () => {}
-
     window.removeEventListener('keypress', this.handleEnterPress)
-
     setTimeout(() => document.body.style.overflow = 'auto', 0)
+    this.setState = () => {}
   }
 
   playAudio = () => {
@@ -57,13 +40,11 @@ class Question extends React.Component {
 
   handleOk = () => {
     this.setState({ ...this.state, show: false })
-
     this.props.handleAsk(this.state)
   }
 
   handleCancel = () => {
     this.setState({ ...this.state, show: false })
-    
     this.props.handleCancel()
   }
 
@@ -80,7 +61,6 @@ class Question extends React.Component {
         width={ 700 }
         maskClosable={ false }
       >
-        <audio style={{ display: 'none' }} preload="auto" autoPlay src={ popup }/> 
         { !vars.player.isImposter && this.returnHeader() }
         <h3>Who would you like to ask?</h3>
         { this.returnInputGroup() }
@@ -123,15 +103,13 @@ class Question extends React.Component {
     )
   }
 
-  returnHeader = () => {
-    return (
+  returnHeader = () => (
       <h3 style={{ color: Colors.PRIMARY }}>
         <span style={{ fontWeight: 400, color: 'black' }}>
           The location is:
-        </span> { vars.location.name }
+        </span> { this.props.location.name }
       </h3>
-    )
-  }
+  )
 
   returnInputGroup = () => {
     const iconStyle = { 
@@ -146,14 +124,13 @@ class Question extends React.Component {
       >
         <Input.Group compact>
           <Select 
-            defaultValue={ this.state.player_id } 
+            defaultValue={ this.state.playerId } 
             style={{ width: "90%" }}
-            onChange={ e => this.setState({ ...this.state, player_id: e }) }
+            onChange={ e => this.setState({ ...this.state, playerId: e }) }
             suffixIcon={ <div style={ iconStyle }> ^ </div> }
           >
             {
-              vars.game.players.map(player => {
-                return (
+              vars.game.players.map(player => (
                   player._id !== vars.player._id && 
                   <Select.Option 
                     value={ player._id } 
@@ -161,8 +138,7 @@ class Question extends React.Component {
                   >
                     { player.name }
                   </Select.Option>
-                )
-              })
+              ))
             }
           </Select>
         </Input.Group>
@@ -175,23 +151,14 @@ class Question extends React.Component {
       position: 'relative', 
       textAlign: 'center' 
     }
-    const counterStyle = { 
-      position: 'absolute', 
-      right: 0, 
-      top: 0 
-    }
     return (
       <div style={ titleStyle }>
         Your turn to ask a question!
-        <div style={ counterStyle }>
-          { /** `${this.state.count.toString().padStart(2, '0')}s` */ }
-        </div>
       </div>
     )
   }
 
-  returnFooter = () => {
-    return (
+  returnFooter = () => (
       <Button
         style={{
           backgroundColor: Colors.PRIMARY,
@@ -202,8 +169,7 @@ class Question extends React.Component {
       >
         Skip
       </Button>
-    )
-  }
+  )
 
   returnTooltipTitle = () => {
     const ulStyle = { 

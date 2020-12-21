@@ -6,70 +6,105 @@ import { gameIO, vars } from '../../../SocketIO'
 
 class Voting extends React.Component {
   constructor(props) {
-    super(props);
-    this.state = { 
-      voted: false,
-      data: vars.game.players.map(player => {
-        const count = props.counts.find(c => {
-          return c.player_id === player._id
-        })
-        return {
-          player_id: player._id,
-          name: player.name,
-          isVoted: false,
-          score: count ? count.votes : 0
-        }
-      }),
-      timer: undefined,
-      counter: 1
-    };
-  }
+    super(props)
 
-  componentDidMount=()=>{
-    this.playAudio()
-    
-    document.getElementById('popup-audio').play()
-    
-    this.state.data.forEach((e)=>{
-      if(e.isVoted){
-        this.setState({
-          ...this.state,
-          voted: true
-        })
+    let votedTo 
+    if(vars.round.meeting) {
+      const vote = vars.round.meeting.votes.find(v => v.from === vars.player._id)
+      if(vote) {
+        votedTo = vote.to
+      }
+    }
+      
+    this.state = { 
+      voted: votedTo ? true : false,
+      data: vars.game.players.map(p => ({
+          playerId: p._id,
+          name: p.name,
+          isVoted: p._id === votedTo ? true : false,
+          score: 0
+      })),
+      timer: undefined,
+    }
+  }
+ 
+  componentDidMount = () => {
+
+    gameIO.on('voteRes', data => {
+      console.log('Voting_gameIO_voteRes', data)
+
+      if(!this.state.voted) this.props.handleCancel()
+
+      if(!data.error) {
+        if(data.meetingCompleted) {
+          if(data.meetingSkipped) {
+            vars.round.meeting = undefined
+            this.props.handleCancel()
+          } else {
+            vars.round.meeting.votes = data.votes
+
+            const dataObj = this.state.data 
+            dataObj.forEach((d, i) => {
+              const count = data.counts.find(dd => dd.playerId === d.playerId)
+              dataObj[i].score = count.votes
+            })
+
+            this.setState({ ...this.state, data: dataObj, timer: 1 })
+            setInterval(() => {
+              this.setState({ ...this.state, timer: this.state.timer + 1 })
+            }, 1000)
+
+            setTimeout(() => {
+              gameIO.emit('leaderboard', {
+                  shortId: vars.game.shortId,
+              })
+            }, 5000)
+          }
+        } 
       }
     })
-  }
 
-  componentDidUpdate = (prevProps) => {
-    if(prevProps.counts !== this.props.counts) {
-      const data = this.state.data 
-      const newData = data.map(elem => {
-        const player = this.props.counts.find(k => {
-          return k.player_id === elem.player_id
-        })
+    gameIO.on('voteResAll', data => {
+      console.log('Voting_gameIO_voteResAll', data)
 
-        if(player) elem.score = player.votes 
+      if(!data.error) {
+        if(data.meetingCompleted) {
+          if(data.meetingSkipped) {
+            vars.round.meeting = undefined
+            this.props.handleCancel()
+          } else {
+            vars.round.meeting.votes = data.votes
 
-        return elem
-      })
+            const dataObj = this.state.data 
+            dataObj.forEach((d, i) => {
+              const count = data.counts.find(dd => dd.playerId === d.playerId)
+              dataObj[i].score = count.votes
+            })
 
-      this.setState({ ...this.state, data: newData })
-    }
+            console.log('dataObj', dataObj)
 
-    if(!this.state.timer && this.props.votingCompleted) {
-      this.setState({
-        ...this.state,
-        timer: setInterval(() => {
-          this.setState({ ...this.state, counter: this.state.counter + 1 })
-        }, 1000)
-      })
-    }
+            this.setState({ ...this.state, data: dataObj, timer: 1 })
+            setInterval(() => {
+              this.setState({ ...this.state, timer: this.state.timer + 1 })
+            }, 1000)
+
+            setTimeout(() => {
+              gameIO.emit('leaderboard', {
+                  shortId: vars.game.shortId,
+              })
+            }, 5000)
+          }
+        } 
+      }
+    })
+
+    this.playAudio()
   }
 
   componentWillUnmount = () => {
-    clearInterval(this.state.timer)
+    gameIO.off('voteRes')
+    gameIO.off('voteResAll')
     this.setState = () => {}
-
     setTimeout(() => document.body.style.overflow = 'auto', 0)
   }
 
@@ -81,39 +116,29 @@ class Voting extends React.Component {
 
   changeVote = (el) => {
     const data = this.state.data
-    data[el].isVoted = true;
-    this.setState({
-      data: [...data ], voted: true
+    data[el].isVoted = true
+    this.setState({ 
+      ...this.state,
+      data, 
+      voted: true
     })
     gameIO.emit('vote', {
-      short_id: vars.game.short_id,
-      round_id: vars.round._id,
-      by: {
-        player_id: vars.player._id
-      },
-      for: {
-        player_id: data[el].player_id
-      }
+      shortId: vars.game.shortId,
+      from: vars.player._id,
+      to: data[el].playerId
     })
-  };
+  }
 
   handleOk = () => {
     document.body.style.overflow = 'auto'
-  };
+  }
 
   handleCancel = () => {
     gameIO.emit('vote', {
-      short_id: vars.game.short_id,
-      round_id: vars.round._id,
-      by: {
-        player_id: vars.player._id
-      },
-      for: {
-        player_id: -1
-      }
+      shortId: vars.game.shortId,
+      from: vars.player._id,
     })
-    this.props.handleCancel()
-  };
+  }
 
   render() {
     const header = {
@@ -129,7 +154,7 @@ class Voting extends React.Component {
       "position": "absolute",
       "top": "50%",
       "transform": "translateY(-50%)",
-      "right": "20px"
+      "left": "20px"
     }
     const playerLi = {
      "fontWeight": "600",
@@ -141,7 +166,6 @@ class Voting extends React.Component {
       "padding": "10px 30px",
       "borderBottom": "1px solid #D3D3D3",
     }
-
     const skipButton ={
       "fontSize": "1.2rem",
       "fontWeight": "600",
@@ -160,7 +184,8 @@ class Voting extends React.Component {
         title=""
         visible={ true }
         onOk={ this.handleOk }
-        closable={ this.state.voted && !this.props.votingCompleted }
+        onCancel={ this.props.handleCancel }
+        closable={ this.state.voted }
         footer={ null }
         head={ null }
         width={ 450 }
@@ -169,9 +194,9 @@ class Voting extends React.Component {
         <div style={header}>
             { `${this.props.caller} has called a meeting` }
             {
-              this.props.votingCompleted &&
+              this.state.timer &&
               <span style={timer}>
-                { `${this.state.counter}s` }
+                { `${this.state.timer}s` }
               </span>
             }
         </div>
@@ -182,10 +207,10 @@ class Voting extends React.Component {
                 <span>{e.name}</span>
                 <div>
                   <span style={{ fontWeight: 400, marginRight: '20px'}}>
-                    { this.props.votingCompleted && e.score }
+                    { this.state.timer && e.score }
                   </span>
                   {
-                    e.player_id === vars.player._id
+                    e.playerId === vars.player._id
                     ? <span style={{ userSelect: 'none', color: Colors.GREY }}>
                         Vote
                       </span>

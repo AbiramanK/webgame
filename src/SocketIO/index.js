@@ -2,45 +2,45 @@ import io from 'socket.io-client';
  
 import { API_BASE } from '../Configs'  
 
-export const playerIO = io(`${API_BASE}/player`, { path: '/webgame/socket.io/'})
+export const playerIO = io(`${API_BASE}/player`, { path: '/webgame/socket.io/' })
 export const chatIO = io(`${API_BASE}/chat`, { path: '/webgame/socket.io/' })
 export const gameIO = io(`${API_BASE}/game`, { path: '/webgame/socket.io/' })
 
 export const vars = {
     init: false,
     game: {
-        _id: undefined,
-        short_id: undefined,
+        _id: undefined, 
+        shortId: undefined,
         state: undefined,
-        players: [
-            {
-                _id: undefined,
-                socket_id: undefined,
-                name: undefined,
-                email: undefined,
-                state: undefined,
-                isHost: undefined,
-                score: undefined
-            }
-        ],
-        lobby: {
-            chats: [
-                {
-                    name: undefined,
-                    email: undefined,
-                    message: undefined
-                }
-            ]
-        }
+        players: [{
+            _id: undefined,
+            socket_id: undefined,
+            name: undefined,
+            email: undefined,
+            state: undefined,
+            isHost: undefined,
+            score: undefined,
+            createdAt: undefined,
+            updatedAt: undefined
+        }],
+        lobbyChats: [{
+            name: undefined,
+            email: undefined,
+            message: undefined
+        }],
+        createdAt: undefined,
+        updatedAt: undefined
     },
     player: {
         _id: undefined,
-        socket_id: undefined,
+        socketId: undefined,
         name: undefined,
         email: undefined,
         state: undefined,
         isHost: undefined,
         score: undefined,
+        createdAt: undefined,
+        updatedAt: undefined,
         isImposter: undefined
     },
     round: {
@@ -49,95 +49,81 @@ export const vars = {
         name: undefined,
         state: undefined,
         tiles: {
-            locations: [
-                [
-                    {
-                        name: undefined,
-                        image: undefined,
-                        position: {
-                            i: undefined,
-                            j: undefined
-                        }
-                    }
-                ]
-            ]
+            locations: [{
+                _id: undefined,
+                name: undefined,
+                image: undefined
+            }],
+            current: undefined
         },
-        leaderboardChats: [],
+        nextAskee: {
+            index: undefined,
+            givenChanceAt: undefined,
+            askedAt: undefined 
+        },
+        leaderboardChats: [{
+            playerId: undefined,
+            message: undefined
+        }],
         meeting: {
             by: undefined,
-            voted: undefined,
-            for: undefined,
+            votes: [{
+                from: undefined,
+                to: undefined
+            }],
+            candidates: [ undefined ]
         },
         imposterWon: undefined,
         endingAt: undefined,
         endedAt: undefined,
-        interactionCurrentBy: {
-            player_id: undefined
-        }
     },
-    interactions: [
-        {
+    interactions: {
+        list: [{
             _id: undefined,
             question: {
-                from: {
-                    name: undefined,
-                    email: undefined
-                },
-                to: {
-                    name: undefined,
-                    email: undefined
-                },
-                question: undefined
+                from: undefined,
+                to: undefined,
+                message: undefined
             },
             answer: undefined
-        }
-    ],
-    location: {
-        name: undefined,
-        image: undefined,
+        }],
+        current: undefined 
     },
-    tempGuesses: [
-        [
-            {
-                _id: undefined,
-                type: undefined,
-            }
-        ]
-    ],
+    tempGuesses: [ undefined ],
     initialize() {
         this.game = {
-            _id: undefined,
-            short_id: undefined,
+            _id: undefined, 
+            shortId: undefined,
             state: undefined,
-            players: [
-                {
-                    _id: undefined,
-                    socket_id: undefined,
-                    name: undefined,
-                    email: undefined,
-                    state: undefined,
-                    isHost: undefined,
-                    score: undefined
-                }
-            ],
-            lobby: {
-                chats: [
-                    {
-                        name: undefined,
-                        email: undefined,
-                        message: undefined
-                    }
-                ]
-            }
+            players: [{
+                _id: undefined,
+                socket_id: undefined,
+                name: undefined,
+                email: undefined,
+                state: undefined,
+                isHost: undefined,
+                score: undefined,
+                createdAt: undefined,
+                updatedAt: undefined
+            }],
+            lobbyChats: [{
+                name: undefined,
+                email: undefined,
+                message: undefined
+            }],
+            createdAt: undefined,
+            updatedAt: undefined
         }
         this.player = {
             _id: undefined,
-            socket_id: undefined,
+            socketId: undefined,
             name: undefined,
             email: undefined,
             state: undefined,
             isHost: undefined,
             score: undefined,
+            createdAt: undefined,
+            updatedAt: undefined,
             isImposter: undefined
         }
         this.round = {
@@ -146,60 +132,49 @@ export const vars = {
             name: undefined,
             state: undefined,
             tiles: {
-                locations: [
-                    [
-                        {
-                            name: undefined,
-                            image: undefined,
-                            position: {
-                                i: undefined,
-                                j: undefined
-                            }
-                        }
-                    ]
-                ]
+                locations: [{
+                    _id: undefined,
+                    name: undefined,
+                    image: undefined
+                }]
             },
-            leaderboardChats: [],
+            nextAskee: {
+                index: undefined,
+                givenChanceAt: undefined,
+                askedAt: undefined
+            },
+            leaderboardChats: [{
+                playerId: undefined,
+                message: undefined
+            }],
             meeting: {
                 by: undefined,
-                voted: undefined,
-                for: undefined,
+                votes: [{
+                    from: undefined,
+                    to: undefined
+                }],
+                candidates: [ undefined ]
             },
             imposterWon: undefined,
             endingAt: undefined,
             endedAt: undefined,
-            interactionCurrentBy: {
-                player_id: undefined
-            }
         }
-        this.interactions = [
-            {
+        this.interactions = {
+            list: [{
                 _id: undefined,
                 question: {
-                    from: {
-                        name: undefined,
-                        email: undefined
-                    },
-                    to: {
-                        name: undefined,
-                        email: undefined
-                    },
+                    from: undefined,
+                    to: undefined,
                     question: undefined
                 },
                 answer: undefined
-            }
-        ]
-        this.location = {
-            name: undefined,
-            image: undefined,
+            }],
+            current: undefined 
         }
-        this.tempGuesses = [
-            [
-                {
-                    _id: undefined,
-                    type: undefined,
-                }
-            ]
-        ]
+        this.location = undefined
+        this.tempGuesses = [{
+            locationId: undefined,
+            type: undefined,
+        }]
     }
 }

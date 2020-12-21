@@ -9,7 +9,7 @@ import { playerIO, vars, chatIO, gameIO } from '../../SocketIO'
 
 export class Host extends React.Component {
     constructor(props) {
-        super(props);
+        super(props)
 
         this.state = {
             hostClicked: false,
@@ -19,26 +19,26 @@ export class Host extends React.Component {
     }
 
     componentDidMount() {
-        playerIO.on("hostRes", data => {
-            console.log("Host_playerIO_hostRes", data)
+        playerIO.on('hostRes', data => {
+            console.log('Host_playerIO_hostRes', data)
 
-            if(!data.error) playerIO.emit("join", data)
+            if(!data.error) playerIO.emit('join', data)
             else this.setState({ ...this.state, hostClicked: false })
         });
 
-        playerIO.on("joinRes", data => {
-            console.log("Host_playerIO_joinRes", data)
+        playerIO.on('joinRes', data => {
+            console.log('Host_playerIO_joinRes', data)
 
             if(!data.error) {
                 vars.init = true
                 vars.game = data.game
                 vars.player = data.player
         
-                chatIO.emit('join', { short_id: data.game.short_id })
-
                 sessionStorage.setItem('name', data.player.name)
                 sessionStorage.setItem('email', data.player.email)
-                sessionStorage.setItem('short_id', data.game.short_id)
+                sessionStorage.setItem('shortId', data.game.shortId)
+
+                chatIO.emit('join', { shortId: data.game.shortId })
             } else this.setState({ ...this.state, hostClicked: false })
         })
 
@@ -46,8 +46,8 @@ export class Host extends React.Component {
             console.log('Host_chatIO_joinRes', data)
 
             if(!data.error) gameIO.emit('start', {
-                short_id: vars.game.short_id,
-                player_id: vars.player._id
+                shortId: vars.game.shortId,
+                playerId: vars.player._id
             }) 
             else this.setState({ ...this.state, hostClicked: false })
         })
@@ -57,7 +57,7 @@ export class Host extends React.Component {
 
             this.setState({ ...this.state, hostClicked: false })
             if(!data.error) {
-                this.props.history.push(`/game-rooms/${vars.game.short_id}/lobby`)
+                this.props.history.push(`/game-rooms/${vars.game.shortId}/lobby`)
             }
         })
     }
@@ -83,8 +83,8 @@ export class Host extends React.Component {
             && !this.state.emailError
             && !this.state.hostClicked
         ) {
-            playerIO.emit("host", values)
             this.setState({ ...this.state, hostClicked: true})
+            playerIO.emit('host', values)
         }
     }
 
@@ -107,7 +107,7 @@ export class Host extends React.Component {
                                 className={ styles['input-label'] }
                             >
                                 <Input 
-                                    style={ this.state.nameError ? { border: `2px solid ${Colors.RED}` } : {}}
+                                    style={ this.state.nameError ? { boxShadow: `0 0 0 2px ${ Colors.RED }` } : {}}
                                     onFocus={ () => this.setState({ ...this.state, nameError: false })}
                                 />
                             </Form.Item>
@@ -117,7 +117,7 @@ export class Host extends React.Component {
                                 className={ styles['input-label'] }
                             >
                                 <Input 
-                                    style={ this.state.emailError ? { border: `2px solid ${Colors.RED}` } : {}}
+                                    style={ this.state.emailError ? { boxShadow: `0 0 0 2px ${ Colors.RED }` } : {}}
                                     onFocus={ () => this.setState({ ...this.state, emailError: false })}
                                 />
                             </Form.Item>
@@ -125,6 +125,7 @@ export class Host extends React.Component {
                                 type="primary" 
                                 htmlType="submit" 
                                 className={ styles['submit-button'] }
+                                loading={ this.state.hostClicked }
                             >
                                 Host
                             </Button>

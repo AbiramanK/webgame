@@ -9,15 +9,15 @@ import { playerIO, vars, chatIO, gameIO } from '../../SocketIO'
 
 export class Login extends React.Component {
     constructor(props) {
-        super(props);
+        super(props)
 
         const name = sessionStorage.getItem('name')
         const email = sessionStorage.getItem('email')
 
         this.state = {
+            name: name ?? '',
+            email: email ?? '',
             joinClicked: false,
-            name: name ? name : '',
-            email: email ? email : '',
             showModal: false,
             modalMessage: '',
             nameError: false,
@@ -26,6 +26,7 @@ export class Login extends React.Component {
     }
 
     componentDidMount() {
+        
         playerIO.on('joinRes', data => {
             console.log('Join_playerIO_joinRes', data)
 
@@ -34,11 +35,11 @@ export class Login extends React.Component {
                 vars.game = data.game
                 vars.player = data.player
             
-                chatIO.emit('join', { short_id: data.game.short_id })
-
                 sessionStorage.setItem('name', data.player.name)
                 sessionStorage.setItem('email', data.player.email)
-                sessionStorage.setItem('short_id', data.game.short_id)
+                sessionStorage.setItem('shortId', data.game.shortId)
+
+                chatIO.emit('join', { shortId: data.game.shortId })
             } else {
                 this.setState({ 
                     ...this.state, 
@@ -53,8 +54,8 @@ export class Login extends React.Component {
             console.log('Join_chatIO_joinRes', data)
 
             if(!data.error) gameIO.emit('start', {
-                short_id: vars.game.short_id,
-                player_id: vars.player._id
+                shortId: vars.game.shortId,
+                playerId: vars.player._id
             }) 
             else this.setState({ ...this.state, joinClicked: false })
         })
@@ -65,38 +66,40 @@ export class Login extends React.Component {
             if(!data.error) {
                 if(vars.game.state === 'LOBBY') {
                     this.setState({ ...this.state, joinClicked: false })
-
-                    this.props.history.push(`/game-rooms/${vars.game.short_id}/lobby`)
+                    this.props.history.push(`/game-rooms/${vars.game.shortId}/lobby`)
                 } else {
-                    gameIO.emit('info', { 
-                        short_id: vars.game.short_id, 
-                        player_id: vars.player._id
+                    gameIO.emit('roundInfo', { 
+                        shortId: vars.game.shortId, 
+                        playerId: vars.player._id
                     })
-                }
-            }
-        })
-
-        gameIO.on('infoRes', data => {
-            console.log('Join_gameIO_infoRes', data)
-
-            if(!data.error) {
-                vars.player.isImposter = data.isImposter
-
-                if(data.isImposter) vars.tempGuesses = data.round.imposter.tempGuesses
-                else vars.location = data.round.location
-                vars.round = data.round
-                vars.interactions = data.round.interactions
-
-                if(vars.round.state === 'LEADERBOARD') {
-                    gameIO.emit('leaderboard', {
-                        short_id: vars.game.short_id,
-                        round_id: vars.round._id
-                    })
-                } else {
-                    this.setState({ ...this.state, joinClicked: false })
-                    this.props.history.replace(`/game-rooms/${vars.game.short_id}/game`)
                 }
             } else this.setState({ ...this.state, joinClicked: false })
+        })
+
+        gameIO.on('roundInfoRes', data => {
+            console.log('Join_gameIO_roundInfoRes', data)
+
+            if(!data.error) {
+                this.setState({ ...this.state, startGameClicked: false })
+
+                vars.player.isImposter = data.isImposter
+
+                if(data.isImposter) {
+                    vars.tempGuesses = data.round.imposter.tempGuesses
+                }
+
+                vars.interactions = data.round.interactions
+
+                vars.round = data.round
+
+                if(vars.round.state !== 'LEADERBOARD') {
+                    this.props.history.replace(`/game-rooms/${vars.game.shortId}/game`)
+                } else {
+                    gameIO.emit('leaderboard', { shortId: vars.game.shortId })
+                }
+            } else {
+                this.setState({ ...this.state, startGameClicked: false })
+            }
         })
 
         gameIO.on('leaderboardRes', data => {
@@ -108,7 +111,7 @@ export class Login extends React.Component {
                 vars.round.endedAt = data.endedAt
                 vars.round.imposterWon = data.imposterWon
                 this.props.history.push({
-                    pathname: `/game-rooms/${vars.game.short_id}/leaderboard`,
+                    pathname: `/game-rooms/${vars.game.shortId}/leaderboard`,
                     state: { roundsLeft: data.roundsLeft }
                 })
                 document.body.style.overflow = 'auto'
@@ -118,34 +121,21 @@ export class Login extends React.Component {
         if(
             this.state.name 
             && this.state.email
-            && sessionStorage.getItem('short_id') === this.props.match.params.short_id 
-        ) this.join({ name: this.state.name, email: this.state.email })
+            && sessionStorage.getItem('shortId') === this.props.match.params.shortId 
+        ) this.join({ 
+            joinClicked: true,
+            name: this.state.name, 
+            email: this.state.email 
+        })
     }
 
     componentWillUnmount = () => {
         playerIO.off("joinRes")
         chatIO.off('joinRes')
         gameIO.off('startRes')
-        gameIO.off('infoRes')
-        gameIO.on('leaderboardRes')
+        gameIO.off('roundInfoRes')
+        gameIO.off('leaderboardRes')
         this.setState = () => {}
-    }
-
-    parseLocations = tiles => {
-        const parsedLocations = new Array(tiles.rows).fill(undefined).map(() => new Array(tiles.columns).fill(undefined))
-        tiles.locations.forEach(location => {
-            parsedLocations[location.position.i][location.position.j] = {
-                name: location.name,
-                image: location.image
-            }
-        })
-        return parsedLocations
-    }
-
-    parseTempGuesses = (tiles, tempGuesses) => {
-        const parsedGuesses = new Array(tiles.rows).fill(undefined).map(() => new Array(tiles.columns).fill(undefined))
-        tempGuesses.forEach(guess => { parsedGuesses[guess.position.i][guess.position.j] = guess })
-        return parsedGuesses
     }
 
     join = values => { 
@@ -161,15 +151,12 @@ export class Login extends React.Component {
             && !this.state.emailError
             && !this.state.joinClicked
         ) {
-            playerIO.emit('join', { 
-                ...values, 
-                short_id: this.props.match.params.short_id 
-            })
             this.setState({ ...this.state, joinClicked: true})
+            playerIO.emit('join', { ...values, shortId: this.props.match.params.shortId })
         }
     }
 
-    handleModalCancel = () => this.setState({ showModal: false, modalMessage: '' })
+    handleModalCancel = () => this.setState({ ...this.state, showModal: false })
 
     render() {
         return (
@@ -210,6 +197,7 @@ export class Login extends React.Component {
                                 type="primary" 
                                 htmlType="submit" 
                                 className={ styles['submit-button'] }
+                                loading={ this.state.joinClicked }
                             >
                                 Join
                             </Button>

@@ -4,10 +4,4 @@ import Lobby from './Lobby/Lobby';
 import Game from './Game/Game';
 import Leaderboard from './Leaderboard/Leaderboard';
 
-export {
-    Host,
-    Join,
-    Lobby,
-    Game,
-    Leaderboard
-}
+export { Host, Join, Lobby, Game,Leaderboard }

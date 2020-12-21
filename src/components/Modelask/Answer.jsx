@@ -2,7 +2,6 @@ import React from "react";
 import { Modal, Button, Input } from "antd";
 import "./Answer.css";
 import { Colors } from "../../Colors";
-import popup from '../../assets/popup.mp3'
 
 class Answer extends React.Component {
   constructor(props) {
@@ -10,36 +9,18 @@ class Answer extends React.Component {
 
     this.state = { 
       answer: '',
-      count: undefined, //Math.trunc((props.answerTimeout - Date.now().valueOf()) / 1000),
-      counter: undefined,
       show: true
     };
   }
 
   componentDidMount = () => {
-    /**
-    const counter = setInterval(() => {
-      if(this.state.count > 0) {
-        const count = this.state.count - 1
-        this.setState({ ...this.state, count })        
-      } else {
-        clearInterval(this.state.counter)
-        this.setState({ ...this.state, show: false })
-      }
-    }, 1000)
-    this.setState({ ...this.state, counter })
-    */
     this.playAudio()
-
     window.addEventListener('keypress', this.handleEnterPress)
   }
 
   componentWillUnmount = () => {
-    //clearInterval(this.state.counter)
     this.setState = () => {}
-
     window.removeEventListener('keypress', this.handleEnterPress)
-
     setTimeout(() => document.body.style.overflow = 'auto', 0)
   }
 
@@ -55,13 +36,11 @@ class Answer extends React.Component {
 
   handleOk = () => {
     this.setState({ ...this.state, show: false })
-
     this.props.handleAnswer(this.state)
   }
 
   handleCancel = () => {
     this.setState({ ...this.state, show: false })
-
     this.props.handleCancel()
   }
 
@@ -79,7 +58,6 @@ class Answer extends React.Component {
         width={700}
         maskClosable={ false }
       >
-        <audio style={{ display: 'none' }} preload="auto" autoPlay src={ popup }/> 
         <h3 style={{ color: "#000000" }}>
           { this.props.from.question }
         </h3>
@@ -98,17 +76,9 @@ class Answer extends React.Component {
       position: 'relative', 
       textAlign: 'center' 
     }
-    const counterStyle = { 
-      position: 'absolute', 
-      right: 0, 
-      top: 0 
-    }
     return (
       <div style={ titleStyle }>
         { `${this.props.from.name} asked you a question` }
-        <div style={ counterStyle }>
-          { /** `${this.state.count.toString().padStart(2, '0')}s` */ }
-        </div>
       </div>
     )
   }

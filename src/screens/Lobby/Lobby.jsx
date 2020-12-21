@@ -5,24 +5,17 @@ import { Card, Button, Row, Col, Modal } from 'antd';
 import styles from './Lobby.module.css'
 import { Colors } from '../../Colors';
 import { Header, Chat } from '../../components';
-import { playerIO, vars, gameIO, chatIO } from '../../SocketIO'
+import { playerIO, vars, gameIO } from '../../SocketIO'
 
 export class Lobby extends React.Component {
     constructor(props) {
         super(props);
 
         this.state = { 
+            stateChangeClicked: false,
             startGameClicked: false,
             ownState: vars.player.state,
-            players: vars.game.players.map(player => {
-                return {
-                    _id: player._id,
-                    name: player.name,
-                    email: player.email,
-                    state: player.state,
-                    isHost: player.isHost
-                }
-            }),
+            players: vars.game.players,
             showModal: false,
             modalMessage: ''
         }
@@ -30,7 +23,7 @@ export class Lobby extends React.Component {
 
     componentDidMount = () => {     
         if(!vars.init) {
-            this.props.history.replace(`/game-rooms/${this.props.match.params.short_id}`)
+            this.props.history.replace(`/game-rooms/${this.props.match.params.shortId}`)
             return 
         } 
 
@@ -43,18 +36,7 @@ export class Lobby extends React.Component {
                     vars.game.players = vars.game.players.filter(p => p._id !== player._id)
                 } 
                 vars.game.players.push(data.player) 
-                this.setState({ 
-                    ...this.state,
-                    players: vars.game.players.map(player => {
-                        return {
-                            _id: player._id,
-                            name: player.name,
-                            email: player.email,
-                            state: player.state,
-                            isHost: player.isHost
-                        }
-                    }) 
-                })
+                this.setState({ ...this.state, players: vars.game.players})
             }
         })
 
@@ -64,9 +46,18 @@ export class Lobby extends React.Component {
             if(!data.error) {
                 vars.game
                     .players    
-                    .find(player => player._id === data.player_id)
+                    .find(player => player._id === data.playerId)
                     .state = data.state 
                 vars.player.state = data.state
+
+                this.setState({ 
+                    ...this.state, 
+                    stateChangeClicked: false,
+                    players: vars.game.players,
+                    ownState: data.state
+                })
+            } else {
+                this.setState({ ...this.state, stateChangeClicked: false})
             }
         })
 
@@ -76,46 +67,27 @@ export class Lobby extends React.Component {
             if(!data.error) {
                 vars.game
                     .players
-                    .find(player => player._id === data.player_id)
+                    .find(player => player._id === data.playerId)
                     .state = data.state 
 
-                this.state
-                    .players
-                    .find(player => player._id === data.player_id)
-                    .state = data.state
-                this.setState({ ...this.state })
+                this.setState({ 
+                    ...this.state,
+                    players: vars.game.players
+                })
             }
         })
 
-        chatIO.on('startGameRes', data => {
-            console.log('Lobby_chatIO_startGameRes', data)
-
-            if(!data.error) gameIO.emit('newRound', { short_id: vars.game.short_id })
-            else this.setState({ 
-                ...this.state, 
-                startGameClicked: false,
-                showModal: true,
-                modalMessage: data.error 
-            })
-        })
-
-        playerIO.on('disconnected', data => {
-            console.log('Lobby_playerIO_disconnected', data)
+        playerIO.on('disconnectingResAll', data => {
+            console.log('Lobby_playerIO_disconnectingResAll', data)
 
             if(!data.error) {
-                const player = vars.game.players.find(p => p._id === data.player_id)
-                player.state = 'DISCONNECTED'
+                vars.game
+                    .players
+                    .find(p => p._id === data.playerId)
+                    .state = 'DISCONNECTED'
                 this.setState({ 
                     ...this.state,
-                    players: vars.game.players.map(player => {
-                        return {
-                            _id: player._id,
-                            name: player.name,
-                            email: player.email,
-                            state: player.state,
-                            isHost: player.isHost
-                        }
-                    }) 
+                    players: vars.game.players
                 })
             }
         })
@@ -123,9 +95,9 @@ export class Lobby extends React.Component {
         gameIO.on('newRoundRes', data => {
             console.log('Lobby_gameIO_newRoundRes', data)
 
-            if(!data.error) gameIO.emit('info', { 
-                short_id: vars.game.short_id, 
-                player_id: vars.player._id 
+            if(!data.error) gameIO.emit('roundInfo', { 
+                shortId: vars.game.shortId, 
+                playerId: vars.player._id 
             })
             else this.setState({ ...this.state, startGameClicked: false })
         })
@@ -133,25 +105,28 @@ export class Lobby extends React.Component {
         gameIO.on('newRoundResAll', data => {
             console.log('Lobby_gameIO_newRoundResAll', data)
 
-            if(!data.error) gameIO.emit('info', { 
-                short_id: vars.game.short_id, 
-                player_id: vars.player._id
+            if(!data.error) gameIO.emit('roundInfo', { 
+                shortId: vars.game.shortId, 
+                playerId: vars.player._id
             })
         })
      
-        gameIO.on('infoRes', data => {
-            console.log('Lobby_gameIO_infoRes', data)
+        gameIO.on('roundInfoRes', data => {
+            console.log('Lobby_gameIO_roundInfoRes', data)
 
             this.setState({ ...this.state, startGameClicked: false })
             if(!data.error) {
                 vars.player.isImposter = data.isImposter
 
-                if(data.isImposter) vars.tempGuesses = data.round.imposter.tempGuesses
-                else vars.location = data.round.location
-                vars.round = data.round
+                if(data.isImposter) {
+                    vars.tempGuesses = data.round.imposter.tempGuesses
+                }
+
                 vars.interactions = data.round.interactions
 
-                this.props.history.replace(`/game-rooms/${vars.game.short_id}/game`)
+                vars.round = data.round
+
+                this.props.history.replace(`/game-rooms/${vars.game.shortId}/game`)
             }
         })
 
@@ -161,33 +136,42 @@ export class Lobby extends React.Component {
         playerIO.off('joinResAll')
         playerIO.off('setStateRes')
         playerIO.off('setStateResAll')
+        playerIO.off('disconnectingResAll')
         gameIO.off('newRoundRes')
         gameIO.off('newRoundResAll')
-        gameIO.off('infoRes')
+        gameIO.off('roundInfoRes')
         this.setState = () => {}
     }
     
     handleReadyState = state => { 
-        playerIO.emit('setState', { 
-            short_id: vars.game.short_id, 
-            player_id: vars.player._id, 
-            state 
-        })
-
-        this.state
-            .players
-            .find(player => player._id === vars.player._id)
-            .state = state
-        this.setState({ 
-            ...this.state,
-            ownState: state
-        })
+        if(!this.state.stateChangeClicked) {
+            this.setState({ ...this.state, stateChangeClicked: true })
+            playerIO.emit('setState', { 
+                shortId: vars.game.shortId, 
+                playerId: vars.player._id, 
+                state 
+            })
+        }
     }
 
     handleStart = () => {
         if(!this.state.startGameClicked) {
-            chatIO.emit('startGame', { short_id: vars.game.short_id })
-            this.setState({ ...this.state, startGameClicked: true })
+            if(vars.game.players.length < 3) {
+                this.setState({
+                    ...this.state,
+                    showModal: true,
+                    modalMessage: 'Min. 3 players needed'
+                })
+            } else if(vars.game.players.find(p => p.state !== 'READY')) {
+                this.setState({ 
+                    ...this.state, 
+                    showModal: true,
+                    modalMessage: 'Everyone is not ready yet'
+                })
+            } else {
+                this.setState({ ...this.state, startGameClicked: true })
+                gameIO.emit('newRound', { shortId: vars.game.shortId })
+            }
         }
     }
 
@@ -202,7 +186,11 @@ export class Lobby extends React.Component {
                 <Header/>
                 <Row 
                     className={ styles['row'] } 
-                    style={{ marginLeft: 20, justifyContent: 'left', color: Colors.PRIMARY }}
+                    style={{ 
+                        marginLeft: 20, 
+                        justifyContent: 'left',
+                        color: Colors.PRIMARY 
+                    }}
                 >
                     <Col>
                         <span style={{ 
@@ -221,7 +209,12 @@ export class Lobby extends React.Component {
                             <Card className={ styles['ready-card'] }
                                 title="Ready to play?"
                                 bordered={ true }
-                                style={{ width: 350, height: 550, paddingTop: 0, paddingBottom: 0 }}
+                                style={{ 
+                                    width: 350, 
+                                    height: 550, 
+                                    paddingTop: 0, 
+                                    paddingBottom: 0 
+                                }}
                                 headStyle={ jsxStyles.cardHeader }
                             >
                                 <div style={{ height: 400, overflow: 'auto' }}>
@@ -257,32 +250,43 @@ export class Lobby extends React.Component {
                                 </div>
                                 {
                                     vars.player.isHost 
-                                    ?   <Button
-                                            type="primary"
-                                            className={ styles['ready-button'] }
-                                            onClick={ this.handleStart }
-                                        >
-                                            START
-                                        </Button>
-                                    :   <Button
-                                            type="primary"
-                                            className={ styles['ready-button'] }
-                                            onClick={ () => this.handleReadyState(this.state.ownState === 'READY' ? 'NOT-READY' : 'READY') }
-                                        >
-                                            { this.state.ownState === 'READY' ? 'NOT-READY' : 'READY' }
-                                        </Button>
+                                        ?   <Button
+                                                type="primary"
+                                                className={ styles['ready-button'] }
+                                                onClick={ this.handleStart }
+                                                loading={ this.state.startGameClicked }
+                                            >
+                                                START
+                                            </Button>
+                                        :   <Button
+                                                type="primary"
+                                                className={ styles['ready-button'] }
+                                                onClick={ () => this.handleReadyState(
+                                                    this.state.ownState === 'READY' 
+                                                        ? 'NOT-READY' 
+                                                        : 'READY'
+                                                    ) 
+                                                }
+                                                loading={ this.state.stateChangeClicked }
+                                            >
+                                                { this.state.ownState === 'READY' ? 'NOT-READY' : 'READY' }
+                                            </Button>
                                 }
                             </Card>
                         </div>
                     </Col>
                     <Col>
-                        <Chat showInput={ true } chats={ vars.game.lobby.chats }/>
+                        <Chat showInput={ true } chats={ vars.game.lobbyChats }/>
                     </Col>
                 </Row>
                 <Modal 
                     title="Oops!" 
                     visible={ this.state.showModal }
-                    onCancel={ () => this.setState({ ...this.state, showModal: false, modalMessage: '' }) }
+                    onCancel={ () => this.setState({ 
+                        ...this.state, 
+                        showModal: false, 
+                        modalMessage: '' 
+                    }) }
                     footer={ null }
                 >
                     <h3 className={ styles['modal'] }>{ this.state.modalMessage }</h3>
