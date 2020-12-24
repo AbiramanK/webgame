@@ -3,6 +3,8 @@ import { Modal, Button, Input } from "antd";
 import "./Answer.css";
 import { Colors } from "../../Colors";
 
+import { vars } from '../../SocketIO'
+
 class Answer extends React.Component {
   constructor(props) {
     super(props);
@@ -58,6 +60,7 @@ class Answer extends React.Component {
         width={700}
         maskClosable={ false }
       >
+        { !vars.player.isImposter && this.returnHeader() }
         <h3 style={{ color: "#000000" }}>
           { this.props.from.question }
         </h3>
@@ -82,6 +85,14 @@ class Answer extends React.Component {
       </div>
     )
   }
+
+  returnHeader = () => (
+    <h3 style={{ color: Colors.PRIMARY }}>
+      <span style={{ fontWeight: 400, color: 'black' }}>
+        The location is:
+      </span> { this.props.location.name }
+    </h3>
+  )
 
   returnButton = () => {
     const containerStyle = {

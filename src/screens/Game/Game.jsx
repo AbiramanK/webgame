@@ -517,6 +517,7 @@ export class Game extends React.Component {
     returnUIAnswer = () => {
         return (
             <Answer 
+                location={ this.state.location }
                 from={ this.state.from }
                 handleAnswer={ this.handleAnswer } 
                 handleCancel={ this.handleCancel }

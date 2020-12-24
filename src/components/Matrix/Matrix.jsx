@@ -80,7 +80,7 @@ export class Matrix extends React.Component {
                 :   <Cell isImposter={ false }
                         name={ location.name }
                         image={ location.image }
-                        isJackpot={ location._id === vars.location }
+                        isJackpot={ location._id === vars.round.tiles.current }
                         key={ index }
                     />
             matrix.push(cell)
