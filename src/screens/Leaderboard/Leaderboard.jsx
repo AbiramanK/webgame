@@ -56,7 +56,6 @@ export class Leaderboard extends React.Component {
         gameIO.on('roundInfoRes', data => {
             console.log('Leaderboard_gameIO_infoRes', data)
 
-            this.setState({ ...this.state, startGameClicked: false })
             if(!data.error) {
                 vars.player.isImposter = data.isImposter
 

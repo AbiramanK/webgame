@@ -51,6 +51,7 @@ const App = () => {
           visible={ modal.show }
           onCancel={ () => setModal({ show: false, message: '' }) }
           footer={ null }
+          closable={ false }
       >
           <h3 style={{ textAlign: 'center' }}>
             { modal.message }
@@ -77,16 +78,16 @@ const useSocketInfo = (setModal) => {
     })
 
     playerIO.on('connect', () => {
-      console.log('CONNECT CONNECT')
-      setModal(modal => modal.show ? ({ show: false, message: 'Player connected' }) : modal)
+      console.log('PLAYERIO CONNECT')
+      setModal(modal => modal.show ? window.location.reload() : modal)
     })
     chatIO.on('connect', () => {
       console.log('CHATIO CONNECT')
-      setModal(modal => modal.show ? ({ show: false, message: 'Chat connected' }) : modal)
+      setModal(modal => modal.show ? window.location.reload() : modal)
     })
     gameIO.on('connect', () => {
       console.log('GAMEIO CONNECT')
-      setModal(modal => modal.show ? ({ show: false, message: 'Game connected' }) : modal)
+      setModal(modal => modal.show ? window.location.reload() : modal)
     })
 
     return () => {
