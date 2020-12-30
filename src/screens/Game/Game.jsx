@@ -36,7 +36,7 @@ export class Game extends React.Component {
             meetingCaller: vars.round.meeting && !voted ? vars.game.players.find(p => p._id === vars.round.meeting.by).name : '',
             timeout: false,
             isFinalGuessTime: false,
-            counter: new Date(vars.round.endingAt).valueOf() - Date.now().valueOf(), 
+            counter: Math.floor((new Date(vars.round.endingAt).valueOf() - Date.now().valueOf()) / 1000), 
             countdown: undefined,
             votingCompleted: false,
         }
@@ -287,7 +287,7 @@ export class Game extends React.Component {
             if(this.state.counter > 0) {
                 this.setState({ 
                     ...this.state, 
-                    counter: this.state.counter - 1000 
+                    counter: this.state.counter - 1
                 })
             } else {
                 clearInterval(countdown)
@@ -485,7 +485,7 @@ export class Game extends React.Component {
                 <h1>
                     { 
                         this.state.counter
-                            ? Math.trunc(this.state.counter / 60000).toString().padStart(2, '0')
+                            ? Math.floor(this.state.counter / 60).toString().padStart(2, '0')
                             : '00'
                     }
                 </h1>
@@ -495,7 +495,7 @@ export class Game extends React.Component {
                 <h1>
                     { 
                         this.state.counter
-                            ? Math.trunc(this.state.counter / 1000 % 60).toString().padStart(2, '0')
+                            ? Math.floor(this.state.counter % 60).toString().padStart(2, '0')
                             : '00'
                     }
                 </h1>
