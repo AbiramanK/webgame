@@ -26,3 +26,16 @@
 .submit-button:focus {
     background-color: #5D22A1;
 }
+.list {
+    list-style: none;
+    padding: 0 30px;
+}
+
+.list li::before {
+    content: "\2022";  
+    color: #5D22A1; 
+    font-weight: bold; 
+    display: inline-block; 
+    width: 1em; 
+    margin-left: -1em; 
+}
