@@ -101,6 +101,29 @@ class Voting extends React.Component {
     this.playAudio()
   }
 
+  componentDidUpdate = (prevProps) => {
+    if(this.props.show && this.props.show !== prevProps.show) {
+      let votedTo 
+      if(vars.round.meeting) {
+        const vote = vars.round.meeting.votes.find(v => v.from === vars.player._id)
+        if(vote) {
+          votedTo = vote.to
+        }
+      }
+        
+      this.setState({ 
+        voted: votedTo ? true : false,
+        data: vars.game.players.map(p => ({
+            playerId: p._id,
+            name: p.name,
+            isVoted: p._id === votedTo ? true : false,
+            score: 0
+        })),
+        timer: undefined,
+      })
+    }
+  }
+
   componentWillUnmount = () => {
     gameIO.off('voteRes')
     gameIO.off('voteResAll')
@@ -182,7 +205,7 @@ class Voting extends React.Component {
         bodyStyle={{ padding: "0px", margin: "0px"}}
         className={ "Vote-pannel-model-wraper" }
         title=""
-        visible={ true }
+        visible={ this.props.show }
         onOk={ this.handleOk }
         onCancel={ this.props.handleCancel }
         closable={ this.state.voted }

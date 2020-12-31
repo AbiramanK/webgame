@@ -405,8 +405,7 @@ export class Game extends React.Component {
                     this.returnUIAnswer()
                 }
                 {
-                    this.state.showModalVoting && !vars.round.endedAt &&
-                    this.returnUIVoting()
+                    this.returnUIVoting(this.state.showModalVoting && !vars.round.endedAt)
                 }
             </>
         )
@@ -525,9 +524,10 @@ export class Game extends React.Component {
         )
     }
 
-    returnUIVoting = () => {
+    returnUIVoting = (show) => {
         return (
             <Voting 
+                show={ show }
                 caller={ this.state.meetingCaller } 
                 handleCancel={ () => this.setState({ 
                     ...this.state, 
