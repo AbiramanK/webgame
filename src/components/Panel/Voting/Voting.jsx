@@ -143,7 +143,7 @@ class Voting extends React.Component {
     this.setState({ 
       ...this.state,
       data, 
-      voted: true
+      voted: true,
     })
     gameIO.emit('vote', {
       shortId: vars.game.shortId,
@@ -157,6 +157,10 @@ class Voting extends React.Component {
   }
 
   handleCancel = () => {
+    this.setState({ 
+      ...this.state,
+      voted: true,
+    })
     gameIO.emit('vote', {
       shortId: vars.game.shortId,
       from: vars.player._id,
@@ -208,7 +212,7 @@ class Voting extends React.Component {
         visible={ this.props.show }
         onOk={ this.handleOk }
         onCancel={ this.props.handleCancel }
-        closable={ this.state.voted }
+        closable={ this.state.voted && !this.state.timer }
         footer={ null }
         head={ null }
         width={ 450 }
