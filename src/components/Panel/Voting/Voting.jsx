@@ -212,7 +212,7 @@ class Voting extends React.Component {
         visible={ this.props.show }
         onOk={ this.handleOk }
         onCancel={ this.props.handleCancel }
-        closable={ this.state.voted && !this.state.timer }
+        closable={ false }
         footer={ null }
         head={ null }
         width={ 450 }
