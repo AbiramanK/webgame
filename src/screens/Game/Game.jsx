@@ -458,9 +458,10 @@ export class Game extends React.Component {
             <button 
                 className={ styles['userActionBtn'] }
                 onClick={ this.handleMeetingCall }
+                disabled={ this.state.showModalVoting }
             >
                 Call a meeting!
-            </button>
+            </button> 
             {
                 vars.player.isImposter &&
                 <button 

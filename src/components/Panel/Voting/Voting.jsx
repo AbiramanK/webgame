@@ -104,8 +104,6 @@ class Voting extends React.Component {
     })
 
     this.playAudio()
-
-    console.log(this.state)
   }
 
   componentDidUpdate = (prevProps) => {

@@ -19,7 +19,7 @@ const App = () => {
           style={{ display: 'none' }} 
           preload="auto" 
           src={ popup }
-          muted={ true }
+          muted='muted'
         /> 
       <Switch>
 

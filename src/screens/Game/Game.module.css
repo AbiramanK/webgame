@@ -47,6 +47,9 @@
 .userActionBtn:hover {
     background-color: #8c44d3;
 }
+.userActionBtn:disabled {
+    filter: contrast(0.1);
+}
 
 .userActionBtn + .userActionBtn {
     margin-top: 10px;
