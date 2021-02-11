@@ -8,11 +8,17 @@ class Voting extends React.Component {
   constructor(props) {
     super(props)
 
+    const meeting = vars.round.meeting
+
     let votedTo 
-    if(vars.round.meeting) {
-      const vote = vars.round.meeting.votes.find(v => v.from === vars.player._id)
-      if(vote) {
-        votedTo = vote.to
+    if(meeting) {
+      if(meeting.candidates.find(c => c === vars.player._id) === undefined) {
+        votedTo = true
+      } else {
+        const vote = meeting.votes.find(v => v.from === vars.player._id)
+        if(vote) {
+          votedTo = vote.to
+        }
       }
     }
       
@@ -29,7 +35,6 @@ class Voting extends React.Component {
   }
  
   componentDidMount = () => {
-
     gameIO.on('voteRes', data => {
       console.log('Voting_gameIO_voteRes', data)
 
@@ -99,6 +104,8 @@ class Voting extends React.Component {
     })
 
     this.playAudio()
+
+    console.log(this.state)
   }
 
   componentDidUpdate = (prevProps) => {

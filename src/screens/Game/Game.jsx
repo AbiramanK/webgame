@@ -16,8 +16,7 @@ export class Game extends React.Component {
                 .tiles
                 .locations
                 .find(l => l._id === vars.round.tiles.current)
-
-        
+                
         const voted = vars.round.meeting 
             && !vars.round.meeting.candidates.find(c => c === vars.player._id)
             ? true 
@@ -26,7 +25,7 @@ export class Game extends React.Component {
         this.state = {
             showModalQuestion: false,
             showModalAnswer: false,
-            showModalVoting: vars.round.meeting && !voted,
+            showModalVoting: vars.round.meeting !== undefined,
             showModal: true,
             location,
             from: {
